@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
 	glfwSetScrollCallback(window,scroll_callback);
 
 	// Disable Cursor
-	glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_DISABLED);
 
 	// Initialise GLEW - setup OpenGL pointers
 	glewExperimental = GL_TRUE;

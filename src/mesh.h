@@ -46,7 +46,7 @@ public:
 
 	/* Functions */
 	// Constructor
-	Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> texures) {
+	Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures) {
 		this->vertices = vertices;
 		this->indices = indices;
 		this->textures = textures;
@@ -60,7 +60,7 @@ public:
 		// Bind structures
 		GLuint diffuseNr = 1;
 		GLuint specularNr = 1;
-		for(GLuint i = 0; i<this->textures.size(); i++) {
+		for(GLuint i = 0; i< this->textures.size(); i++) {
 			glActiveTexture(GL_TEXTURE0 + i); // Switch to the correct texture unit
 			// Get the texture number
 			std::stringstream ss;
