@@ -87,7 +87,7 @@ Shader Program - Linked version of multiple shaders
 GLuint shaderProgram;
 shaderProram = glCreateProgram();
 // Attach Shaders
-glAttachSahder(shaderProgram, vertexShader);
+glAttachShader(shaderProgram, vertexShader);
 glAttachShader(shaderProgram, fragmentShader);
 // Link Program
 glLinkProgram(shaderProgram);

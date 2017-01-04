@@ -87,11 +87,22 @@ int main(int argc, char* argv[]) {
 	glEnable(GL_DEPTH_TEST);
 
 	// Setup and compile shaders
-	Shader shader("../Shaders/model_loading.vs","../Shaders/model_loading.frag");
+	Shader shader("../Shaders/basic_lighting.vs","../Shaders/basic_lighting.frag");
+	Shader lampShader("../Shaders/lamp.vs","../Shaders/lamp.frag");
+
 
 	// Load Models
 	Model ourModel("../Models/wheel/wheelTest.obj");
 	Model ground("../Models/wheel/ground.obj");
+	Model lamp("../Models/wheel/lampCube.obj");
+
+	// Light Attributes
+	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
+	// Set Texture Units
+	shader.Use();
+	glUniform1i(glGetUniformLocation(shader.Program,"material.diffuse"),0);
+	glUniform1i(glGetUniformLocation(shader.Program,"material.specular"),1);
 
 	// Game Loop
 	while(!glfwWindowShouldClose(window)) {
@@ -110,7 +121,25 @@ int main(int argc, char* argv[]) {
 
 		shader.Use();
 
-		// Transformation Matricies
+        GLint lightPosLoc             = glGetUniformLocation(shader.Program, "light.position");
+        GLint lightSpotdirLoc         = glGetUniformLocation(shader.Program, "light.direction");
+        GLint viewPosLoc              = glGetUniformLocation(shader.Program, "viewPos");
+        glUniform3f(lightPosLoc,             camera.Position.x, camera.Position.y, camera.Position.z);
+        glUniform3f(lightSpotdirLoc,         camera.Front.x, camera.Front.y, camera.Front.z);
+        glUniform3f(viewPosLoc,              camera.Position.x, camera.Position.y, camera.Position.z);
+        // Set lights properties
+        glUniform3f(glGetUniformLocation(shader.Program, "light.ambient"),   0.5f, 0.5f, 0.5f);
+        // We set the diffuse intensity a bit higher; note that the right lighting conditions differ with each lighting method and environment.
+        // Each environment and lighting type requires some tweaking of these variables to get the best out of your environment.
+        glUniform3f(glGetUniformLocation(shader.Program, "light.diffuse"),   0.8f, 0.8f, 0.8f);
+        glUniform3f(glGetUniformLocation(shader.Program, "light.specular"),  1.0f, 1.0f, 1.0f);
+        glUniform1f(glGetUniformLocation(shader.Program, "light.constant"),  1.0f);
+        glUniform1f(glGetUniformLocation(shader.Program, "light.linear"),    0.09);
+        glUniform1f(glGetUniformLocation(shader.Program, "light.quadratic"), 0.032);
+        // Set material properties
+        glUniform1f(glGetUniformLocation(shader.Program, "material.shininess"), 2.0f);
+
+		// Transformation Matrices
 		glm::mat4 projection = glm::perspective(camera.Zoom, (float)screenWidth/(float)screenHeight,0.1f,100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
