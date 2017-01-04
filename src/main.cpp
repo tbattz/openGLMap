@@ -91,6 +91,7 @@ int main(int argc, char* argv[]) {
 
 	// Load Models
 	Model ourModel("../Models/wheel/wheelTest.obj");
+	Model ground("../Models/wheel/ground.obj");
 
 	// Game Loop
 	while(!glfwWindowShouldClose(window)) {
@@ -115,9 +116,16 @@ int main(int argc, char* argv[]) {
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
 
+		// Draw ground
+		glm::mat4 model2;
+		model2 = glm::translate(model2, glm::vec3(0.0f,-1.75f, 0.0f)); // Translate down
+		model2 = glm::scale(model2, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program,"model"),1,GL_FALSE,glm::value_ptr(model2));
+		ground.Draw(shader);
+
 		// Draw Model
 		glm::mat4 model;
-		model = glm::translate(model, glm::vec3(xval,-1.75f, 0.0f)); // Translate down
+		model = glm::translate(model, glm::vec3(0.0f,-1.75f, xval)); // Translate down
 		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program,"model"),1,GL_FALSE,glm::value_ptr(model));
 		ourModel.Draw(shader);

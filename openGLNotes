@@ -1,0 +1,165 @@
+- Use VBO to transfer data to GPU
+- Use VAO to set attributes and bind to
+- Use EBO to draw using indexes
+
+
+
+======================
+		mesh.h
+======================
+
+VBO - Manage memory to store a large number of verticies on the GPUs memory.
+VAO - Stores buffer and vertex array information. COnfigure vertex attribute pointers once and just bind the VAO when needed.
+	- Stores 
+		- Calls to glEnableVertexAttribArray
+		- Vertex attribute configurations vai glVertexAttribPointer
+		- Vertex buffer objects with associated vertex attributes 
+EBO - Is a buffer, stores indices that OpenGL uses to decide what vertices to draw (cuts down on storing the same vertex twice)
+
+
+
+Vertices
+1a. Generate Vertex Buffer Object - stores vertex data for graphics card to use
+	GLuint VBO;
+	glGenBuffers(1,&VBO);
+1b. Generate Vertex Array Object
+	GLuint VAO;
+	glGenVertexArrays(1,&VAO);
+1c. Generate Element Buffer Object - Uses indices to decide what to draw
+	GLuint EBO;
+	glGenBuffers(1,&EBO);
+
+2. Bind Vertex Array
+	glBindVertexArray(VAO);
+3. Copy vertex array into buffer for OpenGL to use
+	glBindBuffer(GL_ARRAY_BUFFER,VBO);
+	// Copy data into buffer memory
+	glBufferData(GL_ARRAY_BUFFER.sizeof(vertices),vertices,GL_STATIC_DRAW);  <--- Change last arg for frequency of drawing
+4. Copy Index array in element buffer for OpenGL to use
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indices),indices,GL_STATIC_DRAW);
+
+5a. Set Vertex Attribute Pointers
+	glVertexAttribPointer(layout location,size,GL_FLOAT,GL_FALSE,stride,offset);
+5b. Enable vertex attributes
+	glEnableVertexAttribArray(location);
+6. Unbind the VAO
+glBindVertexArray(0);
+
+======================
+	   Game Loop
+======================
+7. Draw the object
+glUseProgram(shaderProgram);
+glBindVertexArray(VAO);
+drawingFunction();  <-- For triangles glDrawArrays(GL_TRIANGLES,0,3);, for EBO, use glDrawElements(GL_TRIANGLES,sizeof(vertexData),GL_UNSIGNED_INT,0);
+glBindVertexArray(0);
+
+
+
+======================
+	 	Shaders
+======================
+- Define Ins and outs to pass from one to another
+- Uniforms - Can pass data from CPU to shaders on the GPU
+		   - Are Global, can be accessed by any shader at any time
+		   - Will keep their value until they are updated
+		   e.g. uniform vec4 ourColor; Set the variable in the OpenGL code 
+		   // To get a uniforms location
+		   GLint uniformLocation = glGetUniformLocation(shaderProgram, "uniformName");
+		   // Set uniform value using glUniform4f - change the 4f to whatever is suitable
+		   glUseProgram(shaderProgram);
+		   glUniform4f(uniformLocation, 0.0f, 0.0f, 0.0f, 0.0f); <- size 4 floats
+
+Vertex Shader - Calculates Positions
+1. Input vertex attributes: layout (location = _) in vecX e.t.c.
+2. Outputs: gl_position (size 4)
+
+Maximum 16 4-component vertex attributes (inputs)
+
+
+Fragment Shaders - Calculates Colours
+1. Define ins
+2. out vec4 color
+
+
+Shader Program - Linked version of multiple shaders
+GLuint shaderProgram;
+shaderProram = glCreateProgram();
+// Attach Shaders
+glAttachSahder(shaderProgram, vertexShader);
+glAttachShader(shaderProgram, fragmentShader);
+// Link Program
+glLinkProgram(shaderProgram);
+
+// Delete Unused Shaders once linked
+glDeleteShader(vertexShader);
+glDeleteShader(fragmentShader);
+
+======================
+	   Textures
+======================
+// Load Image with SOIL
+int width, height;
+unsigned char* image = SOIL_load_image(filename,&width,&hieght,0,SOIL_LOAD_RGB);
+// Create Texture
+GLuint texture;
+glGenTexxtures(1,&texture);
+// Bind texture
+glBindTexture(GL_TEXTURE_2D,texture);
+// Generate Texture from image data
+glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,image);
+glGenerateMipmap(GL_TEXTURE_2D);
+// Free image memory and unbind texture object
+SOIL_free_image_data(image);
+glBindTexture(GL_TEXTURE_2D,0);
+
+Texture Units - Allows for multiple textures on a single object. Can bind to multiple textures at once as long as we active the corresponding texture unit first.
+// Activate Texture Unit
+glActiveTexture(GL_TEXTURE0);
+glBindTexture(GL_TEXTURE_2D,texture1);
+// Set texture unit of the uniform samplers
+glUniform1i(glGetUniformLocation(ourShader.Program,"ourTexture1"),0);
+
+// Set to next texture
+glActiveTexture(GL_TEXTURE1);
+glBindTexture(GL_TEXTURE_2D,texture2);
+glUniform1i(glGetUniformLocation(ourShader.Program,"ourTexture2"),1);
+
+// Bind array and draw
+glBindVertexArray(VAO);
+glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
+glBindVertexArray(0);
+
+======================
+	    Camera
+======================
+OpenGL expects all vertices to be in normalized device coordinates (-1.0 to 1.0), outside of this they will not be visible. The transformation to NDC should be done in the vertex shader.
+5 Coordinate Systems
+1. Local Space - Coordinates of vertices relative to the objects origin
+2. World Space - Coordinates in respect to a global origin
+3. View Space  - Coordinates as seen from the camera's view
+4. Clip Space  - Processed to -1.0 to 1.0, determines which verticies end up on the screen
+5. Screen Space - Viewport transformation, transforms from -1.0 to 1.0 to the coordinate range defined by glViewport. These coordinates are send to the rasterizer to turn them into fragments. 
+
+// Local to world Space
+glm::mat4 model;
+model = glm::translate(model,glm::vec3(xf,yf,zf));
+model = glm::scale(model::vec3(0.2f,0.2f,0.2f));
+glUniformMatrix4fv(glGetUniformLocation(shader.Program,"model"),1,GL_FALSE,glm::value_ptr(model));
+
+// World space (orthogonal) to World Space (perspective)
+glm::mat4 projection = g;m::perspective(camera.Zoom, (float)screenWidth/(float)screenHeight,0.1f,100.0f);
+glUniformMatrix4fv(glGetUniformLocation(shader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
+
+// World space (perspective) to view space 
+glm::mat4 view = glm::lookAt(this=>Position, this->Position + this->Front, this->Up);
+glUniformMatrix4fv(glGetUniformLocation(shader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
+
+// In Vertex Shader
+gl_position = projection * view * model * vec4(position,1.0f);
+
+// Draw model using mesh.h
+
+Before Game Loop - To do depth testing
+glEnable(GL_DEPTH_TEST);

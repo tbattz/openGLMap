@@ -84,6 +84,7 @@ public:
 		// Draw mesh
 		glBindVertexArray(this->VAO);
 		glDrawElements(GL_TRIANGLES,this->indices.size(),GL_UNSIGNED_INT,0);
+		// Unbind VAO
 		glBindVertexArray(0);
 
 		// Set back to defaults
@@ -112,6 +113,7 @@ private:
 		// Structs have sequential memory, so can just pass pointers to the struct
 		glBufferData(GL_ARRAY_BUFFER,this->vertices.size()*sizeof(Vertex),&this->vertices[0],GL_STATIC_DRAW);
 
+		// Put data into Element Buffer Object
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,this->EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER,this->indices.size()*sizeof(GLuint),&this->indices[0],GL_STATIC_DRAW);
 

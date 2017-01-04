@@ -179,11 +179,12 @@ GLint TextureFromFile(const char* path, string directory) {
 	// Generate texture ID and load texture data
 	string filename = string(path);
 	filename = directory + '/' + filename;
+	// Create Texture
 	GLuint textureID;
 	glGenTextures(1,&textureID);
 	int width, height;
 	unsigned char* image = SOIL_load_image(filename.c_str(),&width,&height,0,SOIL_LOAD_RGB);
-	// Assign texture to ID
+	// Bind texture and load image data
 	glBindTexture(GL_TEXTURE_2D,textureID);
 	glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,image);
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -193,6 +194,8 @@ GLint TextureFromFile(const char* path, string directory) {
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+
+	// Unbind texture object and free image memory
 	glBindTexture(GL_TEXTURE_2D,0);
 	SOIL_free_image_data(image);
 
