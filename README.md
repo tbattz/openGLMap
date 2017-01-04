@@ -94,3 +94,5 @@ If you just want to compile the source code without making changes, then running
 
 * This project needs to be compiled with c++11. Project >> Properties >> C/C++ Build >> Settings >> Tool Settings >> GCC C++ Compiler >> Miscellaneous. Under the Other flags box, add -std=c++11. Eclipse will build the project but may still show errors. To fix this, go to Project >> Properties >> C/C++ General >> Preprocessor Include Paths, Macros etc. >> Providers. Locate CDT GCC Built-in Compiler Settings. Uncheck the "Use global provider shader between project" box, and append -std=c++0x to the "Command to get compiler specs:" entry box. Move this entry to the top of the list using Move Up. Apply and click ok. Then re-resolve the includes using Project >> C/C++ Index >> Re-resolve Unresolved Includes.
 
+# Models
+Rudimentary models are stored [here](https://drive.google.com/drive/folders/0B8WtiKHIU0VNMzFjU2dlU2c1SVE?usp=sharing). They should be placed in a Models folder at the top directory, parallel to src and Debug.
