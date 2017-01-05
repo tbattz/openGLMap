@@ -55,6 +55,24 @@ A rudimentary vehicle simulation using openGL.
 	sudo apt-get install libsoil-dev
 	```
 
+* FreeType - Font Rendering Library
+	* Download and extract from https://www.freetype.org/index.html
+	* Naigate to the root directory and run
+	```
+	./configure
+	make -j4
+	sudo make install
+	```
+	* Copy include files to /usr/local/include
+	```
+	sudo cp -r include/* /usr/local/include 
+	```
+	* Fix up folder structure
+	```
+	sudo mv /usr/local/include/freetype2/freetype /usr/local/include
+	sudo rm -r /usr/local/include/freetype2
+	```
+
 # Compiling
 The provided makefile should allow the program to be compiled and linked, given that the dependencies are met. Navigate to the Debug or Release directory and enter the following commands.
 ```
@@ -89,6 +107,7 @@ If you just want to compile the source code without making changes, then running
 	* GLEW
 	* Xi
 	* SOIL
+	* freetype
 
 * Add the path to the header only GLM library to the GCC C++ Compiler Includes. Project >> Properties >> C/C++ Build >> Settings >> Tool Settings >> GCC C++ Compiler >> Includes. Under include paths, add /usr/local/include
 

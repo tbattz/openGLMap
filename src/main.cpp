@@ -9,6 +9,8 @@
 
 // Standard Includes
 #include <string>
+#include <unistd.h>
+#include <memory>
 
 // GLEW (OpenGL Extension Wrangler Library)
 #include <GL/glew.h>
@@ -20,14 +22,19 @@
 #include "../src/shader.h"
 #include "../src/camera.h"
 #include "../src/model.h"
+#include "../src/fonts.h"
 
 // GLM Mathematics
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// Other Libraries
+// SOIL Image loading library
 #include <SOIL.h>
+
+// Free Type Library
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 // Screen Properties
 GLuint screenWidth = 1920, screenHeight = 1080;
@@ -51,6 +58,17 @@ void mouse_callback(GLFWwindow* window, double xoffset, double yoffset);
 void do_movement();
 
 int main(int argc, char* argv[]) {
+	// Parse Command Line Arguments
+	bool wireFrameOn = false;
+	bool fpsOn = false;
+	int opt;
+	while((opt = getopt(argc, argv, "wf")) != -1) {
+		switch(opt) {
+		case 'w': wireFrameOn = true; break;
+		case 'f': fpsOn = true; break;
+		}
+	}
+
 	// Init GLFW
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
@@ -77,10 +95,8 @@ int main(int argc, char* argv[]) {
 	glViewport(0,0,screenWidth,screenHeight); // Origin is bottom left
 
 	// Wireframe command line argument
-	if(argc == 2) {
-		if(std::string(argv[1]) == "w") {
-			glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-		}
+	if(wireFrameOn) {
+		glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 	}
 
 	// Test for objects in front of each other
@@ -99,10 +115,22 @@ int main(int argc, char* argv[]) {
 	// Light Attributes
 	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
+	// Load Font
+	GLFont* arialFontPt;
+	Shader textShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight);
+	Shader* textShaderPt = &textShader;
+	if(fpsOn) {
+		arialFontPt = new GLFont("/usr/share/fonts/truetype/msttcorefonts/Arial.ttf");
+		textShaderPt = new Shader(setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight));
+	}
+
 	// Set Texture Units
 	shader.Use();
 	glUniform1i(glGetUniformLocation(shader.Program,"material.diffuse"),0);
 	glUniform1i(glGetUniformLocation(shader.Program,"material.specular"),1);
+
+
+
 
 	// Game Loop
 	while(!glfwWindowShouldClose(window)) {
@@ -116,7 +144,7 @@ int main(int argc, char* argv[]) {
 		do_movement();
 
 		// Clear the colour buffer
-		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+		glClearColor(0.64f, 0.64f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shader.Use();
@@ -159,11 +187,16 @@ int main(int argc, char* argv[]) {
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program,"model"),1,GL_FALSE,glm::value_ptr(model));
 		ourModel.Draw(shader);
 
+		// Print FPS
+		if(fpsOn) {
+			std::stringstream ss;
+			ss << int(1.0f/deltaTime) << " fps";
+			arialFontPt->RenderText(textShaderPt,ss.str(),screenWidth-150.0f,screenHeight-50.0f,1.0f,glm::vec3(0.0f, 1.0f, 0.0f));
+			//std::cout << (1.0f/deltaTime) << "fps" << "\r";
+		}
+
 		// Swap buffers
 		glfwSwapBuffers(window);
-
-		// Print FPS
-		std::cout << (1.0f/deltaTime) << "fps" << "\r";
 	}
 
 	glfwTerminate();
