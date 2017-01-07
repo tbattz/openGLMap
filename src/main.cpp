@@ -23,6 +23,7 @@
 #include "../src/camera.h"
 #include "../src/model.h"
 #include "../src/fonts.h"
+#include "../src/light.h"
 
 // GLM Mathematics
 #include <glm/glm.hpp>
@@ -35,6 +36,8 @@
 // Free Type Library
 #include <ft2build.h>
 #include FT_FREETYPE_H
+
+using std::vector;
 
 // Screen Properties
 GLuint screenWidth = 1920, screenHeight = 1080;
@@ -103,17 +106,23 @@ int main(int argc, char* argv[]) {
 	glEnable(GL_DEPTH_TEST);
 
 	// Setup and compile shaders
-	Shader shader("../Shaders/basic_lighting.vs","../Shaders/basic_lighting.frag");
-	Shader lampShader("../Shaders/lamp.vs","../Shaders/lamp.frag");
-
+	Shader lightingShader("../Shaders/multiple_lighting.vs","../Shaders/multiple_lighting.frag");
 
 	// Load Models
 	Model ourModel("../Models/wheel/wheelTest.obj");
 	Model ground("../Models/wheel/ground.obj");
-	Model lamp("../Models/wheel/lampCube.obj");
 
-	// Light Attributes
-	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+	// Load Lights
+	DirectionalLight myDirLight({-0.2f,-1.0f,-0.3f}, {0.5f,0.5f,0.5f}, {0.4f,0.4f,0.4f}, {0.5f,0.5f,0.5f}, &lightingShader,0);
+	//DirectionalLight myDirLight2({0.2f,-1.0f,0.3f}, {0.5f,0.5f,0.5f}, {0.4f,0.4f,0.4f}, {0.5f,0.5f,0.5f}, &lightingShader,1);
+	//PointLight myPointLight({0.5f,1.0f,2.0f}, {0.5f,0.5f,0.5f}, {0.4f,0.4f,0.4f}, {0.5f,0.5f,0.5f}, 1.0f, 0.09f, 0.32f, &lightingShader,0);
+	//PointLight myPointLight2({-0.5f,1.0f,-2.0f}, {0.5f,0.5f,0.5f}, {0.4f,0.4f,0.4f}, {0.5f,0.5f,0.5f}, 1.0f, 0.09f, 0.32f, &lightingShader,1);
+	//SpotLight spotLight({0.5f,1.0f,2.0f}, {-0.5f,-1.0f,-2.0f}, {1.0f,1.0f,1.0f}, {0.4f,0.4f,0.4f}, {0.5f,0.5f,0.5f}, 1.0f, 0.09f, 0.32f, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)), &lightingShader, 0);
+
+	// Set number of lights
+	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nDirLight"),1);
+	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nPointLight"),0);
+	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nSpotLight"),0);
 
 	// Load Font
 	GLFont* arialFontPt;
@@ -123,14 +132,6 @@ int main(int argc, char* argv[]) {
 		arialFontPt = new GLFont("/usr/share/fonts/truetype/msttcorefonts/Arial.ttf");
 		textShaderPt = new Shader(setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight));
 	}
-
-	// Set Texture Units
-	shader.Use();
-	glUniform1i(glGetUniformLocation(shader.Program,"material.diffuse"),0);
-	glUniform1i(glGetUniformLocation(shader.Program,"material.specular"),1);
-
-
-
 
 	// Game Loop
 	while(!glfwWindowShouldClose(window)) {
@@ -147,45 +148,31 @@ int main(int argc, char* argv[]) {
 		glClearColor(0.64f, 0.64f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		shader.Use();
+		lightingShader.Use();
 
-        GLint lightPosLoc             = glGetUniformLocation(shader.Program, "light.position");
-        GLint lightSpotdirLoc         = glGetUniformLocation(shader.Program, "light.direction");
-        GLint viewPosLoc              = glGetUniformLocation(shader.Program, "viewPos");
-        glUniform3f(lightPosLoc,             camera.Position.x, camera.Position.y, camera.Position.z);
-        glUniform3f(lightSpotdirLoc,         camera.Front.x, camera.Front.y, camera.Front.z);
+		// Update View Position Uniform
+		GLint viewPosLoc              = glGetUniformLocation(lightingShader.Program, "viewPos");
         glUniform3f(viewPosLoc,              camera.Position.x, camera.Position.y, camera.Position.z);
-        // Set lights properties
-        glUniform3f(glGetUniformLocation(shader.Program, "light.ambient"),   0.5f, 0.5f, 0.5f);
-        // We set the diffuse intensity a bit higher; note that the right lighting conditions differ with each lighting method and environment.
-        // Each environment and lighting type requires some tweaking of these variables to get the best out of your environment.
-        glUniform3f(glGetUniformLocation(shader.Program, "light.diffuse"),   0.8f, 0.8f, 0.8f);
-        glUniform3f(glGetUniformLocation(shader.Program, "light.specular"),  1.0f, 1.0f, 1.0f);
-        glUniform1f(glGetUniformLocation(shader.Program, "light.constant"),  1.0f);
-        glUniform1f(glGetUniformLocation(shader.Program, "light.linear"),    0.09);
-        glUniform1f(glGetUniformLocation(shader.Program, "light.quadratic"), 0.032);
-        // Set material properties
-        glUniform1f(glGetUniformLocation(shader.Program, "material.shininess"), 2.0f);
 
 		// Transformation Matrices
 		glm::mat4 projection = glm::perspective(camera.Zoom, (float)screenWidth/(float)screenHeight,0.1f,100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
 
 		// Draw ground
 		glm::mat4 model2;
-		model2 = glm::translate(model2, glm::vec3(0.0f,-1.75f, 0.0f)); // Translate down
-		model2 = glm::scale(model2, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program,"model"),1,GL_FALSE,glm::value_ptr(model2));
-		ground.Draw(shader);
+		//model2 = glm::translate(model2, glm::vec3(0.0f,-1.75f, 0.0f)); // Translate down
+		//model2 = glm::scale(model2, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
+		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"model"),1,GL_FALSE,glm::value_ptr(model2));
+		ground.Draw(lightingShader);
 
 		// Draw Model
 		glm::mat4 model;
-		model = glm::translate(model, glm::vec3(0.0f,-1.75f, xval)); // Translate down
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program,"model"),1,GL_FALSE,glm::value_ptr(model));
-		ourModel.Draw(shader);
+		//model = glm::translate(model, glm::vec3(0.0f,-1.75f, xval)); // Translate down
+		//model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
+		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"model"),1,GL_FALSE,glm::value_ptr(model));
+		ourModel.Draw(lightingShader);
 
 		// Print FPS
 		if(fpsOn) {
