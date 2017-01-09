@@ -82,17 +82,43 @@ If this is not successful, then you will need to do it manually, as below.
 	```
 
 # Compiling
-Currently you will need to generate a Makefile with Eclipse. The makefile should allow the program to be compiled and linked, given that the dependencies are met. Navigate to the Debug or Release directory and enter the following commands.
+A CMakeLists.txt file is included for compiling with Cmake. Currently this is only setup for Ubuntu based systems, but is planned to be extended in the future. Navigate to the build directory and remove any old CMakeFiles
 ```
-make clean && make
+cd build
+rm -r CMakeFiles/
 ```
-The program can then be run with
+Run cmake to generate a makefile.
+```
+cmake ..
+```
+Compile the program.
+```
+make
+```
+
+To generate an Eclipse project, from the root directory,
+```
+cd build
+rm -r CMakeFiles/
+cmake -G Eclipse\ CDT4\ -\ Unix\ Makefiles  ..
+```
+Then import the project into Eclipse using File >> Import >> General >> Existing Projects into Workspace. Click next and set the root directory to <workspace>/openGLRace/build. Click Finish. The project can now be built with Eclipse using the 'all' Build Target. 
+
+# Models
+Rudimentary models are stored [here](https://drive.google.com/drive/folders/0B8WtiKHIU0VNV3l5aDEzdHhkV3c?usp=sharing). They should be placed in a Models folder at the top directory, parallel to src and Debug.
+
+# Run Options
+* The -w argument draws using wireframe mode
+* The -f argument displays the current fps
+
+To run, navigate to the Debug directory and enter
 ```
 ./openGLRace
 ```
+Move around in the world using the wasd keys.
 
 # Making Changes with Eclipse
-While the makefile provided can be used to compile the program using the command line, it will not adjust when mew files are added, unless the makefile is regenerated with Eclipse. This requires a little bit of setup, using the standard CDF management build system.
+These instructions are retained to give a manual method for building the project with Eclipse, in the case where cmake fails due to configuration issues.
 
 If you just want to compile the source code without making changes, then running make from the command line, while in the Debug directory will give you your desired result.
 
@@ -120,16 +146,3 @@ If you just want to compile the source code without making changes, then running
 * Add the path to the header only GLM library to the GCC C++ Compiler Includes. Project >> Properties >> C/C++ Build >> Settings >> Tool Settings >> GCC C++ Compiler >> Includes. Under include paths, add /usr/local/include
 
 * This project needs to be compiled with c++11. Project >> Properties >> C/C++ Build >> Settings >> Tool Settings >> GCC C++ Compiler >> Miscellaneous. Under the Other flags box, add -std=c++11. Eclipse will build the project but may still show errors. To fix this, go to Project >> Properties >> C/C++ General >> Preprocessor Include Paths, Macros etc. >> Providers. Locate CDT GCC Built-in Compiler Settings. Uncheck the "Use global provider shader between project" box, and append -std=c++0x to the "Command to get compiler specs:" entry box. Move this entry to the top of the list using Move Up. Apply and click ok. Then re-resolve the includes using Project >> C/C++ Index >> Re-resolve Unresolved Includes.
-
-# Models
-Rudimentary models are stored [here](https://drive.google.com/drive/folders/0B8WtiKHIU0VNV3l5aDEzdHhkV3c?usp=sharing). They should be placed in a Models folder at the top directory, parallel to src and Debug.
-
-# Run Options
-* The -w argument draws using wireframe mode
-* The -f argument displays the current fps
-
-To run, navigate to the Debug directory and enter
-```
-./openGLRace
-```
-Move around in the world using the wasd keys.
