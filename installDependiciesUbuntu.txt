@@ -77,8 +77,5 @@ if [ ! -f ~/Downloads/freetype.tar.bz2 ]; then
 fi
 tar xvjf ~/Downloads/freetype.tar.bz2
 cd ~/Downloads/freetype-2.4.0
-./configure
-make -j$NPROC
-sudo make install
 # Copy include files
 sudo cp -r include/* /usr/local/include

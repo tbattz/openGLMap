@@ -40,7 +40,7 @@ set(LIBS ${GLFW3_LIBRARY} X11 Xrandr Xinerama Xi Xxf86vm Xcursor GL dl pthread G
 link_directories(/usr/local/lib /usr/lib /usr/local)
 
 # Define executables
-MESSAGE( STATUS "variable is: " ${SOURCES} )
+MESSAGE( STATUS "Sources: " ${SOURCES} )
 add_executable(openGLRace ${SOURCES})
 target_link_libraries(openGLRace ${LIBS})
 

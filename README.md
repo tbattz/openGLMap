@@ -71,15 +71,11 @@ If this is not successful, then you will need to do it manually, as below.
 * FreeType - Font Rendering Library
 	* Download and extract from https://www.freetype.org/index.html
 	* Naigate to the root directory and run
-	```
-	./configure
-	make -j4
-	sudo make install
-	```
 	* Copy include files to /usr/local/include
 	```
 	sudo cp -r include/* /usr/local/include 
 	```
+	Please DO NOT run ./configure on a system running the Unity window manager, as this will most likely break Unity.
 
 # Compiling
 A CMakeLists.txt file is included for compiling with Cmake. Currently this is only setup for Ubuntu based systems, but is planned to be extended in the future. Navigate to the build directory and remove any old CMakeFiles
