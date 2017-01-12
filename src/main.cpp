@@ -55,7 +55,7 @@ GLfloat lastFrame = 0.0f;
 // Define Fonts based on OS
 #ifdef _WIN32
 	#define FONTPATH "C:/Windows/Fonts/Arial.ttf"
-#elif unix
+#elif __linux__
 	#define FONTPATH "/usr/share/fonts/truetype/msttcorefonts/Arial.ttf"
 #endif
 
