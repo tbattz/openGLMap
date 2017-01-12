@@ -10,7 +10,7 @@ IF (WIN32)
 	FIND_PATH( GLEW_INCLUDE_PATH GL/glew.h
 	${CMAKE_SOURCE_DIR}/includes
 	$ENV{PROGRAMFILES}/GLEW/include
-	${GLEW_ROOT_DIR}/include
+	${GLEW_ROOT_DIR}/includes
 	DOC "The directory where GL/glew.h resides")
 	IF (NV_SYSTEM_PROCESSOR STREQUAL "AMD64")
 		FIND_LIBRARY( GLEW_LIBRARY

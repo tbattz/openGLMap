@@ -13,6 +13,7 @@
 #include <memory>
 
 // GLEW (OpenGL Extension Wrangler Library)
+#define GLEW_STATIC
 #include <GL/glew.h>
 
 // GLFW (Multi-platform library for OpenGL)
@@ -50,6 +51,13 @@ bool firstMouse = true;
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
+
+// Define Fonts based on OS
+#ifdef _WIN32
+	#define FONTPATH "C:/Windows/Fonts/Arial.ttf"
+#elif unix
+	#define FONTPATH "/usr/share/fonts/truetype/msttcorefonts/Arial.ttf"
+#endif
 
 // X Position
 GLfloat xval = 0.0f;
@@ -129,7 +137,8 @@ int main(int argc, char* argv[]) {
 	Shader textShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight);
 	Shader* textShaderPt = &textShader;
 	if(fpsOn) {
-		arialFontPt = new GLFont("/usr/share/fonts/truetype/msttcorefonts/Arial.ttf");
+		//arialFontPt = new GLFont("/usr/share/fonts/truetype/msttcorefonts/Arial.ttf");
+		arialFontPt = new GLFont(FONTPATH);
 		textShaderPt = new Shader(setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight));
 	}
 
