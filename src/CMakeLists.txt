@@ -1,7 +1,7 @@
 # cmake version
 cmake_minimum_required(VERSION 3.0)
 # Project Name
-project(openGLRace)
+project(openGLMap)
 
 # Add c11++ flag to compiler
 list(APPEND CMAKE_CXX_FLAGS "-std=c++11")
@@ -62,7 +62,7 @@ endif(WIN32)
 
 # Define executables
 MESSAGE( STATUS "Sources: " ${SOURCES} )
-add_executable(openGLRace ${SOURCES})
-target_link_libraries(openGLRace ${LIBS})
+add_executable(openGLMap ${SOURCES})
+target_link_libraries(openGLMap ${LIBS})
 
 
