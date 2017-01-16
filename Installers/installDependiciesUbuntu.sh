@@ -7,6 +7,7 @@ NPROC=$(nproc)
 echo "Found" $NPROC "cores."     
 
 # Get current directory
+cd ..
 curDIR=$PWD
 
 # Switch to downloads directory
@@ -14,7 +15,7 @@ cd ~/Downloads
 echo "Switched to ~/Downloads"
 
 echo -e "\e[44m ================================ Build Dependencies =============================== \e[49m"
-apt-get -y install cmake
+sudo apt-get -y install cmake
 
 echo -e "\e[44m ====================================== Assimp ===================================== \e[49m"
 # Clone Assimp
@@ -30,7 +31,7 @@ cmake CMakeLists.txt -G 'Unix Makefiles'
 # Compiling with multiple cores causes a memory leaks
 halfCores=$((NPROC / 2))
 make -j$halfCores
-make install
+sudo make install
 cd ..
 
 echo -e "\e[44m ===================== GLFW (multi-platform library for OpenGL) ==================== \e[49m"
@@ -40,16 +41,16 @@ else
 	echo "glfw directory already exists! Not cloning."
 fi
 echo "Installing mesa depencies."
-apt-get -y install xorg-dev libglu1-mesa-dev
+sudo apt-get -y install xorg-dev libglu1-mesa-dev
 echo "Building glfw."
 cd glfw
 cmake -G "Unix Makefiles"
 make -j$NPROC
-make install
+sudo make install
 cd ..
 
 echo -e "\e[44m ================== GLEW (The OpenGL Extension Wrangler Library) =================== \e[49m"
-apt-get -y install libglew-dev
+sudo apt-get -y install libglew-dev
 
 echo -e "\e[44m ======================= GLM (The OpenGL Mathematics Library) ====================== \e[49m"
 if [ ! -d ~/Downloads/glm/ ]; then
@@ -59,17 +60,17 @@ else
 fi
 # Make includes folder
 echo "Copying GLM to" $curDIR"/Includes/"
-cp -r ~/Downloads/glm/glm /usr/local/include
+sudo cp -r ~/Downloads/glm/glm /usr/local/include
 
 echo -e "\e[44m ======================== SOIL (Simple OpenGL Image Library) ======================= \e[49m"
 if [ ! -f ~/Downloads/soil.zip ]; then
 	wget -O ~/Downloads/soil.zip "http://www.lonesock.net/files/soil.zip"
 fi
 unzip -o ~/Downloads/soil.zip -d ~/Downloads/SOIL
-cp ~/Downloads/SOIL/Simple\ OpenGL\ Image\ Library/lib/libSOIL.a /usr/local/include/
-cp ~/Downloads/SOIL/Simple\ OpenGL\ Image\ Library/src/SOIL.h /usr/local/include/
+sudo cp ~/Downloads/SOIL/Simple\ OpenGL\ Image\ Library/lib/libSOIL.a /usr/local/include/
+sudo cp ~/Downloads/SOIL/Simple\ OpenGL\ Image\ Library/src/SOIL.h /usr/local/include/
 # Install Development Library
-apt-get -y install libsoil-dev
+sudo apt-get -y install libsoil-dev
 
 echo -e "\e[44m ======================= FreeType - Font Rendering Library ========================= \e[49m"
 if [ ! -f ~/Downloads/freetype.tar.bz2 ]; then
@@ -78,4 +79,4 @@ fi
 tar xvjf ~/Downloads/freetype.tar.bz2
 cd ~/Downloads/freetype-2.4.0
 # Copy include files
-cp -r include/* /usr/local/include
+sudo cp -r include/* /usr/local/include

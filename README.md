@@ -1,14 +1,24 @@
-# openGLRace
-A rudimentary vehicle simulation using openGL. 
+# openGLMap
+A rudimentary UAV Mapping Plotter using openGL.
 
 # Dependencies
+##  Automated Install
+A few scripts have been created to automate the installation process. In the event these fail, you may have to compile the dependencies manually.
+### Linux (Ubuntu)
 On Ubuntu these dependencies can be installed by running
 ```
 sudo chmod +x installDependicies.sh
 ./installDependiciesUbuntu.txt
 ```
-If this is not successful, then you will need to do it manually, as below.
+### Windows (Windows 10)
+Windows has a clunkier installation procedure.
+Independices are installed in two steps.
+* Run installDependiciesWindows.bat
+* Make sure that you follow the instructions to add the correct paths to your PATH variable.
+* In a new command prompt (one that will grab the updated PATH), run installDependiciesWindowspart2.bat
 
+## Manual Install
+### Linux (Ubuntu)
 * Building dependicies
 	* cmake
 	```
@@ -77,28 +87,158 @@ If this is not successful, then you will need to do it manually, as below.
 	```
 	Please DO NOT run ./configure on a system running the Unity window manager, as this will most likely break Unity.
 
+### Windows (Windows 10)
+Firstly, ensure that cywin is not in your path.
+* MinGW-w64
+	* Go to https://mingw-w64.org/doku.php
+	* Select Mingw-builds and start the installation.
+	* Select x86_64 for the Architecture.
+	* Leave Threads as posix.
+	* Once the installation has finished, add the path to the system environment variables.
+		* Search PATH - find "Edit the system environment variables"
+		* Select Environment Variables...
+		* Select PATH and click Edit...
+		* Enter the path, in this case C:\Program Files\mingw-w64\x86_64-6.2.0-posix-seh-rt_v5-rev1\mingw64\bin\
+		* Move it to the top
+		* Click OK twice.
+* CMake
+	* Download the MSI Installer of CMake from https://cmake.org/download/ 
+	* Run the installer and follow the prompts, selecting "Add cmake to the system path"
+* Git
+	* Download git from https://git-scm.com/downloads
+	* Install git.
+	* Add the bin folder to the system PATH, C:\Program Files\Git\cmd\
+* GnuMake for Windows
+	* Download from http://gnuwin32.sourceforge.net/packages/make.htm and select the setup package.
+	* Install.
+* GLFW
+	* Open a new command prompt for the remaining steps.
+	* Clone the repository
+	```
+	git clone https://github.com/glfw/glfw.git
+	```
+	* Make the libraries
+	```
+	cd glfw
+	mkdir build
+	cmake -DBUILD_SHARED_LIBS=OFF -G "MinGW Makefiles" ..
+	make -j4
+	cd ..
+	```
+	* Copy the required includes
+	```
+	mkdir <openGLRace root>\Includes
+	mkdir <openGLRace root>\Lib
+	xcopy include\GLFW\* <openGLRace root>\Includes\GLFW\ /s/h/e/k/f/c/y
+	xcopy build\src\libglfw3.a <openGLRace root>\Lib\ /s/h/e/k/f/c/y
+	```
+* GLEW
+	* Clone the repository
+	```
+	git clone https://github.com/nigels-com/glew.git
+	```
+	* Open a git-bash shell and enter the following (it will only compile in a bash environment).
+	```
+	cd auto
+	make
+	cd ../build/cmake
+	cmake -G "MinGW Makefiles"
+	make
+	```
+	* Back in the command prompt, in the glew directory, enter the following
+	```
+	xcopy include\GL* <openGLRace root>\Includes\ /s/i
+	xcopy build\cmake\lib\* <openGLRace root>\Lib\ /s/i
+	xcopy build\cmake\bin\glew32.dll <openGLRace root>\Lib
+	```
+
+* Assimp
+	* Clone assimp into your Downloads directory
+	```
+	git clone https://github.com/assimp/assimp.git
+	```
+	* Make Assimp
+	```
+	cd assimp
+	cmake -G "MinGW Makefiles" -DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_ZLIB=ON
+	make -j4
+	make install
+	```
+	* Copy requied files
+	```
+	cd bin
+	xcopy libassimp.a <openGLRace root>/Lib/ /s/h/e/k/f/c
+	cd ..
+	xcopy include\assimp\* <openGLRace root>\Includes\assimp /s/i
+	```
+	* Copy zlib library
+	```
+	xcopy lib\libzlibstatic.a <openGLRace root>\Lib\ /s/i/y
+	```
+* GLM
+	* Clone GLM
+	```
+	git clone https://github.com/g-truc/glm.git
+	```
+	* As GLM is a header only library, just copy everything to the include folder.
+	```
+	xcopy /E/I/y glm\glm <openGLRace root>\includes\glm
+	```
+* SOIL
+	* Download SOIL from http://www.lonesock.net/soil.html
+	* Extract to /SOIL
+	* Change to the makefile directory and make
+	```
+	cd SOIL\Simple OpenGL Image Library\projects\makefile
+	mkdir obj
+	make
+	```
+	* Copy the required includes
+	```
+	cd ..\..
+	xcopy lib\libSOIL.a %ORIGINAL%\Lib /E/I
+	xcopy src\SOIL.h %ORIGINAL%\Includes /E/I
+	cd ..\..
+	```
+* FreeType
+	* Download freetype using the sourceforge link from https://www.freetype.org/download.html
+	* Extract the zip
+	* Change to the root directory
+	* Make
+	```
+	make
+	```
+	* Copy the required includes
+	```
+	xcopy /E/I/y objs\freetype.a <openGLRace root>\Lib
+	xcopy /E/I/y include\* <openGLRace root>\Includes\
+	```
+
 # Compiling
-A CMakeLists.txt file is included for compiling with Cmake. Currently this is only setup for Ubuntu based systems, but is planned to be extended in the future. Navigate to the build directory and remove any old CMakeFiles
+A CMakeLists.txt file is included for compiling with Cmake. This should work for both Debian and Windows based systems. Navigate to the build directory and remove any old CMakeFiles
 ```
 cd build
-rm -r CMakeFiles/
+rm -r *
 ```
 Run cmake to generate a makefile.
 ```
-cmake ..
+cmake ../src/						# Linux
+cmake -G "MinGW Makefiles" ../src/	# Windows
 ```
 Compile the program.
 ```
 make
 ```
+This may take longer on a Windows based system.
 
+# Compiling an Eclipse Project
 To generate an Eclipse project, from the root directory,
 ```
 cd build
 rm -r CMakeFiles/
-cmake -G Eclipse\ CDT4\ -\ Unix\ Makefiles  ..
+cmake -G "Eclipse CDT4 - Unix Makefiles" ../src
 ```
-Then import the project into Eclipse using File >> Import >> General >> Existing Projects into Workspace. Click next and set the root directory to <workspace>/openGLRace/build. Click Finish. The project can now be built with Eclipse using the 'all' Build Target. 
+Then import the project into Eclipse using File >> Import >> General >> Existing Projects into Workspace. Click next and set the root directory to <workspace>/openGLRace/build. Click Finish. The project can now be built with Eclipse using the 'all' Build Target. The source files will be inside the "[Source Directory]" and are linked to their actual counterpats.
 
 # Models
 Rudimentary models are stored [here](https://drive.google.com/drive/folders/0B8WtiKHIU0VNV3l5aDEzdHhkV3c?usp=sharing). They should be placed in a Models folder at the top directory, parallel to src and Debug.
