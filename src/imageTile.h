@@ -121,6 +121,7 @@ public:
 		glm::mat4 tilePos;
 		tilePos = glm::translate(tilePos, glm::vec3(this->position[0],0.0f,this->position[1]));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program,"model"),1,GL_FALSE,glm::value_ptr(tilePos));
+		glUniform1f(glGetUniformLocation(shader.Program,"brightness"),this->brightness);
 
 		// Bind Texture Units
 		glActiveTexture(GL_TEXTURE0);

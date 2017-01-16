@@ -131,6 +131,7 @@ int main(int argc, char* argv[]) {
 	const char* filename = "../ImageData/87.jpg";
 	ImageTile tempTile(origin, position, fovX, fovY,filename);
 	ImageTile tempTile2(origin, position0, fovX, fovY,filename);
+	tempTile2.brightness = 1.0f;
 
 
 	// Load Lights
