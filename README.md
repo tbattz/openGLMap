@@ -127,10 +127,10 @@ Firstly, ensure that cywin is not in your path.
 	```
 	* Copy the required includes
 	```
-	mkdir <openGLRace root>\Includes
-	mkdir <openGLRace root>\Lib
-	xcopy include\GLFW\* <openGLRace root>\Includes\GLFW\ /s/h/e/k/f/c/y
-	xcopy build\src\libglfw3.a <openGLRace root>\Lib\ /s/h/e/k/f/c/y
+	mkdir <openGLMap root>\Includes
+	mkdir <openGLMap root>\Lib
+	xcopy include\GLFW\* <openGLMap root>\Includes\GLFW\ /s/h/e/k/f/c/y
+	xcopy build\src\libglfw3.a <openGLMap root>\Lib\ /s/h/e/k/f/c/y
 	```
 * GLEW
 	* Clone the repository
@@ -147,9 +147,9 @@ Firstly, ensure that cywin is not in your path.
 	```
 	* Back in the command prompt, in the glew directory, enter the following
 	```
-	xcopy include\GL* <openGLRace root>\Includes\ /s/i
-	xcopy build\cmake\lib\* <openGLRace root>\Lib\ /s/i
-	xcopy build\cmake\bin\glew32.dll <openGLRace root>\Lib
+	xcopy include\GL* <openGLMap root>\Includes\ /s/i
+	xcopy build\cmake\lib\* <openGLMap root>\Lib\ /s/i
+	xcopy build\cmake\bin\glew32.dll <openGLMap root>\Lib
 	```
 
 * Assimp
@@ -167,13 +167,13 @@ Firstly, ensure that cywin is not in your path.
 	* Copy requied files
 	```
 	cd bin
-	xcopy libassimp.a <openGLRace root>/Lib/ /s/h/e/k/f/c
+	xcopy libassimp.a <openGLMap root>/Lib/ /s/h/e/k/f/c
 	cd ..
-	xcopy include\assimp\* <openGLRace root>\Includes\assimp /s/i
+	xcopy include\assimp\* <openGLMap root>\Includes\assimp /s/i
 	```
 	* Copy zlib library
 	```
-	xcopy lib\libzlibstatic.a <openGLRace root>\Lib\ /s/i/y
+	xcopy lib\libzlibstatic.a <openGLMap root>\Lib\ /s/i/y
 	```
 * GLM
 	* Clone GLM
@@ -182,7 +182,7 @@ Firstly, ensure that cywin is not in your path.
 	```
 	* As GLM is a header only library, just copy everything to the include folder.
 	```
-	xcopy /E/I/y glm\glm <openGLRace root>\includes\glm
+	xcopy /E/I/y glm\glm <openGLMap root>\includes\glm
 	```
 * SOIL
 	* Download SOIL from http://www.lonesock.net/soil.html
@@ -210,8 +210,8 @@ Firstly, ensure that cywin is not in your path.
 	```
 	* Copy the required includes
 	```
-	xcopy /E/I/y objs\freetype.a <openGLRace root>\Lib
-	xcopy /E/I/y include\* <openGLRace root>\Includes\
+	xcopy /E/I/y objs\freetype.a <openGLMap root>\Lib
+	xcopy /E/I/y include\* <openGLMap root>\Includes\
 	```
 
 # Compiling
@@ -238,7 +238,7 @@ cd build
 rm -r CMakeFiles/
 cmake -G "Eclipse CDT4 - Unix Makefiles" ../src
 ```
-Then import the project into Eclipse using File >> Import >> General >> Existing Projects into Workspace. Click next and set the root directory to <workspace>/openGLRace/build. Click Finish. The project can now be built with Eclipse using the 'all' Build Target. The source files will be inside the "[Source Directory]" and are linked to their actual counterpats.
+Then import the project into Eclipse using File >> Import >> General >> Existing Projects into Workspace. Click next and set the root directory to <workspace>/openGLMap/build. Click Finish. The project can now be built with Eclipse using the 'all' Build Target. The source files will be inside the "[Source Directory]" and are linked to their actual counterpats.
 
 # Models
 Rudimentary models are stored [here](https://drive.google.com/drive/folders/0B8WtiKHIU0VNV3l5aDEzdHhkV3c?usp=sharing). They should be placed in a Models folder at the top directory, parallel to src and Debug.
@@ -249,7 +249,7 @@ Rudimentary models are stored [here](https://drive.google.com/drive/folders/0B8W
 
 To run, navigate to the Debug directory and enter
 ```
-./openGLRace
+./openGLMap
 ```
 Move around in the world using the wasd keys.
 
@@ -258,7 +258,7 @@ These instructions are retained to give a manual method for building the project
 
 If you just want to compile the source code without making changes, then running make from the command line, while in the Debug directory will give you your desired result.
 
-* Change the source directory. Project >> Properties >> C/C++ General >> Paths and Symbols >> Source Location. Delete the /openGLRace folder and add /openGLRace/src. This should be done for both the Debug and Release configurations by changing the selected configuration in this tab.
+* Change the source directory. Project >> Properties >> C/C++ General >> Paths and Symbols >> Source Location. Delete the /openGLMap folder and add /openGLMap/src. This should be done for both the Debug and Release configurations by changing the selected configuration in this tab.
 
 * Add libraries. Project >> Properties >> C/C++ Build >> Settings >> Tool Settings >> GCC C++ Linker >> Libraries. Under Libraries (-l), add each of the following as separate entries. Again remember to do this for both Debug and Release configurations. Note that they must be added in this order or you will get errors.
 	* glfw3

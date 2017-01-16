@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
 	glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE); // Set core profile
 	glfwWindowHint(GLFW_RESIZABLE,GL_FALSE);
 
-	GLFWwindow* window = glfwCreateWindow(screenWidth,screenHeight,"openGLRace",nullptr,nullptr);
+	GLFWwindow* window = glfwCreateWindow(screenWidth,screenHeight,"openGLMap",nullptr,nullptr);
 	glfwMakeContextCurrent(window);
 
 	// Setup Callbacks for user input
