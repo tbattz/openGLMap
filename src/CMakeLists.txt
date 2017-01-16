@@ -7,22 +7,22 @@ project(openGLRace)
 list(APPEND CMAKE_CXX_FLAGS "-std=c++11")
 
 # Add Cmake Module Path
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../cmake/")
 
 # Add Include Directory
 if(WIN32)
-	include_directories("${CMAKE_SOURCE_DIR}/Includes/")
-	include_directories("${CMAKE_SOURCE_DIR}/Includes/freetype")
+	include_directories("${CMAKE_SOURCE_DIR}/../Includes/")
+	include_directories("${CMAKE_SOURCE_DIR}/../Includes/freetype")
 elseif(UNIX)
 	include_directories(/usr/local/include/)
 	include_directories(/usr/local/include/freetype/)
 endif(WIN32)
 
 # Add Sources
-file(GLOB SOURCES "src/*.cpp" "src/*.h")
+file(GLOB SOURCES "*.cpp" "*.h")
 
 if(WIN32)
-	link_directories(${CMAKE_SOURCE_DIR}/Includes)
+	link_directories(${CMAKE_SOURCE_DIR}/../Includes)
 elseif(UNIX)
 	link_directories(/usr/local/lib /usr/lib /usr/local)
 endif(WIN32)
@@ -42,8 +42,8 @@ message(STATUS "Found Glfw3: ${GLFW3_LIBRARY}")
 find_package(GLEW REQUIRED)
 message(STATUS "Found Glew: ${GLEW_LIBRARY}")
 if(WIN32)
-	set(GLEW_LIBRARY "${CMAKE_SOURCE_DIR}/Lib/libglew32.a")
-	set(FREETYPE_LIBRARY "${CMAKE_SOURCE_DIR}/Lib/freetype.a")
+	set(GLEW_LIBRARY "${CMAKE_SOURCE_DIR}/../Lib/libglew32.a")
+	set(FREETYPE_LIBRARY "${CMAKE_SOURCE_DIR}/../Lib/freetype.a")
 ENDIF(WIN32)
 
 

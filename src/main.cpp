@@ -25,6 +25,7 @@
 #include "../src/model.h"
 #include "../src/fonts.h"
 #include "../src/light.h"
+#include "../src/imageTile.h"
 
 // GLM Mathematics
 #include <glm/glm.hpp>
@@ -44,7 +45,7 @@ using std::vector;
 GLuint screenWidth = 1920, screenHeight = 1080;
 
 // Camera View Setup
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 3.0f, 3.0f));
 bool keys[1024];
 GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
@@ -115,10 +116,22 @@ int main(int argc, char* argv[]) {
 
 	// Setup and compile shaders
 	Shader lightingShader("../Shaders/multiple_lighting.vs","../Shaders/multiple_lighting.frag");
+	Shader tileShader("../Shaders/tileImage.vs","../Shaders/tileImage.frag");
 
 	// Load Models
-	Model ourModel("../Models/wheel/wheelTest.obj");
+	Model ourModel("../Models/wheel/wheelTest2.obj");
 	Model ground("../Models/wheel/ground.obj");
+
+	// Temp Tiles
+	glm::vec3 origin = glm::vec3(-37.958926f, 145.238343f, 0.0f);
+	glm::vec3 position = glm::vec3(-37.958814f, 145.238824f, 99.0f);
+	glm::vec3 position0 = glm::vec3(-37.958926f, 145.238343f, 99.0f);
+	GLfloat fovX = 48.3/2.0;
+	GLfloat fovY = 36.8/2.0;
+	const char* filename = "../ImageData/87.jpg";
+	ImageTile tempTile(origin, position, fovX, fovY,filename);
+	ImageTile tempTile2(origin, position0, fovX, fovY,filename);
+
 
 	// Load Lights
 	DirectionalLight myDirLight({-0.2f,-1.0f,-0.3f}, {0.5f,0.5f,0.5f}, {0.4f,0.4f,0.4f}, {0.5f,0.5f,0.5f}, &lightingShader,0);
@@ -164,7 +177,7 @@ int main(int argc, char* argv[]) {
         glUniform3f(viewPosLoc,              camera.Position.x, camera.Position.y, camera.Position.z);
 
 		// Transformation Matrices
-		glm::mat4 projection = glm::perspective(camera.Zoom, (float)screenWidth/(float)screenHeight,0.1f,100.0f);
+		glm::mat4 projection = glm::perspective(camera.Zoom, (float)screenWidth/(float)screenHeight,0.1f,1000.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
@@ -174,7 +187,7 @@ int main(int argc, char* argv[]) {
 		//model2 = glm::translate(model2, glm::vec3(0.0f,-1.75f, 0.0f)); // Translate down
 		//model2 = glm::scale(model2, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
 		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"model"),1,GL_FALSE,glm::value_ptr(model2));
-		ground.Draw(lightingShader);
+		//ground.Draw(lightingShader);
 
 		// Draw Model
 		glm::mat4 model;
@@ -182,6 +195,13 @@ int main(int argc, char* argv[]) {
 		//model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
 		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"model"),1,GL_FALSE,glm::value_ptr(model));
 		ourModel.Draw(lightingShader);
+
+		// Draw tile(s)
+		tileShader.Use();
+		glUniformMatrix4fv(glGetUniformLocation(tileShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(tileShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
+		tempTile.Draw(tileShader);
+		tempTile2.Draw(tileShader);
 
 		// Print FPS
 		if(fpsOn) {
