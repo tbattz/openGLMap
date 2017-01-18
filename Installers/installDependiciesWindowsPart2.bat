@@ -77,7 +77,7 @@ xcopy /E/I/y glm\glm %ORIGINAL%\includes\glm
 :: Download SOIL
 call:echoblue " ================================= SOIL =================================="
 if exist "%UserProfile%\Downloads\SOIL\" (
-	echo SOIL already cloned.
+	echo SOIL already downloaded.
 ) else (
 	echo Downloading SOIL.
 	"%ProgramFiles(x86)%\GnuWin32\bin\wget.exe" --no-check-certificate http://www.lonesock.net/files/soil.zip
@@ -105,6 +105,16 @@ make
 xcopy /E/I/y objs\freetype.a %ORIGINAL%\Lib
 xcopy /E/I/y include\* %ORIGINAL%\Includes\
 cd ..\..
+
+:: Download Boost
+call:echoblue " ================================ Boost =================================="
+if exist "%UserProfile%\Downloads\boost_1_55_0.zip" (
+	echo boost_1_55_0.zip already downloaded.
+) else (
+	echo Downloading Boost.
+	"%ProgramFiles(x86)%\GnuWin32\bin\wget.exe" --no-check-certificate https://nchc.dl.sourceforge.net/project/boost/boost/1.55.0/boost_1_55_0.zip
+	start /w %UserProfile%\Downloads\boost_1_63_0-msvc-9.0-64.exe
+)
 
 
 

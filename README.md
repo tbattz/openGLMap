@@ -220,6 +220,23 @@ Firstly, ensure that cywin is not in your path.
 	xcopy /E/I/y include\* <openGLMap root>\Includes\
 	```
 
+* Boost
+	* Download the boost zip, http://www.boost.org/users/history/version_1_55_0.html
+	* Extract the zip
+	* Install Boost.Build
+	```
+	cd boost\boost_1_55_0\tools\build\v2
+	bootstrap.bat mingw
+	b2 install -prefix="C:\Program Files\boost-build" 
+	```
+	* Add C:\Program Files\boost-build\bin to your path
+	* Open a new command promp, and navigate to the downloaded boost folder
+	* Build the libraries that require building
+	```
+	b2 --build-dir="C:\Program Files\boost_1_55_0\build" --prefix="C:\Program Files\boost" toolset=gcc --with-filesystem --with-system install
+	```
+
+
 # Compiling
 A CMakeLists.txt file is included for compiling with Cmake. This should work for both Debian and Windows based systems. Navigate to the build directory and remove any old CMakeFiles
 ```
