@@ -11,6 +11,8 @@
 #include <string>
 #include <unistd.h>
 #include <memory>
+#include <chrono>
+#include <thread>
 
 // GLEW (OpenGL Extension Wrangler Library)
 #define GLEW_STATIC
@@ -47,6 +49,7 @@ GLuint screenWidth = 1920, screenHeight = 1080;
 // Camera View Setup
 Camera camera(glm::vec3(0.0f, 3.0f, 3.0f));
 bool keys[1024];
+bool toggleKeys[1024];
 GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
 
@@ -62,6 +65,9 @@ GLfloat lastFrame = 0.0f;
 
 // X Position
 GLfloat xval = 0.0f;
+
+// File check time tracking
+GLfloat fileChecklast = 0.0f;
 
 // Functions
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -129,10 +135,20 @@ int main(int argc, char* argv[]) {
 	GLfloat fovX = 48.3/2.0;
 	GLfloat fovY = 36.8/2.0;
 	const char* filename = "../ImageData/87.jpg";
-	ImageTile tempTile(origin, position, fovX, fovY,filename);
+	//ImageTile tempTile(origin, position, fovX, fovY,filename);
 	ImageTile tempTile2(origin, position0, fovX, fovY,filename);
 	tempTile2.brightness = 1.0f;
 
+	// Create Tiles
+	//glm::vec3 origin = glm::vec3(-37.958926f, 145.238343f, 0.0f);
+	//GLfloat fovX = 48.3/2.0;
+	//GLfloat fovY = 36.8/2.0;
+	TileList imageTileList(origin, fovX, fovY);
+	TileList* myPt = &imageTileList;
+
+	// Get Tile Information
+	imageTileList.updateTileList("../ImageData");
+	//imageTileList.tiles.push_back(ImageTile(origin, position, fovX, fovY,filename));
 
 	// Load Lights
 	DirectionalLight myDirLight({-0.2f,-1.0f,-0.3f}, {0.5f,0.5f,0.5f}, {0.4f,0.4f,0.4f}, {0.5f,0.5f,0.5f}, &lightingShader,0);
@@ -162,6 +178,7 @@ int main(int argc, char* argv[]) {
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
+
 
 		// Check Events
 		glfwPollEvents();
@@ -201,8 +218,19 @@ int main(int argc, char* argv[]) {
 		tileShader.Use();
 		glUniformMatrix4fv(glGetUniformLocation(tileShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(tileShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
-		tempTile.Draw(tileShader);
-		tempTile2.Draw(tileShader);
+		// Check for new files
+		if ((currentFrame - fileChecklast) > 1.0) {
+			// Update image file list
+			imageTileList.updateTileList("../ImageData");
+			fileChecklast = currentFrame;
+		}
+
+		// Draw tiles
+		for(int i = 0; i != imageTileList.tiles.size(); i++) {
+			(imageTileList.tiles[i]).Draw(tileShader);
+		}
+		//tempTile.Draw(tileShader);
+		//tempTile2.Draw(tileShader);
 
 		// Print FPS
 		if(fpsOn) {
@@ -214,6 +242,9 @@ int main(int argc, char* argv[]) {
 
 		// Swap buffers
 		glfwSwapBuffers(window);
+
+		// Sleep to lower framerate
+		//std::this_thread::sleep_for(std::chrono::milliseconds(int(1000.0/30.0)));
 	}
 
 	glfwTerminate();
@@ -229,9 +260,12 @@ void key_callback(GLFWwindow* window,int key,int scancode, int action, int mode)
 	// Set key states
 	if(action == GLFW_PRESS) {
 		keys[key] = true;
+		// Set toggle states
+		toggleKeys[key] = !toggleKeys[key];
 	} else if (action == GLFW_RELEASE) {
 		keys[key] = false;
 	}
+
 }
 
 // Callback to position the camera
@@ -250,7 +284,11 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 	lastX = xpos;
 	lastY = ypos;
 
-	camera.ProcessMouseMovement(xoffset,yoffset);
+	// Don't move if camera movement paused
+	if (!toggleKeys[80]) { // p key to toggle
+		camera.ProcessMouseMovement(xoffset,yoffset);
+	}
+
 }
 
 // Scrolling zoom callback

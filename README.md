@@ -87,6 +87,12 @@ Independices are installed in two steps.
 	```
 	Please DO NOT run ./configure on a system running the Unity window manager, as this will most likely break Unity.
 
+* Boost Libraries
+	* Install boost
+	```
+	sudo apt-get install libboost-all-dev
+	```
+
 ### Windows (Windows 10)
 Firstly, ensure that cywin is not in your path.
 * MinGW-w64
@@ -230,6 +236,12 @@ Compile the program.
 make
 ```
 This may take longer on a Windows based system.
+
+## Debugging
+To enable debugging, when running cmake, enable the debugging flag.
+```
+cmake -DCMAKE_BUILD_TYPE=Debug
+```
 
 # Compiling an Eclipse Project
 To generate an Eclipse project, from the root directory,

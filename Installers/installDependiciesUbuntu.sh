@@ -80,3 +80,6 @@ tar xvjf ~/Downloads/freetype.tar.bz2
 cd ~/Downloads/freetype-2.4.0
 # Copy include files
 sudo cp -r include/* /usr/local/include
+
+echo -e "\e[44m ======================= FreeType - Font Rendering Library ========================= \e[49m"
+sudo apt-get -y install libboost-all-dev

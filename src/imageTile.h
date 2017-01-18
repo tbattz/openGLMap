@@ -18,6 +18,27 @@
 
 // Standard Includes
 #include <iostream>
+#include <string>
+#include <fstream>
+#include <iomanip>
+#include <stdlib.h>
+
+// Boost
+#include <boost/filesystem.hpp>
+using namespace boost::filesystem;
+
+class ImageTile;
+
+struct tileTelem {
+	string 	timeStr;
+	double 	altitude;	// m
+	double	longitude;	// Degrees
+	double	latitude;	// Degrees
+	double	roll; 		// Radians
+	double	pitch; 		// Radians
+	double	yaw;		// Radians
+};
+
 
 class ImageTile {
 public:
@@ -38,11 +59,11 @@ public:
 	// Textures
 	GLuint tileTexture;
 	int width, height;
-	const char* filename;
+	string filename;
 
 
 	/* Functions */
-	ImageTile(glm::vec3 origin, glm::vec3 geoPosition, GLfloat fovX, GLfloat fovY,const char* filename) {
+	ImageTile(glm::vec3 origin, glm::vec3 geoPosition, GLfloat fovX, GLfloat fovY,string filename) {
 		/* Instantiates the Image Tile */
 		this->origin	= origin;			// Lat (deg), Lon (deg), alt (km)
 		this->geoPosition = geoPosition; 	// Lat (deg), Lon (deg), alt (km)
@@ -195,7 +216,7 @@ private:
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 		// Load texture
-		unsigned char* image = SOIL_load_image(this->filename,&this->width,&this->height,0,SOIL_LOAD_RGB);
+		unsigned char* image = SOIL_load_image(this->filename.c_str(),&this->width,&this->height,0,SOIL_LOAD_RGB);
 		glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,this->width,this->height,0,GL_RGB,GL_UNSIGNED_BYTE,image);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		SOIL_free_image_data(image);
@@ -204,7 +225,132 @@ private:
 
 };
 
+class TileList {
+public:
+	/* Data */
+	vector<ImageTile> 	tiles;
+	vector<string>		tilePaths;
+	GLfloat				fovX;
+	GLfloat				fovY;
+	glm::vec3			origin;
 
+	/* Functions */
+	// Initialiser
+	TileList(glm::vec3 origin, GLfloat fovX, GLfloat fovY) {
+		this->origin = origin;
+		this->fovX = fovX;
+		this->fovY = fovY;
+
+	}
+
+	// Update List
+	void updateTileList(const char* folderPath) {
+		/* Checks the folder for any new tiles */
+		// Get current file list
+
+		path p(folderPath);
+		string newFilename; // Filename of image file
+		string mypath;		// Path of image file relative to src directory
+		for (auto i = directory_iterator(p); i != directory_iterator(); i++) {
+			if (!is_directory(i->path())) { // Ignore subdirectories
+				newFilename = i->path().filename().string();
+				// Check if Image file
+				string ext = extension(newFilename);
+				mypath = "";
+				mypath.append(folderPath);
+				mypath.append("/");
+				mypath.append(newFilename);
+				if ((ext.compare(".png"))*(ext.compare(".jpg")) == 0) {
+					// Check if we already have loaded this filename
+					if(std::find((this->tilePaths).begin(), (this->tilePaths).end(), mypath) == (this->tilePaths).end()) {
+						std::cout << "Found: " << newFilename << ".\n";
+						// Check if file is not in use
+						std::fstream myfile;
+						myfile.open(mypath);
+						if (myfile.is_open()) {
+							// Not in previous list
+							// Close file
+							myfile.close();
+							// Check if telem file exists
+							string mypathTelem;
+							mypathTelem.append(folderPath);
+							mypathTelem.append("/");
+							int lastindex = newFilename.find_last_of(".");
+							string objname = newFilename.substr(0,lastindex);
+							mypathTelem.append(objname);
+							mypathTelem.append("_telem");
+							mypathTelem.append(".txt");
+							std::fstream mytelemfile;
+							std::fstream* mytelemfilePt = &mytelemfile;
+							mytelemfile.open(mypathTelem);
+							if (mytelemfile.is_open()) {
+								// Telem file is safe
+								// Add image file
+								(this->tilePaths).push_back(mypath);
+								std::cout << "Added " << mypath << " to list.\n";
+
+								// Parse Telemetry Data
+								tileTelem tiletelem;
+								tileTelem* tiletelemPt = &tiletelem;
+								this->parseTelemFile(mytelemfilePt,tiletelemPt);
+
+								// Create Position Data
+								glm::tvec3<double> geoPosition = {tiletelem.latitude,tiletelem.longitude,tiletelem.altitude};
+
+								// Create New Tile
+								this->tiles.push_back(ImageTile(this->origin, geoPosition, this->fovX, this->fovY,mypath.c_str()));
+
+							} else {
+								/* File is probably still being downloaded. */
+								std::cout << objname << ".txt" << " is in use. Not adding.\n";
+							}
+						} else {
+							/* File is probably still being downloaded. */
+							std::cout << newFilename << " is in use. Not adding.\n";
+						}
+					}
+				}
+			}
+		}
+	}
+
+private:
+	void parseTelemFile(std::fstream* myfilePt, tileTelem* tiletelemPt) {
+		/* Parses information from the telemetry file */
+		string line;
+		getline(*myfilePt,line);
+		// Time String
+		int endPos = line.find(",");
+		(*tiletelemPt).timeStr = line.substr(2,endPos-3);
+		line = line.substr(endPos+1);
+		// Altitude
+		endPos = line.find(",");
+		(*tiletelemPt).altitude = atof(line.substr(1,endPos-1).c_str());
+		line = line.substr(endPos+1);
+		// Longitude
+		endPos = line.find(",");
+		(*tiletelemPt).longitude = atof(line.substr(1,endPos-1).c_str());
+		line = line.substr(endPos+1);
+		// Latitude
+		endPos = line.find(",");
+		(*tiletelemPt).latitude = atof(line.substr(1,endPos-1).c_str());
+		line = line.substr(endPos+1);
+		// Roll
+		int brackPos = line.find("[");
+		line = line.substr(brackPos);
+		endPos = line.find(",");
+		(*tiletelemPt).roll = atof(line.substr(1,endPos-1).c_str());
+		line = line.substr(endPos+1);
+		// Pitch
+		endPos = line.find(",");
+		(*tiletelemPt).pitch = atof(line.substr(1,endPos-1).c_str());
+		line = line.substr(endPos+1);
+		// Yaw
+		brackPos = line.find("]");
+		(*tiletelemPt).yaw = atof(line.substr(1,brackPos-1).c_str());
+	}
+
+};
 
 
 #endif /* IMAGETILE_H_ */
