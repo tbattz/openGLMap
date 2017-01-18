@@ -87,6 +87,7 @@ echo %ProgramFiles(x86)%\GnuWin32\bin
 echo %ProgramFiles%\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev0\mingw64\bin
 echo %ProgramFiles%\CMake\bin
 echo %ProgramFiles%\Git\cmd
+echo %ProgramFiles%\boost-build\bin
 call:ECHOGREEN "End of Vars."
 rundll32 sysdm.cpl,EditEnvironmentVariables
 

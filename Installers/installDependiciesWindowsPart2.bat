@@ -1,12 +1,12 @@
 :: Only run after installDependiciesWindows.bat has completed successfully
 :: Must run in a new command prompt, to get the updated PATHS
 echo off
+CALL:echored "IMPORTANT: RUN AS AN ADMINISTRATOR."
 CALL:echored "IMPORTANT: REMOVE CYGWIN FROM PATH BEFORE INSTALLING."
 :: Change to download directory
 cd ..
 SET ORIGINAL=%CD%
 cd %UserProfile%\Downloads\
-
 
 :: Download GLFW
 call:echoblue " =================================== GLFW ====================================="
@@ -113,12 +113,12 @@ if exist "%UserProfile%\Downloads\boost_1_55_0.zip" (
 ) else (
 	echo Downloading Boost.
 	"%ProgramFiles(x86)%\GnuWin32\bin\wget.exe" --no-check-certificate https://nchc.dl.sourceforge.net/project/boost/boost/1.55.0/boost_1_55_0.zip
-	start /w %UserProfile%\Downloads\boost_1_63_0-msvc-9.0-64.exe
+	start /w "" "%ProgramFiles%\Git\git-bash.exe" -i %ORIGINAL%\Installers\unzipBoost.sh
 )
+CALL:echored "Boost needs to be installed manually. See README.md for detals."
 
 
-
-:: Return to original directory
+:: Return to original directoryy
 cd %ORIGINAL%
 
 :: Functions
