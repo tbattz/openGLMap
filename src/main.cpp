@@ -43,9 +43,6 @@
 
 using std::vector;
 
-// Screen Properties
-GLuint screenWidth = 1920, screenHeight = 1080;
-
 // Camera View Setup
 Camera camera(glm::vec3(0.0f, 3.0f, 3.0f));
 bool keys[1024];
@@ -93,6 +90,12 @@ int main(int argc, char* argv[]) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE); // Set core profile
 	glfwWindowHint(GLFW_RESIZABLE,GL_FALSE);
+
+	// Screen Properties
+	GLFWmonitor* monitor;
+	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+	GLfloat screenHeight = mode->height;
+	GLfloat screenWidth  = mode->width;
 
 	GLFWwindow* window = glfwCreateWindow(screenWidth,screenHeight,"openGLMap",nullptr,nullptr);
 	glfwMakeContextCurrent(window);
