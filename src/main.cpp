@@ -28,6 +28,7 @@
 #include "../src/fonts.h"
 #include "../src/light.h"
 #include "../src/imageTile.h"
+#include "../src/mavlinkReceive.h"
 
 // GLM Mathematics
 #include <glm/glm.hpp>
@@ -127,6 +128,9 @@ int main(int argc, char* argv[]) {
 	Shader lightingShader("../Shaders/multiple_lighting.vs","../Shaders/multiple_lighting.frag");
 	Shader tileShader("../Shaders/tileImage.vs","../Shaders/tileImage.frag");
 
+	// Create thread to recieve Mavlink messages
+	std::thread mavlinkThread(mavlinkMain,"192.168.1.1", "14550");
+
 	// Load Models
 	Model ourModel("../Models/wheel/wheelTest2.obj");
 	Model ground("../Models/wheel/ground.obj");
@@ -174,6 +178,7 @@ int main(int argc, char* argv[]) {
 		arialFontPt = new GLFont(FONTPATH);
 		textShaderPt = new Shader(setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight));
 	}
+
 
 	// Game Loop
 	while(!glfwWindowShouldClose(window)) {
@@ -248,6 +253,7 @@ int main(int argc, char* argv[]) {
 
 		// Sleep to lower framerate
 		//std::this_thread::sleep_for(std::chrono::milliseconds(int(1000.0/30.0)));
+
 	}
 
 	glfwTerminate();
