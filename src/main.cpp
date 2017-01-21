@@ -129,7 +129,9 @@ int main(int argc, char* argv[]) {
 	Shader tileShader("../Shaders/tileImage.vs","../Shaders/tileImage.frag");
 
 	// Create thread to recieve Mavlink messages
-	std::thread mavlinkThread(mavlinkMain,"192.168.1.1", "14550");
+	//std::thread mavlinkThread(mavlinkMain,"192.168.1.1", "14550");
+	MavSocket mavSocket("192.168.1.1", "14550");
+	std::thread mavThread(&MavSocket::startSocket,&mavSocket);
 
 	// Load Models
 	Model ourModel("../Models/wheel/wheelTest2.obj");
@@ -257,6 +259,10 @@ int main(int argc, char* argv[]) {
 	}
 
 	glfwTerminate();
+	// Close mavlink socket
+	mavSocket.closeSocket();
+	mavThread.join();
+
 	return 0;
 }
 
