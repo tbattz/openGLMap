@@ -29,6 +29,7 @@
 #include "../src/light.h"
 #include "../src/imageTile.h"
 #include "../src/mavlinkReceive.h"
+#include "../src/mavAircraft.h"
 
 // GLM Mathematics
 #include <glm/glm.hpp>
@@ -128,14 +129,17 @@ int main(int argc, char* argv[]) {
 	Shader lightingShader("../Shaders/multiple_lighting.vs","../Shaders/multiple_lighting.frag");
 	Shader tileShader("../Shaders/tileImage.vs","../Shaders/tileImage.frag");
 
+	// Load Models
+	//Model ourModel("../Models/wheel/wheelTest2.obj");
+	MavAircraft ourModel("../Models/X8/x8Fixed.obj",glm::vec3(-37.958926f, 145.238343f, 0.0f));
+	Model ground("../Models/wheel/ground.obj");
+
 	// Create thread to recieve Mavlink messages
 	//std::thread mavlinkThread(mavlinkMain,"192.168.1.1", "14550");
-	MavSocket mavSocket("192.168.1.1", "14550");
+	MavSocket mavSocket("192.168.1.1", "14550",&ourModel);
 	std::thread mavThread(&MavSocket::startSocket,&mavSocket);
 
-	// Load Models
-	Model ourModel("../Models/wheel/wheelTest2.obj");
-	Model ground("../Models/wheel/ground.obj");
+
 
 	// Temp Tiles
 	glm::vec3 origin = glm::vec3(-37.958926f, 145.238343f, 0.0f);
@@ -212,16 +216,17 @@ int main(int argc, char* argv[]) {
 
 		// Draw ground
 		glm::mat4 model2;
-		//model2 = glm::translate(model2, glm::vec3(0.0f,-1.75f, 0.0f)); // Translate down
-		//model2 = glm::scale(model2, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
+		model2 = glm::translate(model2, glm::vec3(0.0f,-1.75f, 0.0f)); // Translate down
+		model2 = glm::scale(model2, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
 		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"model"),1,GL_FALSE,glm::value_ptr(model2));
-		//ground.Draw(lightingShader);
+		ground.Draw(lightingShader);
 
 		// Draw Model
-		glm::mat4 model;
+		//glm::mat4 model;
 		//model = glm::translate(model, glm::vec3(0.0f,-1.75f, xval)); // Translate down
 		//model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
-		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"model"),1,GL_FALSE,glm::value_ptr(model));
+		//glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"model"),1,GL_FALSE,glm::value_ptr(model));
+		//ourModel.Draw(lightingShader);
 		ourModel.Draw(lightingShader);
 
 		// Draw tile(s)
