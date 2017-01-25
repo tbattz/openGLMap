@@ -129,9 +129,16 @@ int main(int argc, char* argv[]) {
 	Shader lightingShader("../Shaders/multiple_lighting.vs","../Shaders/multiple_lighting.frag");
 	Shader tileShader("../Shaders/tileImage.vs","../Shaders/tileImage.frag");
 
+	// Load Alert Font
+	GLFont* alertFontPt;
+	Shader alertTextShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight);
+	Shader* alertTextShaderPt = &alertTextShader;
+	alertFontPt = new GLFont(FONTPATH);
+	alertTextShaderPt = new Shader(setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight));
+
 	// Load Models
 	//Model ourModel("../Models/wheel/wheelTest2.obj");
-	MavAircraft ourModel("../Models/X8/x8Fixed.obj",glm::vec3(-37.958926f, 145.238343f, 0.0f));
+	MavAircraft ourModel("../Models/X8/x8Fixed.obj",glm::vec3(-37.958926f, 145.238343f, 0.0f),alertFontPt,alertTextShaderPt);
 	Model ground("../Models/wheel/ground.obj");
 
 	// Create thread to recieve Mavlink messages

@@ -241,6 +241,10 @@ Firstly, ensure that cywin is not in your path.
 	b2 --build-dir="C:\Program Files\boost_1_55_0\build" --prefix="C:\Program Files\boost" --with-system --with-filesystem toolset=gcc install stage
 	```
 
+* cLibrary - Version 2
+	* git clone https://github.com/mavlink/c_library_v2.git
+	* sudo cp -r c_library_v2 /usr/local/include
+
 # Compiling
 A CMakeLists.txt file is included for compiling with Cmake. This should work for both Debian and Windows based systems. Navigate to the build directory and remove any old CMakeFiles
 ```
@@ -285,6 +289,11 @@ To run, navigate to the Debug directory and enter
 ./openGLMap
 ```
 Move around in the world using the wasd keys.
+
+If taking an input mavlink feed from ardupilot/SITL, sim_vehicle.py must be run with -C --streamrate 5 and with --out=192.168.1.1:14550.
+```
+sim_vehicle.sh --out=192.168.1.1:14550 -C --streamrate 5
+```
 
 # Making Changes with Eclipse
 These instructions are retained to give a manual method for building the project with Eclipse, in the case where cmake fails due to configuration issues.

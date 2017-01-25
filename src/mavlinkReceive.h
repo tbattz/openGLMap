@@ -37,14 +37,12 @@ public:
 
 	void startSocket() {
 
-		std::cout << "this is the mavlink thread" << "\n";
-
 		try {
 			/* Creates the socket to connect to an Mavlink stream */
 			boost::asio::io_service io_service;
 			udp::endpoint local_endpoint = boost::asio::ip::udp::endpoint(
 			boost::asio::ip::address::from_string(this->host), boost::lexical_cast<int>(this->port));
-			std::cout << "Local bind " << local_endpoint << std::endl;
+			std::cout << "Bound socket: " << local_endpoint << std::endl;
 
 			// Create Socket
 			udp::socket socket(io_service, udp::endpoint(udp::v4(), boost::lexical_cast<int>(this->port)));
@@ -52,11 +50,6 @@ public:
 			// Setup Buffers
 			boost::array<char, 128> recv_buf;
 			udp::endpoint sender_endpoint;
-
-			GLfloat time = glfwGetTime();
-			float timeDiff;
-			float mavTime = 0;
-			float mavTimeDiff;
 
 			// Receive Mavlink
 			while (this->socketRunning) {
@@ -67,43 +60,88 @@ public:
 				mavlink_status_t status;
 
 				// Parse buffer
-				for(size_t i=0; i < len; i++) {
-					if(mavlink_parse_char(MAVLINK_COMM_0, recv_buf[i], &msg, &status)) {
-						// Message was recieved
-						switch(msg.msgid) {
-							case MAVLINK_MSG_ID_GLOBAL_POSITION_INT: {
-								mavlink_global_position_int_t packet;
-								mavlink_msg_global_position_int_decode(&msg,&packet);
-								//std::cout << "POSITION: " << packet.lat/1e7 << ", " << packet.lon/1e7 << ", " << packet.relative_alt  /1000.0 << '\n';
-								// Update MavAircraft Information
-								if(this->mavAircraftPt!=nullptr) {
-									mavTimeDiff = packet.time_boot_ms/1000.0 - mavTime;
-									mavTime = packet.time_boot_ms/1000.0;
-									timeDiff = glfwGetTime() - time;
-									time = glfwGetTime();
-									std::cout << "MavTimeDiff: " << mavTimeDiff << ", TimeDiff: " << mavTime << '\n';
-									(*mavAircraftPt).geoPosition = glm::vec3(packet.lat/1e7,packet.lon/1e7,packet.relative_alt/1000.0);
-									(*mavAircraftPt).velocity = glm::vec3(packet.vx/100.0,packet.vy/100.0,packet.vz/100.0);
-									(*mavAircraftPt).newMessage = true;
-									(*mavAircraftPt).time = glfwGetTime();
+				if(this->mavAircraftPt!=nullptr) {
+					for(size_t i=0; i < len; i++) {
+						if(mavlink_parse_char(MAVLINK_COMM_0, recv_buf[i], &msg, &status)) {
+							// Message was recieved
+							switch(msg.msgid) {
+								case MAVLINK_MSG_ID_GLOBAL_POSITION_INT: {
+									// Setup Decoding Packet
+									mavlink_global_position_int_t packet;
+									mavlink_msg_global_position_int_decode(&msg,&packet);
+
+									// First Message
+									if(this->mavAircraftPt->firstMessage) {
+										(this->mavAircraftPt)->timeStart = glfwGetTime() + this->mavAircraftPt->timeDelay;
+										(this->mavAircraftPt)->timeStartMavlink = packet.time_boot_ms/1000.0;
+										printf("Our Start Time: %f, Mavlink Start Time: %f\n",(this->mavAircraftPt)->timeStart,(this->mavAircraftPt)->timeStartMavlink);
+									}
+
+									// Store GeoPosition
+									glm::dvec3 geoPos = glm::dvec3(packet.lat/1e7,packet.lon/1e7,packet.relative_alt/1e3);
+									((this->mavAircraftPt)->geoPositionHistory).push_back(geoPos);
+									(this->mavAircraftPt)->geoPosition = geoPos;
+
+									/* Convert Geodetic to ECEF */
+									glm::dvec3 ecefPosition = (this->mavAircraftPt)->geo2ECEF((this->mavAircraftPt)->geoPosition);
+									glm::dvec3 ecefOrigin = (this->mavAircraftPt)->geo2ECEF((this->mavAircraftPt)->origin);
+
+									/* Convert from ECEF to ENU */
+									glm::dvec3 pos = (this->mavAircraftPt)->ecef2ENU(ecefPosition, ecefOrigin, (this->mavAircraftPt)->origin);
+									((this->mavAircraftPt)->positionHistory).push_back(glm::dvec3(pos[0],pos[1],pos[2]));
+									if(this->mavAircraftPt->firstMessage) {
+										this->mavAircraftPt->position = this->mavAircraftPt->positionHistory[0];
+									}
+
+									// Calculate velocities to enforce end position
+									if(this->mavAircraftPt->positionHistory.size() > 1) {
+										float vx = ((this->mavAircraftPt)->position[0]-(this->mavAircraftPt)->oldPosition[0])/((this->mavAircraftPt)->currTime-(this->mavAircraftPt)->oldTime);
+										float vy = ((this->mavAircraftPt)->position[1]-(this->mavAircraftPt)->oldPosition[1])/((this->mavAircraftPt)->currTime-(this->mavAircraftPt)->oldTime);
+										float vz = ((this->mavAircraftPt)->position[2]-(this->mavAircraftPt)->oldPosition[2])/((this->mavAircraftPt)->currTime-(this->mavAircraftPt)->oldTime);;
+										if(abs(vx)>0.1 || abs(vy)>0.1 || abs(vz)>0.1) {
+											(this->mavAircraftPt)->velocityHistory.push_back(glm::dvec3(vx,vy,vz));
+
+										} else {
+											(this->mavAircraftPt)->velocityHistory.push_back(glm::dvec3(0,0,0));
+										}
+									} else {
+										// Store first position and time
+										(this->mavAircraftPt)->position = (this->mavAircraftPt)->positionHistory[0];
+										(this->mavAircraftPt)->currTime = glfwGetTime() - (this->mavAircraftPt)->timeStart;
+									}
+
+									// Reset old values
+									(this->mavAircraftPt)->oldPosition = (this->mavAircraftPt)->position;
+									(this->mavAircraftPt)->oldTime = (this->mavAircraftPt)->currTime;
+
+									// Store Time
+									((this->mavAircraftPt)->timeHistory).push_back(packet.time_boot_ms/1000.0);
+
+									// Toggle after recieving first message
+									if(this->mavAircraftPt->firstMessage) {
+										(this->mavAircraftPt)->firstMessage = false;
+									}
+
+									break;
 								}
-								break;
-							}
-							case MAVLINK_MSG_ID_ATTITUDE: {
-								mavlink_attitude_t packet;
-								mavlink_msg_attitude_decode(&msg,&packet);
-								//printf("ATTITUDE: %f (%f), %f (%f), %f (%f)\n",packet.roll, packet.rollspeed,packet.pitch, packet.pitchspeed, packet.yaw, packet.yawspeed);
-								if(mavAircraftPt!=nullptr) {
+								case MAVLINK_MSG_ID_ATTITUDE: {
+									mavlink_attitude_t packet;
+									mavlink_msg_attitude_decode(&msg,&packet);
+
+									//printf("%f, %f\n",packet.time_boot_ms,packet.yaw);
+
 									// Rotations later
+
+									break;
 								}
-								break;
+
 							}
+
+
+
+							//mavlink_msg_command_long_decode(&msg,&msgstruct);
+							//std::cout << msgstruct.param1 << '\n';
 						}
-
-
-
-						//mavlink_msg_command_long_decode(&msg,&msgstruct);
-						//std::cout << msgstruct.param1 << '\n';
 					}
 				}
 			}
