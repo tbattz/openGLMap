@@ -86,18 +86,19 @@ public:
 									glm::dvec3 ecefPosition = (this->mavAircraftPt)->geo2ECEF((this->mavAircraftPt)->geoPosition);
 									glm::dvec3 ecefOrigin = (this->mavAircraftPt)->geo2ECEF((this->mavAircraftPt)->origin);
 
-									/* Convert from ECEF to ENU */
-									glm::dvec3 pos = (this->mavAircraftPt)->ecef2ENU(ecefPosition, ecefOrigin, (this->mavAircraftPt)->origin);
+									/* Convert from ECEF to NEU */
+									glm::dvec3 pos = (this->mavAircraftPt)->ecef2NEU(ecefPosition, ecefOrigin, (this->mavAircraftPt)->origin);
 									((this->mavAircraftPt)->positionHistory).push_back(glm::dvec3(pos[0],pos[1],pos[2]));
 									if(this->mavAircraftPt->firstMessage) {
 										this->mavAircraftPt->position = this->mavAircraftPt->positionHistory[0];
 									}
 
-									// Calculate velocities to enforce end position
+									// Store velocities to enforce end position
 									if(this->mavAircraftPt->positionHistory.size() > 1) {
-										float vx = ((this->mavAircraftPt)->position[0]-(this->mavAircraftPt)->oldPosition[0])/((this->mavAircraftPt)->currTime-(this->mavAircraftPt)->oldTime);
-										float vy = ((this->mavAircraftPt)->position[1]-(this->mavAircraftPt)->oldPosition[1])/((this->mavAircraftPt)->currTime-(this->mavAircraftPt)->oldTime);
-										float vz = ((this->mavAircraftPt)->position[2]-(this->mavAircraftPt)->oldPosition[2])/((this->mavAircraftPt)->currTime-(this->mavAircraftPt)->oldTime);;
+										float vx = packet.vx/100.0;
+										float vy = packet.vy/100.0;
+										float vz = packet.vz/100.0;
+
 										if(abs(vx)>0.1 || abs(vy)>0.1 || abs(vz)>0.1) {
 											(this->mavAircraftPt)->velocityHistory.push_back(glm::dvec3(vx,vy,vz));
 
@@ -127,8 +128,6 @@ public:
 								case MAVLINK_MSG_ID_ATTITUDE: {
 									mavlink_attitude_t packet;
 									mavlink_msg_attitude_decode(&msg,&packet);
-
-									//printf("%f, %f\n",packet.time_boot_ms,packet.yaw);
 
 									// Rotations later
 

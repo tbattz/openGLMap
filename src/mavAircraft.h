@@ -38,7 +38,7 @@ public:
 		glm::dvec3 velocity;		// (vx,vy,vz) (m/s)
 
 		// Attitude Information
-		glm::dvec3 attitude;		//
+		glm::dvec3 attitude;		// (roll (
 
 		// History Information
 		vector<glm::dvec3>	geoPositionHistory;	// Vector of Lat (deg), Lon (deg), alt (km)
@@ -197,13 +197,13 @@ public:
 		return glm::dvec3(ex,ey,ez);
 	}
 
-	/* Convert from ECEF to ENU */
-	glm::dvec3 ecef2ENU(glm::dvec3 ecefVector, glm::dvec3 ecefOrigin, glm::dvec3 origin) {
+	/* Convert from ECEF to NEU */
+	glm::dvec3 ecef2NEU(glm::dvec3 ecefVector, glm::dvec3 ecefOrigin, glm::dvec3 origin) {
 		GLdouble lat = glm::radians(origin[0]);
 		GLdouble lon = glm::radians(origin[1]);
-		glm::dmat3 A = glm::dmat3(-glm::sin(lon),					glm::cos(lon),					0.0,
-								-glm::sin(lat)*glm::cos(lon),	-glm::sin(lat)*glm::sin(lon),	glm::cos(lat),
-								glm::cos(lat)*glm::cos(lon),	glm::cos(lat)*glm::sin(lon),	glm::sin(lat));
+		glm::dmat3 A = glm::dmat3(-glm::sin(lat)*glm::cos(lon),	-glm::sin(lat)*glm::sin(lon),	glm::cos(lat),
+								  -glm::sin(lon),				glm::cos(lon),					0.0,
+								  glm::cos(lat)*glm::cos(lon),	glm::cos(lat)*glm::sin(lon),	glm::sin(lat));
 		glm::dvec3 B = glm::dvec3(ecefVector[0]-ecefOrigin[0],ecefVector[1]-ecefOrigin[1],ecefVector[2]-ecefOrigin[2]);
 
 		return B*A; // Flipped due to GLM ordering
