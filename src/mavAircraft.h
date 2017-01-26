@@ -57,9 +57,9 @@ public:
 		float				dt=0;					// Timestep between current frame and last current mavlink message time
 
 		// Interpolation Information
-		glm::vec3 xconst;
-		glm::vec3 yconst;
-		glm::vec3 zconst;
+		glm::dvec3 xconst;
+		glm::dvec3 yconst;
+		glm::dvec3 zconst;
 
 		// Attitude Information
 
@@ -162,16 +162,16 @@ public:
 		// (t1,x1), (t2,x2), (t1,v1), v1 found from last frame step
 		float t1 = 0;
 		float t2 = timeHistory[pos]-timeHistory[pos-1];
-		glm::vec3 v1 = velocityHistory[pos];
+		glm::dvec3 v1 = velocityHistory[pos];
 
 		// Find inverse matrix of [x1,x2,v1]=[BLAH][a,b,c]
 		glm::mat3x3 A = glm::mat3x3(0.5*t1*t1, t1, 1,0.5*t2*t2,t2,1,t1,1,0);
 		glm::mat3x3 inv = glm::inverse(A);
 
 		// Constants
-		glm::vec3 xvec = glm::vec3(positionHistory[pos-1][0],positionHistory[pos][0],v1[0]);
-		glm::vec3 yvec = glm::vec3(positionHistory[pos-1][1],positionHistory[pos][1],v1[1]);
-		glm::vec3 zvec = glm::vec3(positionHistory[pos-1][2],positionHistory[pos][2],v1[2]);
+		glm::dvec3 xvec = glm::dvec3(positionHistory[pos-1][0],positionHistory[pos][0],v1[0]);
+		glm::dvec3 yvec = glm::dvec3(positionHistory[pos-1][1],positionHistory[pos][1],v1[1]);
+		glm::dvec3 zvec = glm::dvec3(positionHistory[pos-1][2],positionHistory[pos][2],v1[2]);
 
 		xconst = xvec*inv;		// Flipped due to GLM ordering
 		yconst = yvec*inv;		// Flipped due to GLM ordering
