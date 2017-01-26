@@ -30,6 +30,7 @@
 #include "../src/imageTile.h"
 #include "../src/mavlinkReceive.h"
 #include "../src/mavAircraft.h"
+#include "../src/skybox.h"
 
 // GLM Mathematics
 #include <glm/glm.hpp>
@@ -128,6 +129,7 @@ int main(int argc, char* argv[]) {
 	// Setup and compile shaders
 	Shader lightingShader("../Shaders/multiple_lighting.vs","../Shaders/multiple_lighting.frag");
 	Shader tileShader("../Shaders/tileImage.vs","../Shaders/tileImage.frag");
+	Shader skyboxShader("../Shaders/skybox.vs","../Shaders/skybox.frag");
 
 	// Load Alert Font
 	GLFont* alertFontPt;
@@ -147,7 +149,8 @@ int main(int argc, char* argv[]) {
 	MavSocket mavSocket("192.168.1.1", "14550",&ourModel);
 	std::thread mavThread(&MavSocket::startSocket,&mavSocket);
 
-
+	// Create Skybox
+	Skybox skybox;
 
 	// Temp Tiles
 	glm::vec3 origin = glm::vec3(-37.958926f, 145.238343f, 0.0f);
@@ -213,8 +216,8 @@ int main(int argc, char* argv[]) {
 		lightingShader.Use();
 
 		// Update View Position Uniform
-		GLint viewPosLoc              = glGetUniformLocation(lightingShader.Program, "viewPos");
-        glUniform3f(viewPosLoc,              camera.Position.x, camera.Position.y, camera.Position.z);
+		GLint viewPosLoc = glGetUniformLocation(lightingShader.Program, "viewPos");
+        glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
 
 		// Transformation Matrices
 		glm::mat4 projection = glm::perspective(camera.Zoom, (float)screenWidth/(float)screenHeight,0.1f,1000.0f);
@@ -260,7 +263,15 @@ int main(int argc, char* argv[]) {
 			(imageTileList.tiles[i]).Draw(tileShader);
 		}
 		//tempTile.Draw(tileShader);
-		//tempTile2.Draw(tileShader);
+		//tempTile2.Draw(tileShader)
+
+		// Draw Skybox last
+		skyboxShader.Use();
+		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));	// Remove any translation component of the view matrix
+		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniform1i(glGetUniformLocation(skyboxShader.Program, "skybox"), 0);
+		skybox.Draw(skyboxShader);
 
 		// Print FPS
 		if(fpsOn) {
