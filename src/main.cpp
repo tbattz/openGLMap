@@ -150,7 +150,14 @@ int main(int argc, char* argv[]) {
 	std::thread mavThread(&MavSocket::startSocket,&mavSocket);
 
 	// Create Skybox
-	Skybox skybox;
+	vector<const GLchar*> faces;
+	faces.push_back("../Models/skybox/right.png");
+	faces.push_back("../Models/skybox/left.png");
+	faces.push_back("../Models/skybox/top.png");
+	faces.push_back("../Models/skybox/bottom.png");
+	faces.push_back("../Models/skybox/back.png");
+	faces.push_back("../Models/skybox/front.png");
+	Skybox skybox(faces);
 
 	// Temp Tiles
 	glm::vec3 origin = glm::vec3(-37.958926f, 145.238343f, 0.0f);
@@ -259,7 +266,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		// Draw tiles
-		for(int i = 0; i != imageTileList.tiles.size(); i++) {
+		for(unsigned int i = 0; i != imageTileList.tiles.size(); i++) {
 			(imageTileList.tiles[i]).Draw(tileShader);
 		}
 		//tempTile.Draw(tileShader);

@@ -74,12 +74,12 @@ public:
 	    };
 
 
-	Skybox() {
+	Skybox(vector<const GLchar*> faces) {
 		// Create Buffers
 		createAndSetupBuffers();
 
 		// Setup Texture
-		setupTexture();
+		setupTexture(faces);
 
 	};
 
@@ -113,15 +113,8 @@ private:
 		glBindVertexArray(0);
 	}
 
-	void setupTexture() {
+	void setupTexture(vector<const GLchar*> faces) {
 		/* Setup Faces */
-		vector<const GLchar*> faces;
-		faces.push_back("../Models/skybox/right.png");
-		faces.push_back("../Models/skybox/left.png");
-		faces.push_back("../Models/skybox/top.png");
-		faces.push_back("../Models/skybox/bottom.png");
-		faces.push_back("../Models/skybox/back.png");
-		faces.push_back("../Models/skybox/front.png");
 		cubemapTexture = loadCubemap(faces);
 
 	}
