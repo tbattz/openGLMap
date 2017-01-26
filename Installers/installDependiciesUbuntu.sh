@@ -83,3 +83,7 @@ sudo cp -r include/* /usr/local/include
 
 echo -e "\e[44m ======================= FreeType - Font Rendering Library ========================= \e[49m"
 sudo apt-get -y install libboost-all-dev
+
+echo -e "\e[44m ====================== c_library_v2 - Mavlink Definitions ========================= \e[49m"
+git clone https://github.com/mavlink/c_library_v2.git
+sudo cp -r c_library_v2 /usr/local/include

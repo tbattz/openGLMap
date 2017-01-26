@@ -93,6 +93,15 @@ Independices are installed in two steps.
 	sudo apt-get install libboost-all-dev
 	```
 
+* cLibrary - Version 2
+	* Clone the repo and copy to your include folder
+	```
+	git clone https://github.com/mavlink/c_library_v2.git
+	sudo cp -r c_library_v2 /usr/local/include
+
+	```
+
+
 ### Windows (Windows 10)
 Firstly, ensure that cywin is not in your path.
 * MinGW-w64
@@ -242,8 +251,14 @@ Firstly, ensure that cywin is not in your path.
 	```
 
 * cLibrary - Version 2
-	* git clone https://github.com/mavlink/c_library_v2.git
-	* sudo cp -r c_library_v2 /usr/local/include
+	* Clone the repository
+	```
+	git clone https://github.com/mavlink/c_library_v2.git
+	```
+	* Copy to the include folder
+	```
+	xcopy /E/I/y c_library_v2\ <openGLMap root>\c_library_v2
+	````
 
 # Compiling
 A CMakeLists.txt file is included for compiling with Cmake. This should work for both Debian and Windows based systems. Navigate to the build directory and remove any old CMakeFiles
