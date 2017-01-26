@@ -31,35 +31,39 @@ class MavAircraft : public Model {
 public:
 	/* Data */
 		// Position Information
-		glm::dvec3 origin; 			// Lat (deg), Lon (deg), alt (km)
-		glm::dvec3 geoPosition; 	// Lat (deg), Lon (deg), alt (km)
-		glm::dvec3 position; 		// (x,y,z) relative to origin
-		glm::dvec3 oldPosition;		// Position calculated 2 steps ago (frame steps not messages)
-		glm::dvec3 velocity;		// (vx,vy,vz) (m/s)
+		glm::dvec3 			origin; 						// Lat (deg), Lon (deg), alt (km)
+		glm::dvec3 			geoPosition; 					// Lat (deg), Lon (deg), alt (km)
+		glm::dvec3 			position; 						// (x,y,z) relative to origin
+		glm::dvec3 			velocity;						// (vx,vy,vz) (m/s)
+
+		// Position History Information
+		vector<glm::dvec3>	geoPositionHistory;				// Vector of Lat (deg), Lon (deg), alt (km)
+		vector<glm::dvec3>	positionHistory; 				// Vector of (x,y,z) relative to origin
+		vector<glm::dvec3>	velocityHistory;				// Vector of (vx,vy,vz)
+		vector<float>		timePositionHistory;			// Vector of floats corresponding to times of position history
+		bool				firstPositionMessage = true;	// True if the first message has been received
+		unsigned int		currentPosMsgIndex = 0;			// Index of the 'latest' position mavlink message being displayed (this is behind the data)
 
 		// Attitude Information
-		glm::dvec3 attitude;		// (roll (
-
-		// History Information
-		vector<glm::dvec3>	geoPositionHistory;	// Vector of Lat (deg), Lon (deg), alt (km)
-		vector<glm::dvec3>	positionHistory; 	// Vector of (x,y,z) relative to origin
-		vector<glm::dvec3>	velocityHistory;	// Vector of (vx,vy,vz)
-		vector<float>		timeHistory;		// Vector of floats corresponding to times of velocity history
+		glm::dvec3 			attitude;						// roll (rad), pitch (rad), yaw (rad)
+		vector<glm::dvec3>	attitudeHistory; 				// Vector if attiudes
+		vector<glm::dvec3>	attitudeRateHistory;			// Vector of attitude rates
+		vector<float>		timeAttitudeHistory;			// Vector of floats corresponding to times of attitude history
+		bool				firstAttitudeMessage = true;	// True if the first message has been recieved
+		unsigned int		currentAttMsgIndex = 0; 		// Index of the 'latest' attitude mavlink message being displayed (behind the data)
 
 		// Time Information
-		bool				firstMessage = true;// True if the first message has been received
-		float				timeStart=0;		// Offset between autopilot boot time and glfw time (used to sync times)
-		float				timeStartMavlink=0; // Boot time of the first mavlink message (s)
-		float				timeDelay = 1.0;	// Delay between recieving the first mavlink message and displaying it (s)
-		float				currTime=0;			// The current time
-		float				oldTime=0;			// Time at previous frame
-		unsigned int		currentMsgIndex = 0;// Index of the 'latest' mavlink message being displayed (this is behind the data)
-		float				dt=0;					// Timestep between current frame and last current mavlink message time
+		float				timeStart=0;					// Offset between autopilot boot time and glfw time (used to sync times)
+		float				timeStartMavlink=0; 			// Boot time of the first mavlink message (s)
+		float				timeDelay=0.5;  				// Delay between receiving the first mavlink message and displaying it (s)
+		float				currTime=0;						// The current time
+		float				dtPos=0;						// Timestep between current frame and last current position mavlink message time
+		float				dtAtt=0;						// Timestep between current frame and last current attitude mavlink message time
 
 		// Interpolation Information
-		glm::dvec3 xconst;
-		glm::dvec3 yconst;
-		glm::dvec3 zconst;
+		glm::dvec3 			xPosConst;
+		glm::dvec3 			yPosConst;
+		glm::dvec3 			zPosConst;
 
 		// Attitude Information
 
@@ -71,7 +75,7 @@ public:
 		GLFont* alertFontPt;
 		Shader* alertShaderPt;
 		GLfloat screenHeight = 1080;
-		GLfloat screenWidth  = 1920;
+		GLfloat screenWidtPosh  = 1920;
 
 	MavAircraft(GLchar* path, glm::dvec3 origin,GLFont* alertFontPt,Shader* alertShaderPt) : Model(path) {
 
@@ -82,9 +86,6 @@ public:
 		// Set Origin
 		this->origin = origin;
 
-		// Initialise Position Information
-
-
 		// Font information
 		this->alertFontPt = alertFontPt;
 		this->alertShaderPt = alertShaderPt;
@@ -93,42 +94,65 @@ public:
 
 	void Draw(Shader shader) {
 
-		if(!firstMessage) {
-			// Check to move to next pair of messages
-			currTime = glfwGetTime() - timeStart;
-			while(currTime > (timeHistory[currentMsgIndex]-timeStartMavlink)) {
-				if (currentMsgIndex < timeHistory.size()-1) {
+		// Set new time
+		currTime = glfwGetTime() - timeStart;
+
+		// Check to move to next pair of position messages
+		if(!firstPositionMessage) {
+			while(currTime > (timePositionHistory[currentPosMsgIndex]-timeStartMavlink)) {
+				if (currentPosMsgIndex < timePositionHistory.size()-1) {
 					// Increment current Mavlink Message
-					currentMsgIndex += 1;
+					currentPosMsgIndex += 1;
 				}
 			}
-			if (currentMsgIndex>0) {
-				currentMsgIndex -= 1;
+			if (currentPosMsgIndex>0) {
+				currentPosMsgIndex -= 1;
 			}
 		}
 
-		if(currentMsgIndex>1) {
-			// Calculate offset
-			if (timeHistory.size() > 0) {
-				if(!firstMessage) {
-					dt = currTime - (timeHistory[currentMsgIndex]-timeStartMavlink);
+		// Check to move to the next pair of attitude messages
+		if(!firstAttitudeMessage) {
+			while(currTime > timeAttitudeHistory[currentAttMsgIndex]-timeStartMavlink) {
+				if(currentAttMsgIndex < timeAttitudeHistory.size()-1) {
+					// Increment current Mavlink Message
+					currentAttMsgIndex += 1;
+				}
+			}
+			if(currentAttMsgIndex>0) {
+				currentAttMsgIndex -= 1;
+			}
+		}
+
+		if(currentPosMsgIndex>1) {
+			// Calculate position offset
+			if (timePositionHistory.size() > 0) {
+				if(!firstPositionMessage) {
+					dtPos = currTime - (timePositionHistory[currentPosMsgIndex]-timeStartMavlink);
 					interpolatePosition();
 				}
 			}
 
+			// Calculate attitude offset
+			if(timeAttitudeHistory.size() > 0) {
+				if(!firstAttitudeMessage) {
+					dtAtt = currTime - (timeAttitudeHistory[currentAttMsgIndex]-timeStartMavlink);
+				}
+			}
+
 			// Alert to screen if running ahead of mavlink messages
-			if(currTime > timeHistory[timeHistory.size()-1]) {
+			if(currTime > timePositionHistory[timePositionHistory.size()-1]) {
 				std::stringstream ss;
-				ss << "Messages falling behind: " << -dt << " s";
-				alertFontPt->RenderText(alertShaderPt,ss.str(),(screenWidth/2.0)-400.0,screenHeight/10.0f,1.0f,glm::vec3(0.0f, 1.0f, 0.0f));
+				ss << "Messages falling behind: " << -dtPos << " s";
+				alertFontPt->RenderText(alertShaderPt,ss.str(),(screenWidtPosh/2.0)-400.0,screenHeight/10.0f,1.0f,glm::vec3(0.0f, 1.0f, 0.0f));
 			}
 
 			// Do Translation and Rotation
 			glm::mat4 model;
-			model = glm::rotate(model,0.0f,glm::vec3(1.0f,0.0f,0.0f)); // Rotate about x
-			model = glm::rotate(model,0.0f,glm::vec3(0.0f,1.0f,0.0f)); // Rotate about y
-			model = glm::rotate(model,0.0f,glm::vec3(0.0f,0.0f,1.0f)); // Rotate about z
-			model = glm::translate(model,glm::vec3(position[0],position[2],position[1]));
+			model = glm::translate(model,glm::vec3(position[0],position[2],position[1]));// Translate first due to GLM ordering, rotations opposite order
+			model = glm::rotate(model,(float)attitude[0],glm::vec3(1.0f,0.0f,0.0f)); // Rotate about x, roll
+			model = glm::rotate(model,(float)attitude[1],glm::vec3(0.0f,0.0f,1.0f)); // Rotate about z, pitch
+			model = glm::rotate(model,(float)attitude[2],glm::vec3(0.0f,1.0f,0.0f)); // Rotate about y, yaw
+
 
 			// Update Uniforms
 			glUniformMatrix4fv(glGetUniformLocation(shader.Program,"model"),1,GL_FALSE,glm::value_ptr(model));
@@ -140,28 +164,28 @@ public:
 
 	// Calculate position at next frame
 	void interpolatePosition() {
-		if(currentMsgIndex>1) {
+		if(currentPosMsgIndex>1) {
 			// Recalculate Interpolation Constants
-			if(currentMsgIndex>1) {
+			if(currentPosMsgIndex>1) {
 				calculateInterpolationConstants();
 			}
 
 			// Calculate Positions
-			this->position[0] = (0.5*xconst[0]*dt*dt) + (xconst[1]*dt) + xconst[2];
-			this->position[1] = (0.5*yconst[0]*dt*dt) + (yconst[1]*dt) + yconst[2];
-			this->position[2] = (0.5*zconst[0]*dt*dt) + (zconst[1]*dt) + zconst[2];
+			this->position[0] = (0.5*xPosConst[0]*dtPos*dtPos) + (xPosConst[1]*dtPos) + xPosConst[2];
+			this->position[1] = (0.5*yPosConst[0]*dtPos*dtPos) + (yPosConst[1]*dtPos) + yPosConst[2];
+			this->position[2] = (0.5*zPosConst[0]*dtPos*dtPos) + (zPosConst[1]*dtPos) + zPosConst[2];
 		}
 	}
 
 	void calculateInterpolationConstants() {
 		// Get Index
-		int pos = currentMsgIndex + 1;
+		int pos = currentPosMsgIndex + 1;
 
 		// x(t) = 0.5*a*t^2+b*t+c
 		// v(t) = at+b
 		// (t1,x1), (t2,x2), (t1,v1), v1 found from last frame step
 		float t1 = 0;
-		float t2 = timeHistory[pos]-timeHistory[pos-1];
+		float t2 = timePositionHistory[pos]-timePositionHistory[pos-1];
 		glm::dvec3 v1 = velocityHistory[pos];
 
 		// Find inverse matrix of [x1,x2,v1]=[BLAH][a,b,c]
@@ -173,9 +197,9 @@ public:
 		glm::dvec3 yvec = glm::dvec3(positionHistory[pos-1][1],positionHistory[pos][1],v1[1]);
 		glm::dvec3 zvec = glm::dvec3(positionHistory[pos-1][2],positionHistory[pos][2],v1[2]);
 
-		xconst = xvec*inv;		// Flipped due to GLM ordering
-		yconst = yvec*inv;		// Flipped due to GLM ordering
-		zconst = zvec*inv;		// Flipped due to GLM ordering
+		xPosConst = xvec*inv;		// Flipped due to GLM ordering
+		yPosConst = yvec*inv;		// Flipped due to GLM ordering
+		zPosConst = zvec*inv;		// Flipped due to GLM ordering
 	}
 
 

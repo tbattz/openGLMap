@@ -75,7 +75,7 @@ public:
 									if(geoPos[0]>=-90 && geoPos[0]<=90 && geoPos[1]>=-180 && geoPos[1]<=180 && geoPos[0]!=0 && geoPos[1]!=0) {
 
 										// First Message
-										if(this->mavAircraftPt->firstMessage) {
+										if(this->mavAircraftPt->firstPositionMessage) {
 											(this->mavAircraftPt)->timeStart = glfwGetTime() + this->mavAircraftPt->timeDelay;
 											(this->mavAircraftPt)->timeStartMavlink = packet.time_boot_ms/1000.0;
 											printf("Our Start Time: %f, Mavlink Start Time: %f\n",(this->mavAircraftPt)->timeStart,(this->mavAircraftPt)->timeStartMavlink);
@@ -92,7 +92,7 @@ public:
 										/* Convert from ECEF to NEU */
 										glm::dvec3 pos = (this->mavAircraftPt)->ecef2NEU(ecefPosition, ecefOrigin, (this->mavAircraftPt)->origin);
 										((this->mavAircraftPt)->positionHistory).push_back(pos);
-										if(this->mavAircraftPt->firstMessage) {
+										if(this->mavAircraftPt->firstPositionMessage) {
 											this->mavAircraftPt->position = this->mavAircraftPt->positionHistory[0];
 										}
 
@@ -105,16 +105,12 @@ public:
 											(this->mavAircraftPt)->currTime = glfwGetTime() - (this->mavAircraftPt)->timeStart;
 										}
 
-										// Reset old values
-										(this->mavAircraftPt)->oldPosition = (this->mavAircraftPt)->position;
-										(this->mavAircraftPt)->oldTime = (this->mavAircraftPt)->currTime;
-
 										// Store Time
-										((this->mavAircraftPt)->timeHistory).push_back(packet.time_boot_ms/1000.0);
+										((this->mavAircraftPt)->timePositionHistory).push_back(packet.time_boot_ms/1000.0);
 
 										// Toggle after recieving first message
-										if(this->mavAircraftPt->firstMessage) {
-											(this->mavAircraftPt)->firstMessage = false;
+										if(this->mavAircraftPt->firstPositionMessage) {
+											(this->mavAircraftPt)->firstPositionMessage = false;
 										}
 									} else {
 										printf("Waiting for correct data or GPS lock.\r");
@@ -126,7 +122,20 @@ public:
 									mavlink_attitude_t packet;
 									mavlink_msg_attitude_decode(&msg,&packet);
 
-									// Rotations later
+									// Store Rotations
+									glm::dvec3 rot = glm::dvec3(packet.roll,packet.pitch,-packet.yaw);
+									this->mavAircraftPt->attitude = rot;
+									this->mavAircraftPt->attitudeHistory.push_back(rot);
+									// Store Rotation Rates
+									glm::dvec3 rotRate = glm::dvec3(packet.rollspeed,packet.pitchspeed,packet.yawspeed);
+									this->mavAircraftPt->attitudeRateHistory.push_back(rotRate);
+									// Store Time
+									this->mavAircraftPt->timeAttitudeHistory.push_back(packet.time_boot_ms/1000.0);
+
+									// Reset First Message Switch
+									if(this->mavAircraftPt->firstAttitudeMessage) {
+										this->mavAircraftPt->firstAttitudeMessage = false;
+									}
 
 									break;
 								}
