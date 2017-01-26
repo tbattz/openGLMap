@@ -64,6 +64,9 @@ public:
 		glm::dvec3 			xPosConst;
 		glm::dvec3 			yPosConst;
 		glm::dvec3 			zPosConst;
+		glm::dvec3			xAttConst;
+		glm::dvec3			yAttConst;
+		glm::dvec3			zAttConst;
 
 		// Attitude Information
 
@@ -136,6 +139,7 @@ public:
 			if(timeAttitudeHistory.size() > 0) {
 				if(!firstAttitudeMessage) {
 					dtAtt = currTime - (timeAttitudeHistory[currentAttMsgIndex]-timeStartMavlink);
+					interpolateAttitude();
 				}
 			}
 
@@ -166,9 +170,7 @@ public:
 	void interpolatePosition() {
 		if(currentPosMsgIndex>1) {
 			// Recalculate Interpolation Constants
-			if(currentPosMsgIndex>1) {
-				calculateInterpolationConstants();
-			}
+			calculatePositionInterpolationConstants();
 
 			// Calculate Positions
 			this->position[0] = (0.5*xPosConst[0]*dtPos*dtPos) + (xPosConst[1]*dtPos) + xPosConst[2];
@@ -177,7 +179,19 @@ public:
 		}
 	}
 
-	void calculateInterpolationConstants() {
+	void interpolateAttitude() {
+		if(currentAttMsgIndex>1) {
+			// Recalculate Interpolation Constants
+			calculateAttitudeInterpolationConstants();
+
+			// Calculate Attitude
+			this->attitude[0] = (0.5*xAttConst[0]*dtAtt*dtAtt) + (xAttConst[1]*dtAtt) + xAttConst[2];
+			this->attitude[1] = (0.5*yAttConst[0]*dtAtt*dtAtt) + (yAttConst[1]*dtAtt) + yAttConst[2];
+			this->attitude[2] = (0.5*zAttConst[0]*dtAtt*dtAtt) + (zAttConst[1]*dtAtt) + zAttConst[2];
+		}
+	}
+
+	void calculatePositionInterpolationConstants() {
 		// Get Index
 		int pos = currentPosMsgIndex + 1;
 
@@ -202,6 +216,30 @@ public:
 		zPosConst = zvec*inv;		// Flipped due to GLM ordering
 	}
 
+	void calculateAttitudeInterpolationConstants() {
+		// Get Index
+		int pos = currentAttMsgIndex + 1;
+
+		// x(t) = 0.5*a*t^2+b*t+c
+		// v(t) = at+b
+		// (t1,x1), (t2,x2), (t1,v1), v1 found from last frame step
+		float t1 = 0;
+		float t2 = timeAttitudeHistory[pos]-timeAttitudeHistory[pos-1];
+		glm::dvec3 v1 = attitudeRateHistory[pos];
+
+		// Find inverse matrix of [x1,x2,v1]=[BLAH][a,b,c]
+		glm::mat3x3 A = glm::mat3x3(0.5*t1*t1, t1, 1,0.5*t2*t2,t2,1,t1,1,0);
+		glm::mat3x3 inv = glm::inverse(A);
+
+		// Constants
+		glm::dvec3 xvec = glm::dvec3(attitudeHistory[pos-1][0],attitudeHistory[pos][0],v1[0]);
+		glm::dvec3 yvec = glm::dvec3(attitudeHistory[pos-1][1],attitudeHistory[pos][1],v1[1]);
+		glm::dvec3 zvec = glm::dvec3(attitudeHistory[pos-1][2],attitudeHistory[pos][2],v1[2]);
+
+		xAttConst = xvec*inv;		// Flipped due to GLM ordering
+		yAttConst = yvec*inv;		// Flipped due to GLM ordering
+		zAttConst = zvec*inv;		// Flipped due to GLM ordering
+	}
 
 	/* Conversion Geodetic to ECEF */
 	glm::dvec3 geo2ECEF(glm::dvec3 positionVector) {

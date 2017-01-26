@@ -140,6 +140,7 @@ int main(int argc, char* argv[]) {
 	//Model ourModel("../Models/wheel/wheelTest2.obj");
 	MavAircraft ourModel("../Models/X8/x8Fixed.obj",glm::vec3(-37.958926f, 145.238343f, 0.0f),alertFontPt,alertTextShaderPt);
 	Model ground("../Models/wheel/ground.obj");
+	Model ground2("../Models/wheel/ground.obj");
 
 	// Create thread to recieve Mavlink messages
 	//std::thread mavlinkThread(mavlinkMain,"192.168.1.1", "14550");
@@ -226,6 +227,13 @@ int main(int argc, char* argv[]) {
 		model2 = glm::translate(model2, glm::vec3(0.0f,-1.75f, 0.0f)); // Translate down
 		model2 = glm::scale(model2, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
 		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"model"),1,GL_FALSE,glm::value_ptr(model2));
+		ground.Draw(lightingShader);
+
+		// Draw ground2
+		glm::mat4 model3;
+		model3 = glm::translate(model3, glm::vec3(5.0f,-1.75f, 0.0f)); // Translate down
+		model3 = glm::scale(model3, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
+		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"model"),1,GL_FALSE,glm::value_ptr(model3));
 		ground.Draw(lightingShader);
 
 		// Draw Model
