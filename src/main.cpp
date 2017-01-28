@@ -224,6 +224,10 @@ int main(int argc, char* argv[]) {
 
 		lightingShader.Use();
 
+		// Update Chase View
+		// pitch, yaw, position
+		camera.Position = glm::vec3(mavAircraft.position[0],mavAircraft.position[2],mavAircraft.position[1]);
+
 		// Update View Position Uniform
 		GLint viewPosLoc = glGetUniformLocation(lightingShader.Program, "viewPos");
         glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
