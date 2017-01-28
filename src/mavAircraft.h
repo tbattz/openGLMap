@@ -68,19 +68,14 @@ public:
 		glm::dvec3			yAttConst;
 		glm::dvec3			zAttConst;
 
-		// Attitude Information
+		// Airpseed Information
+		float 				airspeed;						// (m/s)
 
 		// Frame Information
 		//GLfloat fovX; // Degrees
 		//GLfloat fovY; // Degrees
 
-		// Alert Font
-		GLFont* alertFontPt;
-		Shader* alertShaderPt;
-		GLfloat screenHeight = 1080;
-		GLfloat screenWidtPosh  = 1920;
-
-	MavAircraft(GLchar* path, glm::dvec3 origin,GLFont* alertFontPt,Shader* alertShaderPt) : Model(path) {
+	MavAircraft(GLchar* path, glm::dvec3 origin) : Model(path) {
 
 		// Set Geoposition (temporary)
 		this->geoPosition = glm::dvec3(-37.958926f, 145.238343f, 0.0f);
@@ -89,9 +84,8 @@ public:
 		// Set Origin
 		this->origin = origin;
 
-		// Font information
-		this->alertFontPt = alertFontPt;
-		this->alertShaderPt = alertShaderPt;
+		// Set Airspeed
+		airspeed = 0;
 
 	}
 
@@ -141,13 +135,6 @@ public:
 					dtAtt = currTime - (timeAttitudeHistory[currentAttMsgIndex]-timeStartMavlink);
 					interpolateAttitude();
 				}
-			}
-
-			// Alert to screen if running ahead of mavlink messages
-			if(currTime > timePositionHistory[timePositionHistory.size()-1]) {
-				std::stringstream ss;
-				ss << "Messages falling behind: " << -dtPos << " s";
-				alertFontPt->RenderText(alertShaderPt,ss.str(),(screenWidtPosh/2.0)-400.0,screenHeight/10.0f,1.0f,glm::vec3(0.0f, 1.0f, 0.0f));
 			}
 
 			// Do Translation and Rotation

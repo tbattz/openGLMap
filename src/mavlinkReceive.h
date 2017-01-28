@@ -139,13 +139,18 @@ public:
 
 									break;
 								}
+								case MAVLINK_MSG_ID_VFR_HUD: {
+									mavlink_vfr_hud_t packet;
+									mavlink_msg_vfr_hud_decode(&msg,&packet);
+
+									// Store airspeed
+									mavAircraftPt->airspeed = packet.airspeed;
+								}
 
 							}
 
 
 
-							//mavlink_msg_command_long_decode(&msg,&msgstruct);
-							//std::cout << msgstruct.param1 << '\n';
 						}
 					}
 				}

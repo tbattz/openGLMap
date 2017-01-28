@@ -31,6 +31,7 @@
 #include "../src/mavlinkReceive.h"
 #include "../src/mavAircraft.h"
 #include "../src/skybox.h"
+#include "../src/telemOverlay.h"
 
 // GLM Mathematics
 #include <glm/glm.hpp>
@@ -60,7 +61,7 @@ GLfloat lastFrame = 0.0f;
 #ifdef _WIN32
 	#define FONTPATH "C:/Windows/Fonts/Arial.ttf"
 #elif __linux__
-	#define FONTPATH "/usr/share/fonts/truetype/msttcorefonts/Arial.ttf"
+	#define FONTPATH "/usr/share/fonts/truetype/abyssinica/AbyssinicaSIL-R.ttf"
 #endif
 
 // X Position
@@ -130,23 +131,21 @@ int main(int argc, char* argv[]) {
 	Shader lightingShader("../Shaders/multiple_lighting.vs","../Shaders/multiple_lighting.frag");
 	Shader tileShader("../Shaders/tileImage.vs","../Shaders/tileImage.frag");
 	Shader skyboxShader("../Shaders/skybox.vs","../Shaders/skybox.frag");
+	Shader simpleShader("../Shaders/telemOverlay.vs","../Shaders/telemOverlay.frag");
 
 	// Load Alert Font
-	GLFont* alertFontPt;
-	Shader alertTextShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight);
-	Shader* alertTextShaderPt = &alertTextShader;
-	alertFontPt = new GLFont(FONTPATH);
-	alertTextShaderPt = new Shader(setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight));
+	Shader telemTextShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight);
+	GLFont telemFont = GLFont(FONTPATH);
 
 	// Load Models
-	//Model ourModel("../Models/wheel/wheelTest2.obj");
-	MavAircraft ourModel("../Models/X8/x8Fixed.obj",glm::vec3(-37.958926f, 145.238343f, 0.0f),alertFontPt,alertTextShaderPt);
+	//Model mavAircraft("../Models/wheel/wheelTest2.obj");
+	MavAircraft mavAircraft("../Models/X8/x8Fixed.obj",glm::vec3(-37.958926f, 145.238343f, 0.0f));
 	Model ground("../Models/wheel/ground.obj");
 	Model ground2("../Models/wheel/ground.obj");
 
 	// Create thread to recieve Mavlink messages
 	//std::thread mavlinkThread(mavlinkMain,"192.168.1.1", "14550");
-	MavSocket mavSocket("192.168.1.1", "14550",&ourModel);
+	MavSocket mavSocket("192.168.1.1", "14550",&mavAircraft);
 	std::thread mavThread(&MavSocket::startSocket,&mavSocket);
 
 	// Create Skybox
@@ -158,6 +157,10 @@ int main(int argc, char* argv[]) {
 	faces.push_back("../Models/skybox/back.png");
 	faces.push_back("../Models/skybox/front.png");
 	Skybox skybox(faces);
+
+	// Create Telem Overlay
+	TelemOverlay telemOverlay(&mavAircraft,&telemTextShader,&telemFont,screenWidth,screenHeight);
+
 
 	// Temp Tiles
 	glm::vec3 origin = glm::vec3(-37.958926f, 145.238343f, 0.0f);
@@ -202,7 +205,6 @@ int main(int argc, char* argv[]) {
 		arialFontPt = new GLFont(FONTPATH);
 		textShaderPt = new Shader(setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight));
 	}
-
 
 	// Game Loop
 	while(!glfwWindowShouldClose(window)) {
@@ -251,8 +253,16 @@ int main(int argc, char* argv[]) {
 		//model = glm::translate(model, glm::vec3(0.0f,-1.75f, xval)); // Translate down
 		//model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
 		//glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"model"),1,GL_FALSE,glm::value_ptr(model));
-		//ourModel.Draw(lightingShader);
-		ourModel.Draw(lightingShader);
+		//mavAircraft.Draw(lightingShader);
+		mavAircraft.Draw(lightingShader);
+
+		// Draw telem overlay
+		simpleShader.Use();
+		glUniformMatrix4fv(glGetUniformLocation(simpleShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(simpleShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
+		telemOverlay.Draw(simpleShader, projection, view, &camera);
+
+
 
 		// Draw tile(s)
 		tileShader.Use();
@@ -279,6 +289,10 @@ int main(int argc, char* argv[]) {
 		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 		glUniform1i(glGetUniformLocation(skyboxShader.Program, "skybox"), 0);
 		skybox.Draw(skyboxShader);
+
+		// Draw Airspeed
+		//telemOverlay.DrawAirspeed();
+
 
 		// Print FPS
 		if(fpsOn) {
