@@ -100,7 +100,7 @@ public:
 		// Draw Airspeed
 		std::stringstream ss;
 		ss << std::setprecision(3) << mavAircraftPt->airspeed << " m/s";
-		telemFontPt->RenderText(telemTextShaderPt,ss.str(),pos[0],pos[1],1.0f,glm::vec3(0.0f, 1.0f, 0.0f));
+		telemFontPt->RenderText(telemTextShaderPt,ss.str(),pos[0],pos[1],1.0f,glm::vec3(0.0f, 1.0f, 0.0f),0);
 	}
 
 	glm::vec2 convertNDC2Screen() {

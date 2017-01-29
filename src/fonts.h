@@ -106,8 +106,10 @@ public:
 		glBindVertexArray(0);
 	}
 
-	void RenderText(Shader* shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color) {
+	void RenderText(Shader* shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color, int align) {
 		/* Renders text to the screen in a given location. */
+		// align: 0 - Left Top Align
+		// align: 1 - Left Bottom Align
 		// Activate correct shader
 		shader->Use();
 		glUniform3f(glGetUniformLocation(shader->Program, "textColor"),color.x, color.y, color.z);
@@ -115,40 +117,170 @@ public:
 		glBindVertexArray(this->VAO);
 
 		// Iterate through each character
-		std::string::const_iterator c;
-		for(c=text.begin(); c != text.end(); c++) {
-			Character ch = this->Characters[*c];
+		if(align==0) {
+			drawLeftTopAligned(text, x, y, scale);
+		} else if (align==1) {
+			drawLeftBottomAligned(text, x, y, scale);
+		}
 
-			GLfloat xpos = x + ch.Bearing.x * scale;
-			GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale; // Accounts for g and p offsets
 
-			GLfloat w = ch.Size.x * scale;
-			GLfloat h = ch.Size.y * scale;
-
-			// Update the VBO for each character
-			GLfloat vertices[6][4] = {
-					{xpos,		ypos + h,	0.0, 0.0},
-					{xpos,		ypos,		0.0, 1.0},
-					{xpos + w,	ypos,		1.0, 1.0},
-					{xpos,		ypos + h,	0.0, 0.0},
-					{xpos + w,	ypos,		1.0, 1.0},
-					{xpos + w,	ypos + h,	1.0, 0.0},
-			};
-			// Render glyph texture over quad face
-			glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-			// Update VBO memory
-			glBindBuffer(GL_ARRAY_BUFFER,this->VBO);
-			glBufferData(GL_ARRAY_BUFFER,sizeof(vertices), vertices,GL_DYNAMIC_DRAW);
-			glBindBuffer(GL_ARRAY_BUFFER,0);
-			// Render quad face
-			glDrawArrays(GL_TRIANGLES,0,6);
-			// Advance pos to next glyph (advance numb is 1/64 pixels)
-			x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 6)
-		};
 		// Unbind Arrays
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D,0);
 	}
+
+	void drawLeftTopAligned(std::string text, GLfloat x, GLfloat y, GLfloat scale) {
+		// Draw text as left top aligned
+		std::string::const_iterator c;
+		bool firstRow = false;
+		float ystart = 0;
+		float ymax = 0;
+		float yoffset = 0;
+		float xstart = 0;
+
+		xstart = this->Characters[0].Bearing.x;
+
+		// Get Offsets Height
+		for(c=text.begin(); c != text.end(); c++) {
+			Character ch = this->Characters[*c];
+			if(*c=='\n') {
+				// Find y starting position
+				if(!firstRow) {
+					firstRow = true;
+					ystart = ymax;
+					ymax = 0;
+				}
+				ymax = 0;
+			} else {
+				// Get maximum y
+				GLfloat h = ch.Size.y * scale;
+				if(h > ymax) {
+					ymax = h;
+				}
+			}
+		}
+
+		// Reset ymax
+		ymax = 0;
+
+		// Draw glyphs
+		for(c=text.begin(); c != text.end(); c++) {
+			Character ch = this->Characters[*c];
+			if(*c=='\n') {
+				// Calculate offset
+				yoffset += ymax*1.25;
+				ymax = 0;
+				x = xstart;
+			} else {
+				GLfloat xpos = x + ch.Bearing.x * scale;
+				GLfloat ypos = y - ((ch.Size.y - ch.Bearing.y) * scale) - yoffset - ystart; // Accounts for g and p offsets
+
+				GLfloat w = ch.Size.x * scale;
+				GLfloat h = ch.Size.y * scale;
+
+				if(h > ymax) {
+					ymax = h;
+				}
+
+				// Update the VBO for each character
+				GLfloat vertices[6][4] = {
+						{xpos,		ypos + h,	0.0, 0.0},
+						{xpos,		ypos,		0.0, 1.0},
+						{xpos + w,	ypos,		1.0, 1.0},
+						{xpos,		ypos + h,	0.0, 0.0},
+						{xpos + w,	ypos,		1.0, 1.0},
+						{xpos + w,	ypos + h,	1.0, 0.0},
+				};
+				// Render glyph texture over quad face
+				glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+				// Update VBO memory
+				glBindBuffer(GL_ARRAY_BUFFER,this->VBO);
+				glBufferData(GL_ARRAY_BUFFER,sizeof(vertices), vertices,GL_DYNAMIC_DRAW);
+				glBindBuffer(GL_ARRAY_BUFFER,0);
+				// Render quad face
+				glDrawArrays(GL_TRIANGLES,0,6);
+				// Advance pos to next glyph (advance numb is 1/64 pixels)
+				x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 6)
+			}
+		}
+	}
+
+	void drawLeftBottomAligned(std::string text, GLfloat x, GLfloat y, GLfloat scale) {
+		// Draw text as left bottom aligned
+		std::string::const_iterator c;
+		bool firstRow = false;
+		float ystart = 0;
+		float ymax = 0;
+		float yoffset = 0;
+		float xstart = 0;
+
+		xstart = this->Characters[0].Bearing.x;
+
+		// Get Offsets Height
+		for(c=text.begin(); c != text.end(); c++) {
+			Character ch = this->Characters[*c];
+			if(*c=='\n') {
+				// Find y starting position
+				if(!firstRow) {
+					firstRow = true;
+				}
+				ystart += ymax;
+				ymax = 0;
+			} else {
+				// Get maximum y
+				GLfloat h = ch.Size.y * scale;
+				if(h > ymax) {
+					ymax = h;
+				}
+			}
+		}
+
+		// Reset ymax
+		ymax = 0;
+
+		// Draw glyphs
+		for(c=text.begin(); c != text.end(); c++) {
+			Character ch = this->Characters[*c];
+			if(*c=='\n') {
+				// Calculate offset
+				yoffset += ymax*1.25;
+				ymax = 0;
+				x = xstart;
+			} else {
+				GLfloat xpos = x + ch.Bearing.x * scale;
+				GLfloat ypos = y - ((ch.Size.y - ch.Bearing.y) * scale) - yoffset + ystart; // Accounts for g and p offsets
+
+				GLfloat w = ch.Size.x * scale;
+				GLfloat h = ch.Size.y * scale;
+
+				if(h > ymax) {
+					ymax = h;
+				}
+
+				// Update the VBO for each character
+				GLfloat vertices[6][4] = {
+						{xpos,		ypos + h,	0.0, 0.0},
+						{xpos,		ypos,		0.0, 1.0},
+						{xpos + w,	ypos,		1.0, 1.0},
+						{xpos,		ypos + h,	0.0, 0.0},
+						{xpos + w,	ypos,		1.0, 1.0},
+						{xpos + w,	ypos + h,	1.0, 0.0},
+				};
+				// Render glyph texture over quad face
+				glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+				// Update VBO memory
+				glBindBuffer(GL_ARRAY_BUFFER,this->VBO);
+				glBufferData(GL_ARRAY_BUFFER,sizeof(vertices), vertices,GL_DYNAMIC_DRAW);
+				glBindBuffer(GL_ARRAY_BUFFER,0);
+				// Render quad face
+				glDrawArrays(GL_TRIANGLES,0,6);
+				// Advance pos to next glyph (advance numb is 1/64 pixels)
+				x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 6)
+			}
+		}
+	}
+
+
 private:
 };
 

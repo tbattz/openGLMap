@@ -77,6 +77,9 @@ void mouse_callback(GLFWwindow* window, double xoffset, double yoffset);
 void do_movement();
 
 int main(int argc, char* argv[]) {
+	/* ======================================================
+	 *                  Command Line Arguments
+	   ====================================================== */
 	// Parse Command Line Arguments
 	bool wireFrameOn = false;
 	bool fpsOn = false;
@@ -87,7 +90,9 @@ int main(int argc, char* argv[]) {
 		case 'f': fpsOn = true; break;
 		}
 	}
-
+	/* ======================================================
+	 *                     Setup Window
+	   ====================================================== */
 	// Init GLFW
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
@@ -96,10 +101,9 @@ int main(int argc, char* argv[]) {
 	glfwWindowHint(GLFW_RESIZABLE,GL_FALSE);
 
 	// Screen Properties
-	GLFWmonitor* monitor;
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	GLfloat screenHeight = mode->height;
-	GLfloat screenWidth  = mode->width;
+	GLfloat screenHeight = mode->height*0.9;
+	GLfloat screenWidth  = mode->width*0.9;
 
 	GLFWwindow* window = glfwCreateWindow(screenWidth,screenHeight,"openGLMap",nullptr,nullptr);
 	glfwMakeContextCurrent(window);
@@ -127,21 +131,41 @@ int main(int argc, char* argv[]) {
 	// Test for objects in front of each other
 	glEnable(GL_DEPTH_TEST);
 
+	/* ======================================================
+	 *                  	  Shaders
+	   ====================================================== */
 	// Setup and compile shaders
 	Shader lightingShader("../Shaders/multiple_lighting.vs","../Shaders/multiple_lighting.frag");
 	Shader tileShader("../Shaders/tileImage.vs","../Shaders/tileImage.frag");
 	Shader skyboxShader("../Shaders/skybox.vs","../Shaders/skybox.frag");
 	Shader simpleShader("../Shaders/telemOverlay.vs","../Shaders/telemOverlay.frag");
 
-	// Load Alert Font
-	Shader telemTextShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight);
+	/* ======================================================
+	 *                         Fonts
+	   ====================================================== */
+	// Load Font Shader
+	Shader textShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight);
+
+	// Load Telemetry Font
 	GLFont telemFont = GLFont(FONTPATH);
 
+	// Load Font
+	GLFont* fpsFontPt;
+
+	Shader* textShaderPt = &textShader;
+	if(fpsOn) {
+		fpsFontPt = new GLFont(FONTPATH);
+	}
+
+	// Help Font
+	GLFont helpFont = GLFont(FONTPATH);
+
+	/* ======================================================
+	 *                        Models
+	   ====================================================== */
 	// Load Models
 	//Model mavAircraft("../Models/wheel/wheelTest2.obj");
 	MavAircraft mavAircraft("../Models/X8/x8Fixed.obj",glm::vec3(-37.958926f, 145.238343f, 0.0f));
-	Model ground("../Models/wheel/ground.obj");
-	Model ground2("../Models/wheel/ground.obj");
 
 	// Create thread to recieve Mavlink messages
 	//std::thread mavlinkThread(mavlinkMain,"192.168.1.1", "14550");
@@ -158,61 +182,41 @@ int main(int argc, char* argv[]) {
 	faces.push_back("../Models/skybox/front.png");
 	Skybox skybox(faces);
 
+	/* ======================================================
+	 *                      Overlays
+	   ====================================================== */
 	// Create Telem Overlay
-	TelemOverlay telemOverlay(&mavAircraft,&telemTextShader,&telemFont,screenWidth,screenHeight);
-
-
-	// Temp Tiles
-	glm::vec3 origin = glm::vec3(-37.958926f, 145.238343f, 0.0f);
-	glm::vec3 position = glm::vec3(-37.958814f, 145.238824f, 99.0f);
-	glm::vec3 position0 = glm::vec3(-37.958926f, 145.238343f, 99.0f);
-	GLfloat fovX = 48.3/2.0;
-	GLfloat fovY = 36.8/2.0;
-	const char* filename = "../ImageData/87.jpg";
-	//ImageTile tempTile(origin, position, fovX, fovY,filename);
-	ImageTile tempTile2(origin, position0, fovX, fovY,filename);
-	tempTile2.brightness = 1.0f;
+	TelemOverlay telemOverlay(&mavAircraft,&textShader,&telemFont,screenWidth,screenHeight);
 
 	// Create Tiles
-	//glm::vec3 origin = glm::vec3(-37.958926f, 145.238343f, 0.0f);
-	//GLfloat fovX = 48.3/2.0;
-	//GLfloat fovY = 36.8/2.0;
+	glm::vec3 origin = glm::vec3(-37.958926f, 145.238343f, 0.0f);
+	GLfloat fovX = 48.3/2.0;
+	GLfloat fovY = 36.8/2.0;
 	TileList imageTileList(origin, fovX, fovY);
-	TileList* myPt = &imageTileList;
 
 	// Get Tile Information
 	imageTileList.updateTileList("../ImageData");
-	//imageTileList.tiles.push_back(ImageTile(origin, position, fovX, fovY,filename));
 
+	/* ======================================================
+	 *                         Lights
+	   ====================================================== */
 	// Load Lights
 	DirectionalLight myDirLight({-0.2f,-1.0f,-0.3f}, {0.5f,0.5f,0.5f}, {0.4f,0.4f,0.4f}, {0.5f,0.5f,0.5f}, &lightingShader,0);
-	//DirectionalLight myDirLight2({0.2f,-1.0f,0.3f}, {0.5f,0.5f,0.5f}, {0.4f,0.4f,0.4f}, {0.5f,0.5f,0.5f}, &lightingShader,1);
-	//PointLight myPointLight({0.5f,1.0f,2.0f}, {0.5f,0.5f,0.5f}, {0.4f,0.4f,0.4f}, {0.5f,0.5f,0.5f}, 1.0f, 0.09f, 0.32f, &lightingShader,0);
-	//PointLight myPointLight2({-0.5f,1.0f,-2.0f}, {0.5f,0.5f,0.5f}, {0.4f,0.4f,0.4f}, {0.5f,0.5f,0.5f}, 1.0f, 0.09f, 0.32f, &lightingShader,1);
-	//SpotLight spotLight({0.5f,1.0f,2.0f}, {-0.5f,-1.0f,-2.0f}, {1.0f,1.0f,1.0f}, {0.4f,0.4f,0.4f}, {0.5f,0.5f,0.5f}, 1.0f, 0.09f, 0.32f, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)), &lightingShader, 0);
 
 	// Set number of lights
 	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nDirLight"),1);
 	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nPointLight"),0);
 	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nSpotLight"),0);
 
-	// Load Font
-	GLFont* arialFontPt;
-	Shader textShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight);
-	Shader* textShaderPt = &textShader;
-	if(fpsOn) {
-		//arialFontPt = new GLFont("/usr/share/fonts/truetype/msttcorefonts/Arial.ttf");
-		arialFontPt = new GLFont(FONTPATH);
-		textShaderPt = new Shader(setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight));
-	}
-
+	/* ======================================================
+	 *                     Drawing Loop
+	   ====================================================== */
 	// Game Loop
 	while(!glfwWindowShouldClose(window)) {
 		// Set Frame Time
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-
 
 		// Check Events
 		glfwPollEvents();
@@ -238,26 +242,8 @@ int main(int argc, char* argv[]) {
 		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
 
-		// Draw ground
-		glm::mat4 model2;
-		model2 = glm::translate(model2, glm::vec3(0.0f,-1.75f, 0.0f)); // Translate down
-		model2 = glm::scale(model2, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
-		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"model"),1,GL_FALSE,glm::value_ptr(model2));
-		ground.Draw(lightingShader);
-
-		// Draw ground2
-		glm::mat4 model3;
-		model3 = glm::translate(model3, glm::vec3(5.0f,-1.75f, 0.0f)); // Translate down
-		model3 = glm::scale(model3, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
-		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"model"),1,GL_FALSE,glm::value_ptr(model3));
-		ground.Draw(lightingShader);
 
 		// Draw Model
-		//glm::mat4 model;
-		//model = glm::translate(model, glm::vec3(0.0f,-1.75f, xval)); // Translate down
-		//model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f)); // Scale to screen
-		//glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"model"),1,GL_FALSE,glm::value_ptr(model));
-		//mavAircraft.Draw(lightingShader);
 		mavAircraft.Draw(lightingShader);
 
 		// Draw telem overlay
@@ -265,8 +251,6 @@ int main(int argc, char* argv[]) {
 		glUniformMatrix4fv(glGetUniformLocation(simpleShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(simpleShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
 		telemOverlay.Draw(simpleShader, projection, view, &camera);
-
-
 
 		// Draw tile(s)
 		tileShader.Use();
@@ -283,8 +267,6 @@ int main(int argc, char* argv[]) {
 		for(unsigned int i = 0; i != imageTileList.tiles.size(); i++) {
 			(imageTileList.tiles[i]).Draw(tileShader);
 		}
-		//tempTile.Draw(tileShader);
-		//tempTile2.Draw(tileShader)
 
 		// Draw Skybox last
 		skyboxShader.Use();
@@ -297,13 +279,23 @@ int main(int argc, char* argv[]) {
 		// Draw Airspeed
 		//telemOverlay.DrawAirspeed();
 
-
 		// Print FPS
 		if(fpsOn) {
 			std::stringstream ss;
 			ss << int(1.0f/deltaTime) << " fps";
-			arialFontPt->RenderText(textShaderPt,ss.str(),screenWidth-150.0f,screenHeight-50.0f,1.0f,glm::vec3(0.0f, 1.0f, 0.0f));
+			fpsFontPt->RenderText(textShaderPt,ss.str(),screenWidth-150.0f,screenHeight-50.0f,1.0f,glm::vec3(0.0f, 1.0f, 0.0f),0);
 			//std::cout << (1.0f/deltaTime) << "fps" << "\r";
+		}
+
+		// Overlay Help Menu
+		//std::cout << toggleKeys[GLFW_KEY_H] << '\n';
+		if(toggleKeys[GLFW_KEY_H]) {
+			std::stringstream sh;
+			// Note: Text lines rendered from bottom to top
+			sh << "HELP MENU\n";
+			sh << "Toggle Help:         h\n";
+			sh << "Increment view:      v\n";
+			(&helpFont)->RenderText(textShaderPt,sh.str(),0.0f,0.0f,1.0f,glm::vec3(1.0f, 1.0f, 0.0f),1);
 		}
 
 		// Swap buffers

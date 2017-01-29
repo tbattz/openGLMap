@@ -19,13 +19,6 @@
 #include "model.h"
 #include "../src/fonts.h"
 
-// Define Fonts based on OS
-#ifdef _WIN32
-	#define FONTPATH "C:/Windows/Fonts/Arial.ttf"
-#elif __linux__
-	#define FONTPATH "/usr/share/fonts/truetype/msttcorefonts/Arial.ttf"
-#endif
-
 // Derived Class
 class MavAircraft : public Model {
 public:
