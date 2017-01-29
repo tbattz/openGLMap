@@ -31,10 +31,10 @@ enum Camera_Movement {
 };
 
 // Camera Views
-#define FREE_CAM 		0
-#define TRACKING_CAM	1
-#define ONBOARD_FREE	2
-#define ONBOARD_CHASE	3
+#define FREE_CAM 			0
+#define TRACKING_CAM		1
+#define ONBOARD_FREE		2
+#define ONBOARD_CHASE		3
 
 // PI
 #define PI 3.14159265
@@ -157,18 +157,38 @@ public:
 
 			// Update Angle
 			float dist = sqrt((diffx*diffx)+(diffz*diffz));
-			this->Pitch = atan2(diffy,dist)*180.0/PI;
-			this->Yaw = atan2(diffz,diffx)*180.0/PI;
+			Pitch = atan2(diffy,dist)*180.0/PI;
+			Yaw = atan2(diffz,diffx)*180.0/PI;
 
 			// Update Camera Vectors
 			updateCameraVectors();
 			break;
 		}
 		case ONBOARD_FREE: {
+			// Offset position below aircraft
+			Position = glm::vec3(mavAircraftPt->position[0],mavAircraftPt->position[2]-0.5,mavAircraftPt->position[1]);
 			break;
 		}
 		case ONBOARD_CHASE: {
+			// Get offset position
+			glm::vec3 velUnit = mavAircraftPt->velocity/glm::length(mavAircraftPt->velocity);
+			float xpos = mavAircraftPt->position[0] - (velUnit[0]*5.0);
+			float ypos = mavAircraftPt->position[2] + (velUnit[2]*5.0);
+			float zpos = mavAircraftPt->position[1] - (velUnit[1]*5.0);
+			// Set Position
+			Position = glm::vec3(xpos,ypos,zpos);
+			// Get difference vector
+			float diffx = mavAircraftPt->position[0] - Position.x;
+			float diffy = mavAircraftPt->position[2] - Position.y;
+			float diffz = mavAircraftPt->position[1] - Position.z;
 
+			// Update Angle
+			float dist = sqrt((diffx*diffx)+(diffz*diffz));
+			//Pitch = atan2(diffy,dist)*180.0/PI;
+			//Yaw = atan2(diffz,diffx)*180.0/PI;
+
+			// Update Camera Vectors
+			//updateCameraVectors();
 			break;
 		}
 		default: {

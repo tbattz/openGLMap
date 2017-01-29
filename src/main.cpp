@@ -229,8 +229,6 @@ int main(int argc, char* argv[]) {
 		lightingShader.Use();
 
 		// Update Chase View
-		// pitch, yaw, position
-		//camera.Position = glm::vec3(mavAircraft.position[0],mavAircraft.position[2],mavAircraft.position[1]);
 		camera.setupView(&mavAircraft);
 
 		// Update View Position Uniform
@@ -294,8 +292,9 @@ int main(int argc, char* argv[]) {
 			std::stringstream sh;
 			// Note: Text lines rendered from bottom to top
 			sh << "HELP MENU\n";
-			sh << "Toggle Help:         h\n";
-			sh << "Increment view:      v\n";
+			sh << "Toggle Help:              h\n";
+			sh << "Increment view:           v\n";
+			sh << "Toggle Mouse Movement: p\n";
 			(&helpFont)->RenderText(textShaderPt,sh.str(),0.0f,0.0f,1.0f,glm::vec3(1.0f, 1.0f, 0.0f),1);
 		}
 

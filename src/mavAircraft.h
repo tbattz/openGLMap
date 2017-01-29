@@ -88,7 +88,7 @@ public:
 	void Draw(Shader shader) {
 
 		// Grab Lock
-		positionLock.lock();
+		//positionLock.lock();
 
 		// Set new time
 		currTime = glfwGetTime() - timeStart;
@@ -151,7 +151,7 @@ public:
 			Model::Draw(shader);
 
 			// Unlock
-			positionLock.unlock();
+			//positionLock.unlock();
 		}
 	}
 

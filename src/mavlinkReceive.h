@@ -60,7 +60,7 @@ public:
 				mavlink_status_t status;
 
 				// Grab Lock
-				mavAircraftPt->positionLock.lock();
+				//mavAircraftPt->positionLock.lock();
 
 				// Parse buffer
 				if(this->mavAircraftPt!=nullptr) {
@@ -101,7 +101,10 @@ public:
 
 										// Store velocities to enforce end position
 										if(this->mavAircraftPt->positionHistory.size() > 1) {
-											(this->mavAircraftPt)->velocityHistory.push_back(glm::dvec3(packet.vx/100.0,packet.vy/100.0,packet.vz/100.0));
+											glm::dvec3 vel = glm::dvec3(packet.vx/100.0,packet.vy/100.0,packet.vz/100.0);
+											(this->mavAircraftPt)->velocity = vel;
+											(this->mavAircraftPt)->velocityHistory.push_back(vel);
+
 										} else {
 											// Store first position and time
 											(this->mavAircraftPt)->position = (this->mavAircraftPt)->positionHistory[0];
@@ -158,7 +161,7 @@ public:
 					}
 				}
 				// Release Lock
-				mavAircraftPt->positionLock.unlock();
+				//mavAircraftPt->positionLock.unlock();
 
 			}
 			// Close Socket
