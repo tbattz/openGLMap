@@ -64,6 +64,9 @@ public:
 		// Airpseed Information
 		float 				airspeed;						// (m/s)
 
+		// Lock
+		std::mutex positionLock;
+
 		// Frame Information
 		//GLfloat fovX; // Degrees
 		//GLfloat fovY; // Degrees
@@ -83,6 +86,9 @@ public:
 	}
 
 	void Draw(Shader shader) {
+
+		// Grab Lock
+		positionLock.lock();
 
 		// Set new time
 		currTime = glfwGetTime() - timeStart;
@@ -143,6 +149,9 @@ public:
 
 			// Draw Model
 			Model::Draw(shader);
+
+			// Unlock
+			positionLock.unlock();
 		}
 	}
 

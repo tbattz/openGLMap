@@ -230,7 +230,8 @@ int main(int argc, char* argv[]) {
 
 		// Update Chase View
 		// pitch, yaw, position
-		camera.Position = glm::vec3(mavAircraft.position[0],mavAircraft.position[2],mavAircraft.position[1]);
+		//camera.Position = glm::vec3(mavAircraft.position[0],mavAircraft.position[2],mavAircraft.position[1]);
+		camera.setupView(&mavAircraft);
 
 		// Update View Position Uniform
 		GLint viewPosLoc = glGetUniformLocation(lightingShader.Program, "viewPos");
@@ -325,9 +326,19 @@ void key_callback(GLFWwindow* window,int key,int scancode, int action, int mode)
 		keys[key] = true;
 		// Set toggle states
 		toggleKeys[key] = !toggleKeys[key];
+		// Change View
+		if(key==GLFW_KEY_V) {
+			camera.view += 1;
+			if(camera.view > 3) {
+				camera.view = 0;
+			}
+		}
 	} else if (action == GLFW_RELEASE) {
 		keys[key] = false;
 	}
+
+
+
 
 }
 
@@ -351,7 +362,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 	if (!toggleKeys[80]) { // p key to toggle
 		camera.ProcessMouseMovement(xoffset,yoffset);
 	}
-
 }
 
 // Scrolling zoom callback

@@ -59,6 +59,9 @@ public:
 				mavlink_message_t msg;
 				mavlink_status_t status;
 
+				// Grab Lock
+				mavAircraftPt->positionLock.lock();
+
 				// Parse buffer
 				if(this->mavAircraftPt!=nullptr) {
 					for(size_t i=0; i < len; i++) {
@@ -154,6 +157,9 @@ public:
 						}
 					}
 				}
+				// Release Lock
+				mavAircraftPt->positionLock.unlock();
+
 			}
 			// Close Socket
 			socket.close();

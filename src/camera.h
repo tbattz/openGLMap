@@ -10,11 +10,17 @@
 
 // Standard Includes
 #include <vector>
+#include <iostream>
 
 // GL Includes
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include "../src/mavAircraft.h"
+
+
+
 
 // Options for camera movement
 enum Camera_Movement {
@@ -23,6 +29,15 @@ enum Camera_Movement {
 	LEFT,
 	RIGHT
 };
+
+// Camera Views
+#define FREE_CAM 		0
+#define TRACKING_CAM	1
+#define ONBOARD_FREE	2
+#define ONBOARD_CHASE	3
+
+// PI
+#define PI 3.14159265
 
 // Default camera values
 const GLfloat YAW = -90.0f;
@@ -35,18 +50,20 @@ const GLfloat ZOOM = 45.0f;
 class Camera {
 public:
 	// Camera attributes
-	glm::vec3 Position;
+	glm::vec3 Position; // y Up, x North, z, East
 	glm::vec3 Front;
 	glm::vec3 Up;
 	glm::vec3 Right;
 	glm::vec3 WorldUp;
 	// Euler Angles
-	GLfloat Yaw;
-	GLfloat Pitch;
+	GLfloat Yaw; // Deg
+	GLfloat Pitch; // Deg
 	// Camera Options
 	GLfloat MovementSpeed;
 	GLfloat MouseSensitivity;
 	GLfloat Zoom;
+	// Camera Number
+	int view = 0;
 
 	// Camera Constructor (vectors)
 	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), GLfloat yaw = YAW, GLfloat pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM) {
@@ -122,6 +139,45 @@ public:
 		if(this->Zoom >= 45.0f) {
 			this->Zoom = 45.0f;
 		}
+	}
+
+	void setupView(MavAircraft* mavAircraftPt) {
+		// Sets up the selected view
+		switch(view) {
+		case FREE_CAM: {
+			// Do nothing
+			break;
+		};
+		case TRACKING_CAM: {
+			// Change view angles
+			// Get vector
+			float diffx = mavAircraftPt->position[0] - Position.x;
+			float diffy = mavAircraftPt->position[2] - Position.y;
+			float diffz = mavAircraftPt->position[1] - Position.z;
+
+			// Update Angle
+			float dist = sqrt((diffx*diffx)+(diffz*diffz));
+			this->Pitch = atan2(diffy,dist)*180.0/PI;
+			this->Yaw = atan2(diffz,diffx)*180.0/PI;
+
+			// Update Camera Vectors
+			updateCameraVectors();
+			break;
+		}
+		case ONBOARD_FREE: {
+			break;
+		}
+		case ONBOARD_CHASE: {
+
+			break;
+		}
+		default: {
+			printf("Incorrect view selection\n");
+		}
+		}
+
+
+
 	}
 
 private:
