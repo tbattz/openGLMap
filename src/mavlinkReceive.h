@@ -136,12 +136,12 @@ public:
 									}
 
 									// Store Rotations
-									glm::vec3 rot = glm::vec3(-packet.roll,-packet.pitch,-packet.yaw);
+									glm::vec3 rot = glm::vec3(packet.roll,packet.pitch,-packet.yaw);
 									this->mavAircraftPt->attitude = rot;
 									this->mavAircraftPt->attitudeHistory.push_back(rot);
 
 									// Store Rotation Rates
-									glm::dvec3 rotRate = glm::dvec3(-packet.rollspeed,-packet.pitchspeed,-packet.yawspeed);
+									glm::dvec3 rotRate = glm::dvec3(packet.rollspeed,packet.pitchspeed,-packet.yawspeed);
 									this->mavAircraftPt->attitudeRateHistory.push_back(rotRate);
 									// Store Time
 									this->mavAircraftPt->timeAttitudeHistory.push_back(packet.time_boot_ms/1000.0);

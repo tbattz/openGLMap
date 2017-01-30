@@ -178,7 +178,7 @@ public:
 				velUnit = glm::vec3(1.0f,1.0f,1.0f);
 			}
 			float xpos = mavAircraftPt->position[0] - (velUnit[0]*5.0);
-			float ypos = mavAircraftPt->position[2] + (velUnit[2]*5.0);
+			float ypos = mavAircraftPt->position[2] + (velUnit[2]*15.0);
 			float zpos = mavAircraftPt->position[1] - (velUnit[1]*5.0);
 			// Set Position
 			Position = glm::vec3(xpos,ypos,zpos);

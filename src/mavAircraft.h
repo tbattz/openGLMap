@@ -120,7 +120,6 @@ public:
 				currentAttMsgIndex -= 1;
 			}
 		}
-		//printf("%i, %i\n",currentPosMsgIndex,currentAttMsgIndex);
 
 		if(currentPosMsgIndex>1) {
 			// Calculate position offset
@@ -143,9 +142,11 @@ public:
 			// Do Translation and Rotation
 			glm::mat4 model;
 			model = glm::translate(model,glm::vec3(position[0],position[2],position[1]));// Translate first due to GLM ordering, rotations opposite order
-			model = glm::rotate(model,(float)attitude[0],glm::vec3(1.0f,0.0f,0.0f)); // Rotate about x, roll
-			model = glm::rotate(model,(float)attitude[1],glm::vec3(0.0f,0.0f,1.0f)); // Rotate about z, pitch
 			model = glm::rotate(model,(float)attitude[2],glm::vec3(0.0f,1.0f,0.0f)); // Rotate about y, yaw
+			model = glm::rotate(model,(float)attitude[1],glm::vec3(0.0f,0.0f,1.0f)); // Rotate about z, pitch
+			model = glm::rotate(model,(float)attitude[0],glm::vec3(1.0f,0.0f,0.0f)); // Rotate about x, roll
+
+
 
 
 			// Update Uniforms
@@ -174,8 +175,6 @@ public:
 			this->velocity[0] = (xPosConst[0]*dtPos) + xPosConst[1];
 			this->velocity[1] = (yPosConst[0]*dtPos) + yPosConst[1];
 			this->velocity[2] = (zPosConst[0]*dtPos) + zPosConst[1];
-
-			//printf("%f; %f, %f, %f\n",currTime,position[0],position[1],position[2]);
 		}
 	}
 
@@ -188,14 +187,6 @@ public:
 			this->attitude[0] = (0.5*xAttConst[0]*dtAtt*dtAtt) + (xAttConst[1]*dtAtt) + xAttConst[2];
 			this->attitude[1] = (0.5*yAttConst[0]*dtAtt*dtAtt) + (yAttConst[1]*dtAtt) + yAttConst[2];
 			this->attitude[2] = (0.5*zAttConst[0]*dtAtt*dtAtt) + (zAttConst[1]*dtAtt) + zAttConst[2];
-
-			/*for(unsigned int i=0; i<3; i++) {
-				if(fabs(this->attitude[i])<0.05) {
-					this->attitude[i] = 0;
-				}
-			}*/
-
-			printf("%f; %f, %f, %f\n",currTime,attitudeHistory[currentAttMsgIndex][0],attitudeHistory[currentAttMsgIndex][1],attitudeHistory[currentAttMsgIndex][2]);
 		}
 	}
 
