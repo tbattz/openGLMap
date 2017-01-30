@@ -48,6 +48,8 @@ public:
 		// Time Information
 		float				timeStart=0;					// Offset between autopilot boot time and glfw time (used to sync times)
 		float				timeStartMavlink=0; 			// Boot time of the first mavlink message (s)
+		float				timeStartAtt=0;
+		float				timeStartMavlinkAtt=0;
 		float				timeDelay=0.5;  				// Delay between receiving the first mavlink message and displaying it (s)
 		float				currTime=0;						// The current time
 		float				dtPos=0;						// Timestep between current frame and last current position mavlink message time
@@ -108,7 +110,7 @@ public:
 
 		// Check to move to the next pair of attitude messages
 		if(!firstAttitudeMessage) {
-			while(currTime > timeAttitudeHistory[currentAttMsgIndex]-timeStartMavlink) {
+			while(currTime > timeAttitudeHistory[currentAttMsgIndex]-timeStartMavlinkAtt) {
 				if(currentAttMsgIndex < timeAttitudeHistory.size()-1) {
 					// Increment current Mavlink Message
 					currentAttMsgIndex += 1;
@@ -118,6 +120,7 @@ public:
 				currentAttMsgIndex -= 1;
 			}
 		}
+		//printf("%i, %i\n",currentPosMsgIndex,currentAttMsgIndex);
 
 		if(currentPosMsgIndex>1) {
 			// Calculate position offset
@@ -131,7 +134,8 @@ public:
 			// Calculate attitude offset
 			if(timeAttitudeHistory.size() > 0) {
 				if(!firstAttitudeMessage) {
-					dtAtt = currTime - (timeAttitudeHistory[currentAttMsgIndex]-timeStartMavlink);
+					dtAtt = currTime - (timeAttitudeHistory[currentAttMsgIndex]-timeStartMavlinkAtt);
+
 					interpolateAttitude();
 				}
 			}
@@ -165,6 +169,13 @@ public:
 			this->position[0] = (0.5*xPosConst[0]*dtPos*dtPos) + (xPosConst[1]*dtPos) + xPosConst[2];
 			this->position[1] = (0.5*yPosConst[0]*dtPos*dtPos) + (yPosConst[1]*dtPos) + yPosConst[2];
 			this->position[2] = (0.5*zPosConst[0]*dtPos*dtPos) + (zPosConst[1]*dtPos) + zPosConst[2];
+
+			// Calculate Velocity
+			this->velocity[0] = (xPosConst[0]*dtPos) + xPosConst[1];
+			this->velocity[1] = (yPosConst[0]*dtPos) + yPosConst[1];
+			this->velocity[2] = (zPosConst[0]*dtPos) + zPosConst[1];
+
+			//printf("%f; %f, %f, %f\n",currTime,position[0],position[1],position[2]);
 		}
 	}
 
@@ -177,6 +188,14 @@ public:
 			this->attitude[0] = (0.5*xAttConst[0]*dtAtt*dtAtt) + (xAttConst[1]*dtAtt) + xAttConst[2];
 			this->attitude[1] = (0.5*yAttConst[0]*dtAtt*dtAtt) + (yAttConst[1]*dtAtt) + yAttConst[2];
 			this->attitude[2] = (0.5*zAttConst[0]*dtAtt*dtAtt) + (zAttConst[1]*dtAtt) + zAttConst[2];
+
+			/*for(unsigned int i=0; i<3; i++) {
+				if(fabs(this->attitude[i])<0.05) {
+					this->attitude[i] = 0;
+				}
+			}*/
+
+			printf("%f; %f, %f, %f\n",currTime,attitudeHistory[currentAttMsgIndex][0],attitudeHistory[currentAttMsgIndex][1],attitudeHistory[currentAttMsgIndex][2]);
 		}
 	}
 

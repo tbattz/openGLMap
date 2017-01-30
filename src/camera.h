@@ -171,7 +171,12 @@ public:
 		}
 		case ONBOARD_CHASE: {
 			// Get offset position
-			glm::vec3 velUnit = mavAircraftPt->velocity/glm::length(mavAircraftPt->velocity);
+			glm::vec3 velUnit;
+			if(glm::length(mavAircraftPt->velocity) > 1) {
+				velUnit = mavAircraftPt->velocity/glm::length(mavAircraftPt->velocity);
+			} else {
+				velUnit = glm::vec3(1.0f,1.0f,1.0f);
+			}
 			float xpos = mavAircraftPt->position[0] - (velUnit[0]*5.0);
 			float ypos = mavAircraftPt->position[2] + (velUnit[2]*5.0);
 			float zpos = mavAircraftPt->position[1] - (velUnit[1]*5.0);
@@ -184,11 +189,11 @@ public:
 
 			// Update Angle
 			float dist = sqrt((diffx*diffx)+(diffz*diffz));
-			//Pitch = atan2(diffy,dist)*180.0/PI;
-			//Yaw = atan2(diffz,diffx)*180.0/PI;
+			Pitch = atan2(diffy,dist)*180.0/PI;
+			Yaw = atan2(diffz,diffx)*180.0/PI;
 
 			// Update Camera Vectors
-			//updateCameraVectors();
+			updateCameraVectors();
 			break;
 		}
 		default: {
