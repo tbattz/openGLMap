@@ -146,9 +146,6 @@ public:
 			model = glm::rotate(model,(float)attitude[1],glm::vec3(0.0f,0.0f,1.0f)); // Rotate about z, pitch
 			model = glm::rotate(model,(float)attitude[0],glm::vec3(1.0f,0.0f,0.0f)); // Rotate about x, roll
 
-
-
-
 			// Update Uniforms
 			glUniformMatrix4fv(glGetUniformLocation(shader.Program,"model"),1,GL_FALSE,glm::value_ptr(model));
 
@@ -233,11 +230,37 @@ public:
 		// Constants
 		glm::dvec3 xvec = glm::dvec3(attitudeHistory[pos-1][0],attitudeHistory[pos][0],v1[0]);
 		glm::dvec3 yvec = glm::dvec3(attitudeHistory[pos-1][1],attitudeHistory[pos][1],v1[1]);
-		glm::dvec3 zvec = glm::dvec3(attitudeHistory[pos-1][2],attitudeHistory[pos][2],v1[2]);
+		glm::dvec3 zvec;
+		float PI = 3.1415926535;
+		// Yaw Correction (-pi to pi flippy plane)
+		if(attitudeHistory[pos-1][2]>0 && attitudeHistory[pos][2]<0) {
+			// Positive to negative
+			if(attitudeHistory[pos-1][2]>3 && attitudeHistory[pos][2]<-3) {
+				// pi to -pi flips
+				zvec = glm::dvec3(attitudeHistory[pos-1][2]-(2*PI),attitudeHistory[pos][2],v1[2]);
+			} else {
+				// 0 to -0
+				zvec = glm::dvec3(attitudeHistory[pos-1][2],attitudeHistory[pos][2],v1[2]);
+			}
+		} else if (attitudeHistory[pos-1][2]<0 && attitudeHistory[pos][2]>0) {
+			// Negative to positive
+			if(attitudeHistory[pos-1][2]<-3 && attitudeHistory[pos][2]>3) {
+				// -pi to pi flips
+				zvec = glm::dvec3(attitudeHistory[pos-1][2]+(2*PI),attitudeHistory[pos][2],v1[2]);
+			} else {
+				// -0 to 0
+				zvec = glm::dvec3(attitudeHistory[pos-1][2],attitudeHistory[pos][2],v1[2]);
+			}
+		} else {
+			// Same sign
+			zvec = glm::dvec3(attitudeHistory[pos-1][2],attitudeHistory[pos][2],v1[2]);
+		}
 
 		xAttConst = xvec*inv;		// Flipped due to GLM ordering
 		yAttConst = yvec*inv;		// Flipped due to GLM ordering
 		zAttConst = zvec*inv;		// Flipped due to GLM ordering
+
+		//printf("%f, %f, %f\n",attitudeHistory[pos][0],attitudeHistory[pos][1],attitudeHistory[pos][2]);
 	}
 
 	/* Conversion Geodetic to ECEF */
