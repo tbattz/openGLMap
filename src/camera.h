@@ -170,16 +170,20 @@ public:
 			break;
 		}
 		case ONBOARD_CHASE: {
+			// Calculate velocity vector
+			glm::vec3 v1 = mavAircraftPt->velocityHistory[mavAircraftPt->currentPosMsgIndex-1];
+			glm::vec3 v2 = mavAircraftPt->velocityHistory[mavAircraftPt->currentPosMsgIndex];
+			float t1 = mavAircraftPt->timePositionHistory[mavAircraftPt->currentPosMsgIndex-1];
+			float t2 = mavAircraftPt->timePositionHistory[mavAircraftPt->currentPosMsgIndex];
+			float t = mavAircraftPt->currTime - (mavAircraftPt->timePositionHistory[mavAircraftPt->currentPosMsgIndex]-mavAircraftPt->timeStartMavlink);
+			glm::vec3 vel = ((v2-v1)/(t2-t1)*(t+mavAircraftPt->timePositionHistory[mavAircraftPt->currentPosMsgIndex-1]-t2))+v2;
+			glm::vec3 unitv = vel/glm::length(vel);
+
 			// Get offset position
-			glm::vec3 velUnit;
-			if(glm::length(mavAircraftPt->velocity) > 1) {
-				velUnit = mavAircraftPt->velocity/glm::length(mavAircraftPt->velocity);
-			} else {
-				velUnit = glm::vec3(1.0f,1.0f,1.0f);
-			}
-			float xpos = mavAircraftPt->position[0] - (velUnit[0]*5.0);
-			float ypos = mavAircraftPt->position[2] + (velUnit[2]*15.0);
-			float zpos = mavAircraftPt->position[1] - (velUnit[1]*5.0);
+			float xpos = mavAircraftPt->position[0] - (unitv[0]*5.0);
+			float ypos = mavAircraftPt->position[2] - (unitv[2]*5.0) + 2.0;
+			float zpos = mavAircraftPt->position[1] - (unitv[1]*5.0);
+
 			// Set Position
 			Position = glm::vec3(xpos,ypos,zpos);
 			// Get difference vector

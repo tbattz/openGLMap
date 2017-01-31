@@ -59,9 +59,9 @@ public:
 		glm::dvec3 			xPosConst;
 		glm::dvec3 			yPosConst;
 		glm::dvec3 			zPosConst;
-		glm::dvec3			xAttConst;
-		glm::dvec3			yAttConst;
-		glm::dvec3			zAttConst;
+		glm::dvec2			xAttConst;
+		glm::dvec2			yAttConst;
+		glm::dvec2			zAttConst;
 
 		// Airpseed Information
 		float 				airspeed;						// (m/s)
@@ -181,11 +181,9 @@ public:
 			calculateAttitudeInterpolationConstants();
 
 			// Calculate Attitude
-			this->attitude[0] = (0.5*xAttConst[0]*dtAtt*dtAtt) + (xAttConst[1]*dtAtt) + xAttConst[2];
-			this->attitude[1] = (0.5*yAttConst[0]*dtAtt*dtAtt) + (yAttConst[1]*dtAtt) + yAttConst[2];
-			this->attitude[2] = (0.5*zAttConst[0]*dtAtt*dtAtt) + (zAttConst[1]*dtAtt) + zAttConst[2];
-
-			printf("%f, %f, %f, %f\n",currTime,attitude[0],attitude[1],attitude[2]);
+			this->attitude[0] = (xAttConst[0]*dtAtt) + xAttConst[1];
+			this->attitude[1] = (yAttConst[0]*dtAtt) + yAttConst[1];
+			this->attitude[2] = (zAttConst[0]*dtAtt) + zAttConst[1];
 		}
 	}
 
@@ -218,51 +216,48 @@ public:
 		// Get Index
 		int pos = currentAttMsgIndex + 1;
 
-		// x(t) = 0.5*a*t^2+b*t+c
-		// v(t) = at+b
-		// (t1,x1), (t2,x2), (t1,v1), v1 found from last frame step
+		// x(t) = at+b
+		// v(t) = a
+		// (t1,x1), (t2,x2)
 		float t1 = 0;
 		float t2 = timeAttitudeHistory[pos]-timeAttitudeHistory[pos-1];
-		glm::dvec3 v1 = attitudeRateHistory[pos];
 
-		// Find inverse matrix of [x1,x2,v1]=[BLAH][a,b,c]
-		glm::mat3x3 A = glm::mat3x3(0.5*t1*t1, t1, 1,0.5*t2*t2,t2,1,t1,1,0);
-		glm::mat3x3 inv = glm::inverse(A);
+		// Find inverse matrix of [x1,x2]=[BLAH][a,b]
+		glm::mat2x2 A = glm::mat2x2(t1,1, t2,1);
+		glm::mat2x2 inv = glm::inverse(A);
 
 		// Constants
-		glm::dvec3 xvec = glm::dvec3(attitudeHistory[pos-1][0],attitudeHistory[pos][0],v1[0]);
-		glm::dvec3 yvec = glm::dvec3(attitudeHistory[pos-1][1],attitudeHistory[pos][1],v1[1]);
-		glm::dvec3 zvec;
+		glm::dvec2 xvec = glm::dvec2(attitudeHistory[pos-1][0],attitudeHistory[pos][0]);
+		glm::dvec2 yvec = glm::dvec2(attitudeHistory[pos-1][1],attitudeHistory[pos][1]);
+		glm::dvec2 zvec;
 		float PI = 3.1415926535;
 		// Yaw Correction (-pi to pi flippy plane)
 		if(attitudeHistory[pos-1][2]>0 && attitudeHistory[pos][2]<0) {
 			// Positive to negative
 			if(attitudeHistory[pos-1][2]>3 && attitudeHistory[pos][2]<-3) {
 				// pi to -pi flips
-				zvec = glm::dvec3(attitudeHistory[pos-1][2]-(2*PI),attitudeHistory[pos][2],v1[2]);
+				zvec = glm::dvec2(attitudeHistory[pos-1][2]-(2*PI),attitudeHistory[pos][2]);
 			} else {
 				// 0 to -0
-				zvec = glm::dvec3(attitudeHistory[pos-1][2],attitudeHistory[pos][2],v1[2]);
+				zvec = glm::dvec2(attitudeHistory[pos-1][2],attitudeHistory[pos][2]);
 			}
 		} else if (attitudeHistory[pos-1][2]<0 && attitudeHistory[pos][2]>0) {
 			// Negative to positive
 			if(attitudeHistory[pos-1][2]<-3 && attitudeHistory[pos][2]>3) {
 				// -pi to pi flips
-				zvec = glm::dvec3(attitudeHistory[pos-1][2]+(2*PI),attitudeHistory[pos][2],v1[2]);
+				zvec = glm::dvec2(attitudeHistory[pos-1][2]+(2*PI),attitudeHistory[pos][2]);
 			} else {
 				// -0 to 0
-				zvec = glm::dvec3(attitudeHistory[pos-1][2],attitudeHistory[pos][2],v1[2]);
+				zvec = glm::dvec2(attitudeHistory[pos-1][2],attitudeHistory[pos][2]);
 			}
 		} else {
 			// Same sign
-			zvec = glm::dvec3(attitudeHistory[pos-1][2],attitudeHistory[pos][2],v1[2]);
+			zvec = glm::dvec2(attitudeHistory[pos-1][2],attitudeHistory[pos][2]);
 		}
 
 		xAttConst = xvec*inv;		// Flipped due to GLM ordering
 		yAttConst = yvec*inv;		// Flipped due to GLM ordering
 		zAttConst = zvec*inv;		// Flipped due to GLM ordering
-
-		//printf("%f, %f, %f\n",attitudeHistory[pos][0],attitudeHistory[pos][1],attitudeHistory[pos][2]);
 	}
 
 	/* Conversion Geodetic to ECEF */
