@@ -189,7 +189,7 @@ public:
 
 	void calculatePositionInterpolationConstants() {
 		// Get Index
-		int pos = currentPosMsgIndex;
+		int pos = currentPosMsgIndex + 1;
 
 		// x(t) = 0.5*a*t^2+b*t+c
 		// v(t) = at+b
