@@ -3,20 +3,14 @@ A rudimentary UAV Mapping Plotter using openGL.
 
 # Dependencies
 ##  Automated Install
-A few scripts have been created to automate the installation process. In the event these fail, you may have to compile the dependencies manually.
+A few scripts have been created to automate the installation process. In the event these fail, you may have to compile the dependencies manually. Support for Windows systems have been removed as of 1/2/2017. If may still be possible to complie on Windows, check the Windows-old-store branch for a bit of help for installation of some of the required packages.
+
 ### Linux (Ubuntu)
 On Ubuntu these dependencies can be installed by running
 ```
 sudo chmod +x installDependicies.sh
 ./installDependiciesUbuntu.txt
 ```
-### Windows (Windows 10)
-Windows has a clunkier installation procedure.
-Independices are installed in two steps.
-* Run installDependiciesWindows.bat
-* Make sure that you follow the instructions to add the correct paths to your PATH variable.
-* In a new command prompt (one that will grab the updated PATH), run installDependiciesWindowspart2.bat
-
 ## Manual Install
 ### Linux (Ubuntu)
 * Building dependicies
@@ -101,167 +95,8 @@ Independices are installed in two steps.
 
 	```
 
-
-### Windows (Windows 10)
-Firstly, ensure that cywin is not in your path.
-* MinGW-w64
-	* Go to https://mingw-w64.org/doku.php
-	* Select Mingw-builds and start the installation.
-	* Select x86_64 for the Architecture.
-	* Leave Threads as posix.
-	* Once the installation has finished, add the path to the system environment variables.
-		* Search PATH - find "Edit the system environment variables"
-		* Select Environment Variables...
-		* Select PATH and click Edit...
-		* Enter the path, in this case C:\Program Files\mingw-w64\x86_64-6.2.0-posix-seh-rt_v5-rev1\mingw64\bin\
-		* Move it to the top
-		* Click OK twice.
-* CMake
-	* Download the MSI Installer of CMake from https://cmake.org/download/ 
-	* Run the installer and follow the prompts, selecting "Add cmake to the system path"
-* Git
-	* Download git from https://git-scm.com/downloads
-	* Install git.
-	* Add the bin folder to the system PATH, C:\Program Files\Git\cmd\
-* GnuMake for Windows
-	* Download from http://gnuwin32.sourceforge.net/packages/make.htm and select the setup package.
-	* Install.
-* GLFW
-	* Open a new command prompt for the remaining steps.
-	* Clone the repository
-	```
-	git clone https://github.com/glfw/glfw.git
-	```
-	* Make the libraries
-	```
-	cd glfw
-	mkdir build
-	cmake -DBUILD_SHARED_LIBS=OFF -G "MinGW Makefiles" ..
-	make -j4
-	cd ..
-	```
-	* Copy the required includes
-	```
-	mkdir <openGLMap root>\Includes
-	mkdir <openGLMap root>\Lib
-	xcopy include\GLFW\* <openGLMap root>\Includes\GLFW\ /s/h/e/k/f/c/y
-	xcopy build\src\libglfw3.a <openGLMap root>\Lib\ /s/h/e/k/f/c/y
-	```
-* GLEW
-	* Clone the repository
-	```
-	git clone https://github.com/nigels-com/glew.git
-	```
-	* Open a git-bash shell and enter the following (it will only compile in a bash environment).
-	```
-	cd auto
-	make
-	cd ../build/cmake
-	cmake -G "MinGW Makefiles"
-	make
-	```
-	* Back in the command prompt, in the glew directory, enter the following
-	```
-	xcopy include\GL* <openGLMap root>\Includes\ /s/i
-	xcopy build\cmake\lib\* <openGLMap root>\Lib\ /s/i
-	xcopy build\cmake\bin\glew32.dll <openGLMap root>\Lib
-	```
-
-* Assimp
-	* Clone assimp into your Downloads directory
-	```
-	git clone https://github.com/assimp/assimp.git
-	```
-	* Make Assimp
-	```
-	cd assimp
-	cmake -G "MinGW Makefiles" -DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_ZLIB=ON
-	make -j4
-	make install
-	```
-	* Copy requied files
-	```
-	cd bin
-	xcopy libassimp.a <openGLMap root>/Lib/ /s/h/e/k/f/c
-	cd ..
-	xcopy include\assimp\* <openGLMap root>\Includes\assimp /s/i
-	```
-	* Copy zlib library
-	```
-	xcopy lib\libzlibstatic.a <openGLMap root>\Lib\ /s/i/y
-	```
-* GLM
-	* Clone GLM
-	```
-	git clone https://github.com/g-truc/glm.git
-	```
-	* As GLM is a header only library, just copy everything to the include folder.
-	```
-	xcopy /E/I/y glm\glm <openGLMap root>\includes\glm
-	```
-* SOIL
-	* Download SOIL from http://www.lonesock.net/soil.html
-	* Extract to /SOIL
-	* Change to the makefile directory and make
-	```
-	cd SOIL\Simple OpenGL Image Library\projects\makefile
-	mkdir obj
-	make
-	```
-	* Copy the required includes
-	```
-	cd ..\..
-	xcopy lib\libSOIL.a %ORIGINAL%\Lib /E/I
-	xcopy src\SOIL.h %ORIGINAL%\Includes /E/I
-	cd ..\..
-	```
-* FreeType
-	* Download freetype using the sourceforge link from https://www.freetype.org/download.html
-	* Extract the zip
-	* Change to the root directory
-	* Make
-	```
-	make
-	```
-	* Copy the required includes
-	```
-	xcopy /E/I/y objs\freetype.a <openGLMap root>\Lib
-	xcopy /E/I/y include\* <openGLMap root>\Includes\
-	```
-
-* Boost
-	* Download the boost zip, http://www.boost.org/users/history/version_1_55_0.html
-	* Extract the zip to C:\Program Files\boost_1_55_0
-	* Make the following directories
-		* C:\Program Files\boost-build
-		* C:\Program Files\boost_1_55_0\build
-		* C:\Program Files\boost
-	* Open a command prompt and navigate to C:\Program Files\boost_1_55_0\tools\build\v2
-	* Run the boost build setup
-	```
-	bootstrap.bat mingw
-	b2 install --prefix="C:\Program Files\boost-build"
-	```
-	* Add C:\Program Files\boost-build\bin to your PATH
-	* Close the command prompt and open a new one (to get the updated PATH variable)
-	* Navigate to C:\Program Files\boost_1_55_0 again
-	* Run the following
-	```
-	b2 --build-dir="C:\Program Files\boost_1_55_0\build" --prefix="C:\Program Files\boost" --with-system --with-filesystem toolset=gcc install stage
-	```
-
-* cLibrary - Version 2
-	* Clone the repository
-	```
-	git clone https://github.com/mavlink/c_library_v2.git
-	```
-	* Copy to the include folder
-	```
-	xcopy /E/I/y c_library_v2\ <openGLMap root>\c_library_v2
-	````
-
 # Compiling
-A CMakeLists.txt file is included for compiling with Cmake. This should work for both Debian and Windows based systems. Navigate to the build directory and remove any old CMakeFiles
+A CMakeLists.txt file is included for compiling with Cmake. This should work for systems running Ubuntu. Navigate to the build directory and remove any old CMakeFiles
 ```
 cd build
 rm -r *
@@ -269,13 +104,11 @@ rm -r *
 Run cmake to generate a makefile.
 ```
 cmake ../src/						# Linux
-cmake -G "MinGW Makefiles" ../src/	# Windows
 ```
 Compile the program.
 ```
-make
+make -j4
 ```
-This may take longer on a Windows based system.
 
 ## Debugging
 To enable debugging, when running cmake, enable the debugging flag.
