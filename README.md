@@ -95,6 +95,22 @@ sudo chmod +x installDependicies.sh
 
 	```
 
+* gnuplot
+	* Install gnuplot
+	```
+	sudo apt-get install gnuplot5-x11
+	```
+
+* gnuplot-iostream
+	* Clone the repository
+	```
+	git clone https://github.com/dstahlke/gnuplot-iostream.git
+	```
+	* Copy the required include header
+	```
+	sudo cp gnuplot-iostream/gnuplot-iostream.h /usr/local/includ
+	```
+	
 # Compiling
 A CMakeLists.txt file is included for compiling with Cmake. This should work for systems running Ubuntu. Navigate to the build directory and remove any old CMakeFiles
 ```

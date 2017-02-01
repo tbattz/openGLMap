@@ -87,3 +87,8 @@ sudo apt-get -y install libboost-all-dev
 echo -e "\e[44m ====================== c_library_v2 - Mavlink Definitions ========================= \e[49m"
 git clone https://github.com/mavlink/c_library_v2.git
 sudo cp -r c_library_v2 /usr/local/include
+
+echo -e "\e[44m =================================== gnuplot ======================================= \e[49m"
+sudo apt-get -y install gnuplot5-x11
+git clone https://github.com/dstahlke/gnuplot-iostream.git
+sudo cp gnuplot-iostream/gnuplot-iostream.h /usr/local/include

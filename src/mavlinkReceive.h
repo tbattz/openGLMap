@@ -18,6 +18,9 @@
 
 #include "../src/mavAircraft.h"
 
+// Plotting
+#include "gnuplot-iostream.h"
+
 using boost::asio::ip::udp;
 
 #define MAV_INCOMING_BUFFER_LENGTH 2041
@@ -50,6 +53,14 @@ public:
 			// Setup Buffers
 			boost::array<char, 128> recv_buf;
 			udp::endpoint sender_endpoint;
+
+			Gnuplot gp;
+
+			// Don't forget to put "\n" at the end of each line!
+			gp << "set title \"Simple Plots\" font \",20\"\n";
+			gp << "set key left box\n";
+			gp << "set samples 50\n";
+			gp << "set style data points\n";
 
 			// Receive Mavlink
 			while (this->socketRunning) {
@@ -118,6 +129,26 @@ public:
 										if(this->mavAircraftPt->firstPositionMessage) {
 											(this->mavAircraftPt)->firstPositionMessage = false;
 										}
+
+										// Gnuplot plotting
+										if(mavAircraftPt->positionHistory.size()>2) {
+											int pos = mavAircraftPt->currentPosMsgIndex - 1;
+											printf("%f,%f\n",mavAircraftPt->timePositionHistory[pos]-mavAircraftPt->timeStartMavlink,mavAircraftPt->currTime);
+											std::vector<std::pair<double, double> > xy_pts_A;
+											std::vector<std::pair<double, double> > xy_pts_B;
+											for(unsigned int i = 0; i<mavAircraftPt->positionHistory.size(); i++) {
+												xy_pts_A.push_back(std::make_pair(mavAircraftPt->timePositionHistory[i]-mavAircraftPt->timeStartMavlink,
+														mavAircraftPt->positionHistory[i][0]));
+											}
+											xy_pts_B.push_back(std::make_pair(mavAircraftPt->currTime,mavAircraftPt->position[0]));
+
+
+											// '-' means read from stdin.  The send1d() function sends data to gnuplot's stdin.
+											gp << "plot '-' with lines title 'Messages', '+' with points title 'Interp'\n";
+											gp.send1d(xy_pts_A);
+											gp.send1d(xy_pts_B);
+										}
+
 									} else {
 										printf("Waiting for correct data or GPS lock.\r");
 									}

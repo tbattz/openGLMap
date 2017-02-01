@@ -41,12 +41,13 @@ find_package(GLFW3 REQUIRED)
 message(STATUS "Found Glfw3: ${GLFW3_LIBRARY}")	
 find_package(GLEW REQUIRED)
 message(STATUS "Found Glew: ${GLEW_LIBRARY}")
-find_package(Boost 1.55 COMPONENTS system filesystem REQUIRED)
+find_package(Boost 1.55 COMPONENTS system filesystem iostreams REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 if(WIN32)
 	set(GLEW_LIBRARY "${CMAKE_SOURCE_DIR}/../Lib/libglew32.a")
 	set(FREETYPE_LIBRARY "${CMAKE_SOURCE_DIR}/../Lib/freetype.a")
 ENDIF(WIN32)
+find_package(GNUPLOT REQUIRED)
 
 
 # Set Flags
