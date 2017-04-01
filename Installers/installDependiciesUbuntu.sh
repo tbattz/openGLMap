@@ -87,3 +87,8 @@ sudo apt-get -y install libboost-all-dev
 echo -e "\e[44m ====================== c_library_v2 - Mavlink Definitions ========================= \e[49m"
 git clone https://github.com/mavlink/c_library_v2.git
 sudo cp -r c_library_v2 /usr/local/include
+
+echo -e "\e[44m ============================ Initialising Submodules ============================== \e[49m"
+cd $curDIR
+git submodule init
+git submodule update

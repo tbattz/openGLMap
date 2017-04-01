@@ -1,0 +1,3 @@
+[submodule "openGLPlotLive"]
+	path = openGLPlotLive
+	url = https://github.com/tbattz/openGLPlotLive.git

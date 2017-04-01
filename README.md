@@ -94,6 +94,11 @@ sudo chmod +x installDependicies.sh
 	sudo cp -r c_library_v2 /usr/local/include
 
 	```
+* Initialise Submodules
+	```
+	git submodule init
+	git submodule update
+	```
 
 # Compiling
 A CMakeLists.txt file is included for compiling with Cmake. This should work for systems running Ubuntu. Navigate to the build directory and remove any old CMakeFiles
