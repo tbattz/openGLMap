@@ -26,6 +26,12 @@
 #include "../src/skybox.h"
 #include "../src/telemOverlay.h"
 
+// openGLPlotLive Includes
+#include "../openGLPlotLive/src/fonts.h"
+#include "../openGLPlotLive/src/line2d.h"
+#include "../openGLPlotLive/src/plot.h"
+#include "../openGLPlotLive/src/window.h"
+
 // GLM Mathematics
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -159,6 +165,21 @@ int main(int argc, char* argv[]) {
 	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nSpotLight"),0);
 
 	/* ======================================================
+	 *                     Plotting Data
+	   ====================================================== */
+	// Create Window Dimensions Class
+	GLPL::WinDimensions winDim(window);
+	// Setup Shader
+	GLPL::Shader plot2dShader("../openGLPlotLive/Shaders/plot2d.vs","../openGLPlotLive/Shaders/plot2d.frag");
+	// Create Plot
+	GLPL::Plot myplot(0.0, 0.25, 0.75, 0.75, &winDim);
+	// Create Line
+	GLPL::Line2DVecGLMV3 line1(&(mavAircraft.positionHistory),0,1);
+	// Add line to axes
+	myplot.axes.addLine(&line1);
+	myplot.axes.autoScaleRound = false;
+
+	/* ======================================================
 	 *                     Drawing Loop
 	   ====================================================== */
 	// Game Loop
@@ -224,6 +245,11 @@ int main(int argc, char* argv[]) {
 		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 		glUniform1i(glGetUniformLocation(skyboxShader.Program, "skybox"), 0);
 		skybox.Draw(skyboxShader);
+
+		// Draw Plot
+		GLPL::preLoopDraw(false,&winDim);
+		line1.updateInternalData();
+		myplot.Draw(plot2dShader);
 
 		// Draw Airspeed
 		//telemOverlay.DrawAirspeed();
