@@ -19,9 +19,6 @@
 
 #include "../src/mavAircraft.h"
 
-
-
-
 // Options for camera movement
 enum Camera_Movement {
 	FORWARD,

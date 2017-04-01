@@ -15,6 +15,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+using std::string;
 
 // GL Includes
 #include <GL/glew.h>
@@ -25,7 +26,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "mesh.h"
+#include "../src/mesh.h"
+#include "../src/shader.h"
 
 GLint TextureFromFile(const char* path, string directory);
 

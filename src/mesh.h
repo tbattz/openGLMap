@@ -14,6 +14,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+using std::string;
 
 // GL Includes
 #include <GL/glew.h>
@@ -21,6 +22,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 using std::vector;
+
+#include "../src/shader.h"
 
 struct Vertex {
 	// Position

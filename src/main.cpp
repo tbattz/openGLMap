@@ -14,16 +14,9 @@
 #include <chrono>
 #include <thread>
 
-// GLEW (OpenGL Extension Wrangler Library)
-#define GLEW_STATIC
-#include <GL/glew.h>
-
-// GLFW (Multi-platform library for OpenGL)
-#include <GLFW/glfw3.h>
-
 // openGL Includes
+#include "../src/window.h"
 #include "../src/shader.h"
-#include "../src/camera.h"
 #include "../src/model.h"
 #include "../src/fonts.h"
 #include "../src/light.h"
@@ -47,16 +40,6 @@
 
 using std::vector;
 
-// Camera View Setup
-Camera camera(glm::vec3(0.0f, 3.0f, 3.0f));
-bool keys[1024];
-bool toggleKeys[1024];
-GLfloat lastX = 400, lastY = 300;
-bool firstMouse = true;
-
-GLfloat deltaTime = 0.0f;
-GLfloat lastFrame = 0.0f;
-
 // Define Fonts based on OS
 #ifdef _WIN32
 	#define FONTPATH "C:/Windows/Fonts/Arial.ttf"
@@ -64,19 +47,21 @@ GLfloat lastFrame = 0.0f;
 	#define FONTPATH "/usr/share/fonts/truetype/abyssinica/AbyssinicaSIL-R.ttf"
 #endif
 
-// X Position
-GLfloat xval = 0.0f;
-
 // File check time tracking
 GLfloat fileChecklast = 0.0f;
 
-// Functions
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void mouse_callback(GLFWwindow* window, double xoffset, double yoffset);
-void do_movement();
+
 
 int main(int argc, char* argv[]) {
+	/* ======================================================
+	 *                     Setup Window
+	   ====================================================== */
+	// Init GLFW
+	GLFWwindow* window = initGLFW(&screenWidth,&screenHeight);
+
+	// Initialise GLEW - setup OpenGL pointers
+	initGLEW();
+
 	/* ======================================================
 	 *                  Command Line Arguments
 	   ====================================================== */
@@ -90,46 +75,11 @@ int main(int argc, char* argv[]) {
 		case 'f': fpsOn = true; break;
 		}
 	}
-	/* ======================================================
-	 *                     Setup Window
-	   ====================================================== */
-	// Init GLFW
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE); // Set core profile
-	glfwWindowHint(GLFW_RESIZABLE,GL_FALSE);
-
-	// Screen Properties
-	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	GLfloat screenHeight = mode->height*0.9;
-	GLfloat screenWidth  = mode->width*0.9;
-
-	GLFWwindow* window = glfwCreateWindow(screenWidth,screenHeight,"openGLMap",nullptr,nullptr);
-	glfwMakeContextCurrent(window);
-
-	// Setup Callbacks for user input
-	glfwSetKeyCallback(window,key_callback);
-	glfwSetCursorPosCallback(window,mouse_callback);
-	glfwSetScrollCallback(window,scroll_callback);
-
-	// Disable Cursor
-	//glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_DISABLED);
-
-	// Initialise GLEW - setup OpenGL pointers
-	glewExperimental = GL_TRUE;
-	glewInit();
-
-	// Set viewport size
-	glViewport(0,0,screenWidth,screenHeight); // Origin is bottom left
 
 	// Wireframe command line argument
 	if(wireFrameOn) {
 		glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 	}
-
-	// Test for objects in front of each other
-	glEnable(GL_DEPTH_TEST);
 
 	/* ======================================================
 	 *                  	  Shaders
@@ -228,7 +178,7 @@ int main(int argc, char* argv[]) {
 
 		lightingShader.Use();
 
-		// Update Chase View
+		// Update View
 		camera.setupView(&mavAircraft);
 
 		// Update View Position Uniform
@@ -314,79 +264,6 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-// Smoothing key input callback
-void key_callback(GLFWwindow* window,int key,int scancode, int action, int mode) {
-	// ESC to close window
-	if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-		glfwSetWindowShouldClose(window,GL_TRUE);
-	}
-	// Set key states
-	if(action == GLFW_PRESS) {
-		keys[key] = true;
-		// Set toggle states
-		toggleKeys[key] = !toggleKeys[key];
-		// Change View
-		if(key==GLFW_KEY_V) {
-			camera.view += 1;
-			if(camera.view > 3) {
-				camera.view = 0;
-			}
-		}
-	} else if (action == GLFW_RELEASE) {
-		keys[key] = false;
-	}
 
 
 
-
-}
-
-// Callback to position the camera
-void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-	// Reset mouse to center of window
-	if(firstMouse) {
-		lastX = xpos;
-		lastY = ypos;
-		firstMouse = false;
-	}
-
-	// Offset for smoother movement
-	GLfloat xoffset = xpos - lastX;
-	GLfloat yoffset = lastY - ypos;
-
-	lastX = xpos;
-	lastY = ypos;
-
-	// Don't move if camera movement paused
-	if (!toggleKeys[80]) { // p key to toggle
-		camera.ProcessMouseMovement(xoffset,yoffset);
-	}
-}
-
-// Scrolling zoom callback
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-		camera.ProcessMouseScroll(yoffset);
-}
-
-// Move camera using wasd keys
-void do_movement() {
-	// Camera Controls
-	if(keys[GLFW_KEY_W]) {
-		camera.ProcessKeyboard(FORWARD, deltaTime);
-	}
-	if(keys[GLFW_KEY_S]) {
-		camera.ProcessKeyboard(BACKWARD, deltaTime);
-	}
-	if(keys[GLFW_KEY_A]) {
-		camera.ProcessKeyboard(LEFT, deltaTime);
-	}
-	if(keys[GLFW_KEY_D]) {
-		camera.ProcessKeyboard(RIGHT, deltaTime);
-	}
-	if(keys[GLFW_KEY_UP]) {
-		xval += 0.05f;
-	}
-	if(keys[GLFW_KEY_DOWN]) {
-		xval -= 0.05f;
-	}
-}
