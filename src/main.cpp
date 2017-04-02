@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
 	Shader lightingShader("../Shaders/multiple_lighting.vs","../Shaders/multiple_lighting.frag");
 	loadingScreen.appendLoadingMessage("Finished lightingShader load attempt.");
 	Shader tileShader("../Shaders/tileImage.vs","../Shaders/tileImage.frag");
-	loadingScreen.appendLoadingMessage("Finished tileShader load attemp.t");
+	loadingScreen.appendLoadingMessage("Finished tileShader load attempt.");
 	Shader skyboxShader("../Shaders/skybox.vs","../Shaders/skybox.frag");
 	loadingScreen.appendLoadingMessage("Finished skyboxShader load attempt.");
 	Shader simpleShader("../Shaders/telemOverlay.vs","../Shaders/telemOverlay.frag");
@@ -268,6 +268,7 @@ int main(int argc, char* argv[]) {
 		GLPL::preLoopDraw(false,&winDim);
 		line1.updateInternalData();
 		myplot.Draw(plot2dShader);
+
 
 		// Draw Airspeed
 		//telemOverlay.DrawAirspeed();
