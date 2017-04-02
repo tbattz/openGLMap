@@ -15,6 +15,7 @@
 #include <SOIL.h>
 
 #include "../src/shader.h"
+#include "../src/loadingScreen.h"
 
 // Standard Includes
 #include <iostream>
@@ -233,24 +234,29 @@ public:
 	GLfloat				fovX;
 	GLfloat				fovY;
 	glm::vec3			origin;
+	bool				firstLoad = true;
+	GLFWwindow*			window;
 
 	/* Functions */
 	// Initialiser
-	TileList(glm::vec3 origin, GLfloat fovX, GLfloat fovY) {
+	TileList(glm::vec3 origin, GLfloat fovX, GLfloat fovY, GLFWwindow* window) {
 		this->origin = origin;
 		this->fovX = fovX;
 		this->fovY = fovY;
+		this->window = window;
 
 	}
 
 	// Update List
-	void updateTileList(const char* folderPath) {
+	void updateTileList(const char* folderPath, LoadingScreen* loadingScreenPt) {
 		/* Checks the folder for any new tiles */
 		// Get current file list
-
 		path p(folderPath);
 		string newFilename; // Filename of image file
 		string mypath;		// Path of image file relative to src directory
+		if (firstLoad) {
+			loadingScreenPt->appendLoadingMessage("Starting loading of Image Tiles...");
+		}
 		for (auto i = directory_iterator(p); i != directory_iterator(); i++) {
 			if (!is_directory(i->path())) { // Ignore subdirectories
 				newFilename = i->path().filename().string();
@@ -300,6 +306,11 @@ public:
 								// Create New Tile
 								this->tiles.push_back(ImageTile(this->origin, geoPosition, this->fovX, this->fovY,mypath.c_str()));
 
+								// Update Loading Screen
+								if (firstLoad) {
+									loadingScreenPt->appendLoadingMessage("Loaded image Tile " + mypath);
+								}
+
 							} else {
 								/* File is probably still being downloaded. */
 								std::cout << objname << ".txt" << " is in use. Not adding.\n";
@@ -312,6 +323,7 @@ public:
 				}
 			}
 		}
+		firstLoad = false;
 	}
 
 private:

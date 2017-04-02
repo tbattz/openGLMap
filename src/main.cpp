@@ -25,6 +25,7 @@
 #include "../src/mavAircraft.h"
 #include "../src/skybox.h"
 #include "../src/telemOverlay.h"
+#include "../src/loadingScreen.h"
 
 // openGLPlotLive Includes
 #include "../openGLPlotLive/src/fonts.h"
@@ -88,19 +89,29 @@ int main(int argc, char* argv[]) {
 	}
 
 	/* ======================================================
+	 *                  Create Loading Screen
+	   ====================================================== */
+	LoadingScreen loadingScreen(window, &screenWidth, &screenHeight);
+
+	/* ======================================================
 	 *                  	  Shaders
 	   ====================================================== */
 	// Setup and compile shaders
 	Shader lightingShader("../Shaders/multiple_lighting.vs","../Shaders/multiple_lighting.frag");
+	loadingScreen.appendLoadingMessage("Finished lightingShader load attempt.");
 	Shader tileShader("../Shaders/tileImage.vs","../Shaders/tileImage.frag");
+	loadingScreen.appendLoadingMessage("Finished tileShader load attemp.t");
 	Shader skyboxShader("../Shaders/skybox.vs","../Shaders/skybox.frag");
+	loadingScreen.appendLoadingMessage("Finished skyboxShader load attempt.");
 	Shader simpleShader("../Shaders/telemOverlay.vs","../Shaders/telemOverlay.frag");
+	loadingScreen.appendLoadingMessage("Finished simpleShader load attempt.");
 
 	/* ======================================================
 	 *                         Fonts
 	   ====================================================== */
 	// Load Font Shader
 	Shader textShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight);
+	loadingScreen.appendLoadingMessage("Finished textShader load attempt.");
 
 	// Load Telemetry Font
 	GLFont telemFont = GLFont(FONTPATH);
@@ -115,6 +126,7 @@ int main(int argc, char* argv[]) {
 
 	// Help Font
 	GLFont helpFont = GLFont(FONTPATH);
+	loadingScreen.appendLoadingMessage("Finished loading fonts.");
 
 	/* ======================================================
 	 *                        Models
@@ -122,11 +134,13 @@ int main(int argc, char* argv[]) {
 	// Load Models
 	//Model mavAircraft("../Models/wheel/wheelTest2.obj");
 	MavAircraft mavAircraft("../Models/X8/x8Fixed.obj",glm::vec3(-37.958926f, 145.238343f, 0.0f));
+	loadingScreen.appendLoadingMessage("Finished loading mavAircraft.");
 
 	// Create thread to recieve Mavlink messages
 	//std::thread mavlinkThread(mavlinkMain,"192.168.1.1", "14550");
 	MavSocket mavSocket("192.168.1.1", "14550",&mavAircraft);
 	std::thread mavThread(&MavSocket::startSocket,&mavSocket);
+	loadingScreen.appendLoadingMessage("Created mavSocket.");
 
 	// Create Skybox
 	vector<const GLchar*> faces;
@@ -137,21 +151,23 @@ int main(int argc, char* argv[]) {
 	faces.push_back("../Models/skybox/back.png");
 	faces.push_back("../Models/skybox/front.png");
 	Skybox skybox(faces);
+	loadingScreen.appendLoadingMessage("Finished loading skybox.");
 
 	/* ======================================================
 	 *                      Overlays
 	   ====================================================== */
 	// Create Telem Overlay
 	TelemOverlay telemOverlay(&mavAircraft,&textShader,&telemFont,screenWidth,screenHeight);
+	loadingScreen.appendLoadingMessage("Finished loading telemetry overlay.");
 
 	// Create Tiles
 	glm::vec3 origin = glm::vec3(-37.958926f, 145.238343f, 0.0f);
 	GLfloat fovX = 48.3/2.0;
 	GLfloat fovY = 36.8/2.0;
-	TileList imageTileList(origin, fovX, fovY);
+	TileList imageTileList(origin, fovX, fovY, window);
 
 	// Get Tile Information
-	imageTileList.updateTileList("../ImageData");
+	imageTileList.updateTileList("../ImageData",&loadingScreen);
 
 	/* ======================================================
 	 *                         Lights
@@ -163,6 +179,8 @@ int main(int argc, char* argv[]) {
 	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nDirLight"),1);
 	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nPointLight"),0);
 	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nSpotLight"),0);
+
+	loadingScreen.appendLoadingMessage("Loaded Lights.");
 
 	/* ======================================================
 	 *                     Plotting Data
@@ -229,7 +247,7 @@ int main(int argc, char* argv[]) {
 		// Check for new files
 		if ((currentFrame - fileChecklast) > 1.0) {
 			// Update image file list
-			imageTileList.updateTileList("../ImageData");
+			imageTileList.updateTileList("../ImageData",&loadingScreen);
 			fileChecklast = currentFrame;
 		}
 
