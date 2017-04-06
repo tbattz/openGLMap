@@ -192,7 +192,7 @@ int main(int argc, char* argv[]) {
 	// Create Plot
 	GLPL::Plot myplot(0.0, 0.25, 0.75, 0.75, &winDim);
 	// Create Line
-	GLPL::Line2DVecGLMV3 line1(&(mavAircraft.positionHistory),0,1);
+	GLPL::Line2DVecGLMV3 line1(&(mavAircraft.positionHistory),1,0);
 	// Add line to axes
 	myplot.axes.addLine(&line1);
 	myplot.axes.autoScaleRound = false;
