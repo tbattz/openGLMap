@@ -48,6 +48,7 @@ public:
 	glm::vec3 geoPosition; 	// Lat (deg), Lon (deg), alt (km)
 	glm::vec3 origin; 		// Lat (deg), Lon (deg), alt (km)
 	glm::vec3 position; 	// (x,y,z) relative to origin
+	float altOffset;		// (m) Offset from 0 to stop overlapping tiles flickering
 	// Frame Information
 	GLfloat fovX; // Degrees
 	GLfloat fovY; // Degrees
@@ -64,12 +65,13 @@ public:
 
 
 	/* Functions */
-	ImageTile(glm::vec3 origin, glm::vec3 geoPosition, GLfloat fovX, GLfloat fovY,string filename) {
+	ImageTile(glm::vec3 origin, glm::vec3 geoPosition, GLfloat fovX, GLfloat fovY, float altOffset, string filename) {
 		/* Instantiates the Image Tile */
 		this->origin	= origin;			// Lat (deg), Lon (deg), alt (km)
 		this->geoPosition = geoPosition; 	// Lat (deg), Lon (deg), alt (km)
 		this->fovX		= fovX;		   		// Degrees
 		this->fovY		= fovY;		   		// Degrees
+		this->altOffset = altOffset;			// m
 		this->filename 	= filename;			// Name of image file
 		this->brightness = 2.0;
 
@@ -141,7 +143,7 @@ public:
 	void Draw(Shader shader) {
 		// Calculate new position matrix
 		glm::mat4 tilePos;
-		tilePos = glm::translate(tilePos, glm::vec3(this->position[0],0.0f,this->position[1]));
+		tilePos = glm::translate(tilePos, glm::vec3(this->position[0],altOffset,this->position[1]));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program,"model"),1,GL_FALSE,glm::value_ptr(tilePos));
 		glUniform1f(glGetUniformLocation(shader.Program,"brightness"),this->brightness);
 
@@ -236,6 +238,7 @@ public:
 	glm::vec3			origin;
 	bool				firstLoad = true;
 	GLFWwindow*			window;
+	float				currentOffset = 0.0;
 
 	/* Functions */
 	// Initialiser
@@ -244,7 +247,6 @@ public:
 		this->fovX = fovX;
 		this->fovY = fovY;
 		this->window = window;
-
 	}
 
 	// Update List
@@ -304,7 +306,8 @@ public:
 								glm::tvec3<double> geoPosition = {tiletelem.latitude,tiletelem.longitude,tiletelem.altitude};
 
 								// Create New Tile
-								this->tiles.push_back(ImageTile(this->origin, geoPosition, this->fovX, this->fovY,mypath.c_str()));
+								this->tiles.push_back(ImageTile(this->origin, geoPosition, this->fovX, this->fovY, currentOffset, mypath.c_str()));
+								currentOffset -= 0.01;
 
 								// Update Loading Screen
 								if (firstLoad) {
