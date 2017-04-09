@@ -69,6 +69,10 @@ public:
 		// Lock
 		std::mutex positionLock;
 
+		// temp stuff
+		vector<float>		tempTime;
+		vector<glm::dvec3> 	tempVec;
+
 		// Frame Information
 		//GLfloat fovX; // Degrees
 		//GLfloat fovY; // Degrees
@@ -167,6 +171,9 @@ public:
 			this->position[0] = (0.5*xPosConst[0]*dtPos*dtPos) + (xPosConst[1]*dtPos) + xPosConst[2];
 			this->position[1] = (0.5*yPosConst[0]*dtPos*dtPos) + (yPosConst[1]*dtPos) + yPosConst[2];
 			this->position[2] = (0.5*zPosConst[0]*dtPos*dtPos) + (zPosConst[1]*dtPos) + zPosConst[2];
+
+			tempTime.push_back(currTime+timeStartMavlink);
+			tempVec.push_back(glm::vec3(position[0],position[1],position[2]));
 
 			// Calculate Velocity
 			this->velocity[0] = (xPosConst[0]*dtPos) + xPosConst[1];
