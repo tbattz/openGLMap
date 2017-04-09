@@ -115,7 +115,7 @@ public:
 		GLfloat e2 = 6.69437999014e-3;
 		GLfloat lat = glm::radians(positionVector[0]);
 		GLfloat lon = glm::radians(positionVector[1]);
-		GLfloat alt = glm::radians(positionVector[2]);
+		//GLfloat alt = glm::radians(positionVector[2]);
 		GLfloat N = a / glm::sqrt(1-(e2*glm::pow(glm::sin(lat),2)));
 		GLfloat h = positionVector[2]; // Convert to m
 		GLfloat ex = (N+h)*glm::cos(lat)*glm::cos(lon); // m
@@ -129,7 +129,7 @@ public:
 	void ecef2ENU(glm::vec3 ecefVector, glm::vec3 ecefOrigin, glm::vec3 origin) {
 		GLfloat lat = glm::radians(origin[0]);
 		GLfloat lon = glm::radians(origin[1]);
-		GLfloat alt = origin[2];
+		//GLfloat alt = origin[2];
 		glm::mat3 A = glm::mat3(-glm::sin(lon),					glm::cos(lon),					0.0,
 								-glm::sin(lat)*glm::cos(lon),	-glm::sin(lat)*glm::sin(lon),	glm::cos(lat),
 								glm::cos(lat)*glm::cos(lon),	glm::cos(lat)*glm::sin(lon),	glm::sin(lat));

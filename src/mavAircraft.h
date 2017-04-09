@@ -77,7 +77,7 @@ public:
 		//GLfloat fovX; // Degrees
 		//GLfloat fovY; // Degrees
 
-	MavAircraft(GLchar* path, glm::dvec3 origin) : Model(path) {
+	MavAircraft(const GLchar* path, glm::dvec3 origin) : Model(path) {
 
 		// Set Geoposition (temporary)
 		this->geoPosition = glm::dvec3(-37.958926f, 145.238343f, 0.0f);

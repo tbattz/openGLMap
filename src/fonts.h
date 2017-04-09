@@ -473,7 +473,7 @@ public:
 private:
 };
 
-Shader setupFontShader(GLchar* vertexShaderPath,GLchar* fragmentShaderPath, GLuint screenWidth, GLuint screenHeight) {
+Shader setupFontShader(const GLchar* vertexShaderPath, const GLchar* fragmentShaderPath, GLuint screenWidth, GLuint screenHeight) {
 	/* Compile and setup shader. */
 	Shader textShader("../Shaders/font.vs","../Shaders/font.frag");
 	textShader.Use();
