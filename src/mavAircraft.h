@@ -12,6 +12,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/string_cast.hpp"
 
 #include <cmath>
 #include <mutex>
@@ -50,7 +52,7 @@ public:
 		float				timeStartMavlink=0; 			// Boot time of the first mavlink message (s)
 		float				timeStartAtt=0;
 		float				timeStartMavlinkAtt=0;
-		float				timeDelay=0.5;  				// Delay between receiving the first mavlink message and displaying it (s)
+		float				timeDelay=1.0;  				// Delay between receiving the first mavlink message and displaying it (s)
 		float				currTime=0;						// The current time
 		float				dtPos=0;						// Timestep between current frame and last current position mavlink message time
 		float				dtAtt=0;						// Timestep between current frame and last current attitude mavlink message time
@@ -158,12 +160,13 @@ public:
 
 			// Unlock
 			//positionLock.unlock();
+			printf("%f\n",currTime - (timePositionHistory[timePositionHistory.size()-1]-timeStartMavlink));
 		}
 	}
 
 	// Calculate position at next frame
 	void interpolatePosition() {
-		if(currentPosMsgIndex>1) {
+		if(currentPosMsgIndex>2) {
 			// Recalculate Interpolation Constants
 			calculatePositionInterpolationConstants();
 
@@ -203,16 +206,17 @@ public:
 		// (t1,x1), (t2,x2), (t1,v2), v2 found from last frame step
 		float t1 = 0;
 		float t2 = timePositionHistory[pos]-timePositionHistory[pos-1];
-		glm::dvec3 v2 = velocityHistory[pos];
+		float t3 = timePositionHistory[pos]-timePositionHistory[pos-2];
 
 		// Find inverse matrix of [x1,x2,v2]=[BLAH][a,b,c]
-		glm::mat3x3 A = glm::mat3x3(0.5*t1*t1, t1, 1,0.5*t2*t2,t2,1,t2,1,0);
+		glm::mat3x3 A = glm::mat3x3(0.5*t1*t1, t1, 1,0.5*t2*t2, t2, 1,0.5*t3*t3, t3, 1);
 		glm::mat3x3 inv = glm::inverse(A);
 
 		// Constants
-		glm::dvec3 xvec = glm::dvec3(positionHistory[pos-1][0],positionHistory[pos][0],v2[0]);
-		glm::dvec3 yvec = glm::dvec3(positionHistory[pos-1][1],positionHistory[pos][1],v2[1]);
-		glm::dvec3 zvec = glm::dvec3(positionHistory[pos-1][2],positionHistory[pos][2],v2[2]);
+
+		glm::dvec3 xvec = glm::dvec3(positionHistory[pos-2][0],positionHistory[pos-1][0],positionHistory[pos][0]);
+		glm::dvec3 yvec = glm::dvec3(positionHistory[pos-2][1],positionHistory[pos-1][1],positionHistory[pos][1]);
+		glm::dvec3 zvec = glm::dvec3(positionHistory[pos-2][2],positionHistory[pos-1][2],positionHistory[pos][2]);
 
 		xPosConst = xvec*inv;		// Flipped due to GLM ordering
 		yPosConst = yvec*inv;		// Flipped due to GLM ordering

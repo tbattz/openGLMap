@@ -68,6 +68,7 @@ public:
 						if(mavlink_parse_char(MAVLINK_COMM_0, recv_buf[i], &msg, &status)) {
 							// Message was recieved
 							switch(msg.msgid) {
+								/* POSITION MESSAGE */
 								case MAVLINK_MSG_ID_GLOBAL_POSITION_INT: {
 									// Setup Decoding Packet
 									mavlink_global_position_int_t packet;
@@ -124,6 +125,7 @@ public:
 
 									break;
 								}
+								/* ATTITUDE MESSAGE */
 								case MAVLINK_MSG_ID_ATTITUDE: {
 									mavlink_attitude_t packet;
 									mavlink_msg_attitude_decode(&msg,&packet);
@@ -153,6 +155,7 @@ public:
 
 									break;
 								}
+								/* AIRSPEED MESSAGE */
 								case MAVLINK_MSG_ID_VFR_HUD: {
 									mavlink_vfr_hud_t packet;
 									mavlink_msg_vfr_hud_decode(&msg,&packet);
@@ -162,9 +165,6 @@ public:
 								}
 
 							}
-
-
-
 						}
 					}
 				}
