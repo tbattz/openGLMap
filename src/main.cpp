@@ -197,9 +197,28 @@ int main(int argc, char* argv[]) {
 	GLPL::Line2DVecfVecGLMV3 line1(&(mavAircraft.tempTime),&(mavAircraft.tempVec),0);
 	line1.colour = LC_BLUE;
 	GLPL::Line2DVecfVecGLMV3 line2(&(mavAircraft.timePositionHistory),&(mavAircraft.positionHistory),0,GL_POINTS);
+	GLPL::Line2DVecfVecGLMV3 line3(&(mavAircraft.tempTime),&(mavAircraft.tempVec),1);
+	line3.colour = LC_GREEN;
+	GLPL::Line2DVecfVecGLMV3 line4(&(mavAircraft.timePositionHistory),&(mavAircraft.positionHistory),1,GL_POINTS);
+	GLPL::Line2DVecfVecGLMV3 line5(&(mavAircraft.tempTime),&(mavAircraft.tempVec),2);
+	line5.colour = LC_YELLOW;
+	GLPL::Line2DVecfVecGLMV3 line6(&(mavAircraft.timePositionHistory),&(mavAircraft.positionHistory),2,GL_POINTS);
+	GLPL::Line2DVecfVecGLMV3 line7(&(mavAircraft.tempTime),&(mavAircraft.tempVel),0);
+	line7.colour = LC_PURPLE;
+	GLPL::Line2DVecfVecGLMV3 line8(&(mavAircraft.tempTime),&(mavAircraft.tempVel),1);
+	line8.colour = LC_PURPLE;
+	GLPL::Line2DVecfVecGLMV3 line9(&(mavAircraft.tempTime),&(mavAircraft.tempVel),2);
+	line9.colour = LC_PURPLE;
 	// Add line to axes
 	myplot.axes.addLine(&line2);
 	myplot.axes.addLine(&line1);
+	myplot.axes.addLine(&line4);
+	myplot.axes.addLine(&line3);
+	myplot.axes.addLine(&line6);
+	myplot.axes.addLine(&line5);
+	myplot.axes.addLine(&line7);
+	myplot.axes.addLine(&line8);
+	myplot.axes.addLine(&line9);
 	myplot.axes.autoScaleRound = false;
 	myplot.axes.maxXRange = 10.0;
 
@@ -274,6 +293,13 @@ int main(int argc, char* argv[]) {
 		GLPL::preLoopDraw(false,&winDim);
 		line1.updateInternalData();
 		line2.updateInternalData();
+		line3.updateInternalData();
+		line4.updateInternalData();
+		line5.updateInternalData();
+		line6.updateInternalData();
+		line7.updateInternalData();
+		line8.updateInternalData();
+		line9.updateInternalData();
 		myplot.Draw(plot2dShader);
 
 

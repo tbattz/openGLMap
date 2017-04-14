@@ -72,6 +72,7 @@ public:
 		// temp stuff
 		vector<float>		tempTime;
 		vector<glm::dvec3> 	tempVec;
+		vector<glm::dvec3>  tempVel;
 
 		// Frame Information
 		//GLfloat fovX; // Degrees
@@ -179,8 +180,11 @@ public:
 			this->position[1] = c[1] + (m[1]*(dtPos + t1));
 			this->position[2] = c[2] + (m[2]*(dtPos + t1));
 
+			velocity = m;
+
 			tempTime.push_back(currTime+timeStartMavlink);
 			tempVec.push_back(glm::vec3(position[0],position[1],position[2]));
+			tempVel.push_back(velocity);
 
 			// Calculate Velocity
 			//this->velocity[0] = (xPosConst[0]*dtPos) + xPosConst[1];
