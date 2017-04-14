@@ -50,7 +50,7 @@ public:
 		float				timeStartMavlink=0; 			// Boot time of the first mavlink message (s)
 		float				timeStartAtt=0;
 		float				timeStartMavlinkAtt=0;
-		float				timeDelay=0.5;  				// Delay between receiving the first mavlink message and displaying it (s)
+		float				timeDelay=1.5;  				// Delay between receiving the first mavlink message and displaying it (s)
 		float				currTime=0;						// The current time
 		float				dtPos=0;						// Timestep between current frame and last current position mavlink message time
 		float				dtAtt=0;						// Timestep between current frame and last current attitude mavlink message time
@@ -166,19 +166,26 @@ public:
 		if(currentPosMsgIndex>1) {
 			// Recalculate Interpolation Constants
 			calculatePositionInterpolationConstants();
+			int pos = currentPosMsgIndex + 1;
+			float t1 = timePositionHistory[pos-1];
+			float t2 = timePositionHistory[pos];
+			glm::vec3 x1 = positionHistory[pos-1];
+			glm::vec3 x2 = positionHistory[pos];
+			glm::vec3 m = (x2 - x1)/(t2 - t1);
+			glm::vec3 c = x1 - (m*t1);
 
 			// Calculate Positions
-			this->position[0] = (0.5*xPosConst[0]*dtPos*dtPos) + (xPosConst[1]*dtPos) + xPosConst[2];
-			this->position[1] = (0.5*yPosConst[0]*dtPos*dtPos) + (yPosConst[1]*dtPos) + yPosConst[2];
-			this->position[2] = (0.5*zPosConst[0]*dtPos*dtPos) + (zPosConst[1]*dtPos) + zPosConst[2];
+			this->position[0] = c[0] + (m[0]*(dtPos + t1));
+			this->position[1] = c[1] + (m[1]*(dtPos + t1));
+			this->position[2] = c[2] + (m[2]*(dtPos + t1));
 
 			tempTime.push_back(currTime+timeStartMavlink);
 			tempVec.push_back(glm::vec3(position[0],position[1],position[2]));
 
 			// Calculate Velocity
-			this->velocity[0] = (xPosConst[0]*dtPos) + xPosConst[1];
-			this->velocity[1] = (yPosConst[0]*dtPos) + yPosConst[1];
-			this->velocity[2] = (zPosConst[0]*dtPos) + zPosConst[1];
+			//this->velocity[0] = (xPosConst[0]*dtPos) + xPosConst[1];
+			//this->velocity[1] = (yPosConst[0]*dtPos) + yPosConst[1];
+			//this->velocity[2] = (zPosConst[0]*dtPos) + zPosConst[1];
 		}
 	}
 

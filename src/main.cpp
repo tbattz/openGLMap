@@ -196,10 +196,10 @@ int main(int argc, char* argv[]) {
 	//GLPL::Line2DVecfVecGLMV3 line1(&(mavAircraft.timePositionHistory),&(mavAircraft.positionHistory),0);
 	GLPL::Line2DVecfVecGLMV3 line1(&(mavAircraft.tempTime),&(mavAircraft.tempVec),0);
 	line1.colour = LC_BLUE;
-	GLPL::Line2DVecfVecGLMV3 line2(&(mavAircraft.timePositionHistory),&(mavAircraft.positionHistory),0);
+	GLPL::Line2DVecfVecGLMV3 line2(&(mavAircraft.timePositionHistory),&(mavAircraft.positionHistory),0,GL_POINTS);
 	// Add line to axes
-	myplot.axes.addLine(&line1);
 	myplot.axes.addLine(&line2);
+	myplot.axes.addLine(&line1);
 	myplot.axes.autoScaleRound = false;
 	myplot.axes.maxXRange = 10.0;
 
@@ -273,6 +273,7 @@ int main(int argc, char* argv[]) {
 		// Draw Plot
 		GLPL::preLoopDraw(false,&winDim);
 		line1.updateInternalData();
+		line2.updateInternalData();
 		myplot.Draw(plot2dShader);
 
 
