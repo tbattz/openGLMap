@@ -190,7 +190,7 @@ int main(int argc, char* argv[]) {
 	// Setup Shader
 	GLPL::Shader plot2dShader("../openGLPlotLive/Shaders/plot2d.vs","../openGLPlotLive/Shaders/plot2d.frag");
 	// Create Plot
-	GLPL::Plot myplot(0.0, 0.25, 0.75, 0.75, &winDim);
+	GLPL::Plot myplot(0.75, 0.0, 0.25, 0.25, &winDim);
 	// Create Line
 	// Position
 	GLPL::Line2DVecfVecGLMV3 pos1(&(mavAircraft.tempTime),&(mavAircraft.tempPos),0);
@@ -221,13 +221,16 @@ int main(int argc, char* argv[]) {
 	GLPL::Line2DVecfVecGLMV3 vel3(&(mavAircraft.tempTime),&(mavAircraft.tempVel),2);
 	vel3.colour = LC_GREEN;
 
+	// Path Plotting
+	GLPL::Line2DVecGLMV3 map(&(mavAircraft.positionHistory));
+
 	// Add line to axes
-	myplot.axes.addLine(&rpos1);
-	myplot.axes.addLine(&rpos2);
-	myplot.axes.addLine(&rpos3);
-	myplot.axes.addLine(&pos1);
-	myplot.axes.addLine(&pos2);
-	myplot.axes.addLine(&pos3);
+//	myplot.axes.addLine(&rpos1);
+//	myplot.axes.addLine(&rpos2);
+//	myplot.axes.addLine(&rpos3);
+//	myplot.axes.addLine(&pos1);
+//	myplot.axes.addLine(&pos2);
+//	myplot.axes.addLine(&pos3);
 //	myplot.axes.addLine(&ratt1);
 //	myplot.axes.addLine(&ratt2);
 //	myplot.axes.addLine(&ratt3);
@@ -237,9 +240,10 @@ int main(int argc, char* argv[]) {
 //	myplot.axes.addLine(&vel1);
 //	myplot.axes.addLine(&vel2);
 //	myplot.axes.addLine(&vel3);
+	myplot.axes.addLine(&map);
 
 	myplot.axes.autoScaleRound = false;
-	myplot.axes.maxXRange = 10.0;
+	//myplot.axes.maxXRange = 10.0;
 
 	/* ======================================================
 	 *                     Drawing Loop
@@ -330,6 +334,7 @@ int main(int argc, char* argv[]) {
 		vel1.updateInternalData();
 		vel2.updateInternalData();
 		vel3.updateInternalData();
+		map.updateInternalData();
 		myplot.Draw(plot2dShader);
 
 

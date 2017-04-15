@@ -58,6 +58,7 @@ GLFWwindow* initGLFW(GLfloat* screenWidthPt, GLfloat* screenHeightPt) {
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 	(*screenHeightPt) = mode->height;
 	(*screenWidthPt)  = mode->width;
+	glfwWindowHint(GLFW_AUTO_ICONIFY, GL_FALSE);
 	GLFWwindow* window = glfwCreateWindow(screenWidth,screenHeight,"openGLMap",monitors[1],nullptr);
 	glfwMakeContextCurrent(window);
 
