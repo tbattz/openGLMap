@@ -1,6 +1,8 @@
 # openGLMap
 A rudimentary UAV Mapping Plotter using openGL.
 
+[![openGLMap Demonstration](https://raw.github.com/tbattz/openGLMap/master/Other/youtubeLink.png)](https://www.youtube.com/watch?v=QKWYyx10PYw "openGLMap Demonstration")
+
 # Dependencies
 ##  Automated Install
 A few scripts have been created to automate the installation process. In the event these fail, you may have to compile the dependencies manually. Support for Windows systems have been removed as of 1/2/2017. If may still be possible to complie on Windows, check the Windows-old-store branch for a bit of help for installation of some of the required packages.
