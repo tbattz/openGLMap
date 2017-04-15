@@ -50,7 +50,7 @@ public:
 		float				timeStartMavlink=0; 			// Boot time of the first mavlink message (s)
 		float				timeStartAtt=0;
 		float				timeStartMavlinkAtt=0;
-		float				timeDelay=0.5;  				// Delay between receiving the first mavlink message and displaying it (s)
+		float				timeDelay=1.5;  				// Delay between receiving the first mavlink message and displaying it (s)
 		float				currTime=0;						// The current time
 		float				dtPos=0;						// Timestep between current frame and last current position mavlink message time
 		float				dtAtt=0;						// Timestep between current frame and last current attitude mavlink message time
@@ -68,10 +68,6 @@ public:
 
 		// Lock
 		std::mutex positionLock;
-
-		// temp stuff
-		vector<float>		tempTime;
-		vector<glm::dvec3> 	tempVec;
 
 		// Frame Information
 		//GLfloat fovX; // Degrees
@@ -91,39 +87,25 @@ public:
 
 	}
 
-	void Draw(Shader shader) {
-
+	void updatePositionAttitude() {
 		// Grab Lock
 		//positionLock.lock();
 
 		// Set new time
 		currTime = glfwGetTime() - timeStart;
 
-		// Check to move to next pair of position messages
-		if(!firstPositionMessage) {
-			while(currTime > (timePositionHistory[currentPosMsgIndex]-timeStartMavlink)) {
-				if (currentPosMsgIndex < timePositionHistory.size()-1) {
-					// Increment current Mavlink Message
-					currentPosMsgIndex += 1;
-				}
-			}
-			if (currentPosMsgIndex>0) {
-				currentPosMsgIndex -= 1;
-			}
-		}
+        // Check to move to next pair of position messages
+        if(!firstPositionMessage) {
+                std::vector<float>::iterator low = std::lower_bound(timePositionHistory.begin(),timePositionHistory.end(),currTime+timeStartMavlink);
+                currentPosMsgIndex = low - timePositionHistory.begin() - 1;
+        }
 
-		// Check to move to the next pair of attitude messages
-		if(!firstAttitudeMessage) {
-			while(currTime > timeAttitudeHistory[currentAttMsgIndex]-timeStartMavlinkAtt) {
-				if(currentAttMsgIndex < timeAttitudeHistory.size()-1) {
-					// Increment current Mavlink Message
-					currentAttMsgIndex += 1;
-				}
-			}
-			if(currentAttMsgIndex>0) {
-				currentAttMsgIndex -= 1;
-			}
-		}
+        // Check to move to the next pair of attitude messages
+        if(!firstAttitudeMessage) {
+                std::vector<float>::iterator low = std::lower_bound(timeAttitudeHistory.begin(),timeAttitudeHistory.end(),currTime+timeStartMavlink);
+                currentAttMsgIndex = low - timeAttitudeHistory.begin() - 2;
+        }
+
 
 		if(currentPosMsgIndex>1) {
 			// Calculate position offset
@@ -142,7 +124,11 @@ public:
 					interpolateAttitude();
 				}
 			}
+		}
+	}
 
+	void Draw(Shader shader) {
+		if(currentPosMsgIndex>1) {
 			// Do Translation and Rotation
 			glm::mat4 model;
 			model = glm::translate(model,glm::vec3(position[0],position[2],position[1]));// Translate first due to GLM ordering, rotations opposite order
@@ -167,18 +153,18 @@ public:
 			// Recalculate Interpolation Constants
 			calculatePositionInterpolationConstants();
 
+			// Store Past Position
+			glm::dvec3 oldPosition = position;
+
 			// Calculate Positions
 			this->position[0] = (0.5*xPosConst[0]*dtPos*dtPos) + (xPosConst[1]*dtPos) + xPosConst[2];
 			this->position[1] = (0.5*yPosConst[0]*dtPos*dtPos) + (yPosConst[1]*dtPos) + yPosConst[2];
 			this->position[2] = (0.5*zPosConst[0]*dtPos*dtPos) + (zPosConst[1]*dtPos) + zPosConst[2];
 
-			tempTime.push_back(currTime+timeStartMavlink);
-			tempVec.push_back(glm::vec3(position[0],position[1],position[2]));
-
 			// Calculate Velocity
-			this->velocity[0] = (xPosConst[0]*dtPos) + xPosConst[1];
-			this->velocity[1] = (yPosConst[0]*dtPos) + yPosConst[1];
-			this->velocity[2] = (zPosConst[0]*dtPos) + zPosConst[1];
+			this->velocity[0] = (position[0] - oldPosition[0])/dtPos;
+			this->velocity[1] = (position[1] - oldPosition[1])/dtPos;
+			this->velocity[2] = (position[2] - oldPosition[2])/dtPos;
 		}
 	}
 
@@ -196,23 +182,23 @@ public:
 
 	void calculatePositionInterpolationConstants() {
 		// Get Index
-		int pos = currentPosMsgIndex + 1;
+		int pos = currentPosMsgIndex + 2;
 
 		// x(t) = 0.5*a*t^2+b*t+c
 		// v(t) = at+b
 		// (t1,x1), (t2,x2), (t1,v2), v2 found from last frame step
 		float t1 = 0;
-		float t2 = timePositionHistory[pos]-timePositionHistory[pos-1];
-		glm::dvec3 v2 = velocityHistory[pos];
+		float t2 = timePositionHistory[pos-1]-timePositionHistory[pos-2];
+		float t3 = timePositionHistory[pos]-timePositionHistory[pos-2];
 
 		// Find inverse matrix of [x1,x2,v2]=[BLAH][a,b,c]
-		glm::mat3x3 A = glm::mat3x3(0.5*t1*t1, t1, 1,0.5*t2*t2,t2,1,t2,1,0);
+		glm::mat3x3 A = glm::mat3x3(0.5*t1*t1, t1, 1,0.5*t2*t2,t2,1,0.5*t3*t3, t3, 1);
 		glm::mat3x3 inv = glm::inverse(A);
 
 		// Constants
-		glm::dvec3 xvec = glm::dvec3(positionHistory[pos-1][0],positionHistory[pos][0],v2[0]);
-		glm::dvec3 yvec = glm::dvec3(positionHistory[pos-1][1],positionHistory[pos][1],v2[1]);
-		glm::dvec3 zvec = glm::dvec3(positionHistory[pos-1][2],positionHistory[pos][2],v2[2]);
+		glm::dvec3 xvec = glm::dvec3(positionHistory[pos-2][0],positionHistory[pos-1][0],positionHistory[pos][0]);
+		glm::dvec3 yvec = glm::dvec3(positionHistory[pos-2][1],positionHistory[pos-1][1],positionHistory[pos][1]);
+		glm::dvec3 zvec = glm::dvec3(positionHistory[pos-2][2],positionHistory[pos-1][2],positionHistory[pos][2]);
 
 		xPosConst = xvec*inv;		// Flipped due to GLM ordering
 		yPosConst = yvec*inv;		// Flipped due to GLM ordering

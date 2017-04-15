@@ -128,7 +128,7 @@ public:
 	// Process Scroll Input
 	void ProcessMouseScroll(GLfloat yoffset) {
 		if(this->Zoom >= 1.0f && this->Zoom <= 45.0f) {
-			this->Zoom -= yoffset;
+			this->Zoom -= yoffset/10.0;
 		}
 		if(this->Zoom <= 1.0f) {
 			this->Zoom = 1.0f;
@@ -168,13 +168,8 @@ public:
 		}
 		case ONBOARD_CHASE: {
 			// Calculate velocity vector
-			glm::vec3 v1 = mavAircraftPt->velocityHistory[mavAircraftPt->currentPosMsgIndex-1];
-			glm::vec3 v2 = mavAircraftPt->velocityHistory[mavAircraftPt->currentPosMsgIndex];
-			float t1 = mavAircraftPt->timePositionHistory[mavAircraftPt->currentPosMsgIndex-1];
-			float t2 = mavAircraftPt->timePositionHistory[mavAircraftPt->currentPosMsgIndex];
-			float t = mavAircraftPt->currTime - (mavAircraftPt->timePositionHistory[mavAircraftPt->currentPosMsgIndex]-mavAircraftPt->timeStartMavlink);
-			glm::vec3 vel = ((v2-v1)/(t2-t1)*(t+mavAircraftPt->timePositionHistory[mavAircraftPt->currentPosMsgIndex-1]-t2))+v2;
-			glm::vec3 unitv = vel/glm::length(vel);
+			glm::vec3 v2 = mavAircraftPt->velocity;
+			glm::vec3 unitv = v2/glm::length(v2);
 
 			// Get offset position
 			float xpos = mavAircraftPt->position[0] - (unitv[0]*5.0);
@@ -183,6 +178,7 @@ public:
 
 			// Set Position
 			Position = glm::vec3(xpos,ypos,zpos);
+
 			// Get difference vector
 			float diffx = mavAircraftPt->position[0] - Position.x;
 			float diffy = mavAircraftPt->position[2] - Position.y;

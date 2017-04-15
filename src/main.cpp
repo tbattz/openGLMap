@@ -192,14 +192,16 @@ int main(int argc, char* argv[]) {
 	// Create Plot
 	GLPL::Plot myplot(0.0, 0.25, 0.75, 0.75, &winDim);
 	// Create Line
-	//GLPL::Line2DVecGLMV3 line1(&(mavAircraft.positionHistory),1,0);
-	//GLPL::Line2DVecfVecGLMV3 line1(&(mavAircraft.timePositionHistory),&(mavAircraft.positionHistory),0);
-	GLPL::Line2DVecfVecGLMV3 line1(&(mavAircraft.tempTime),&(mavAircraft.tempVec),0);
-	line1.colour = LC_BLUE;
-	GLPL::Line2DVecfVecGLMV3 line2(&(mavAircraft.timePositionHistory),&(mavAircraft.positionHistory),0);
+	//GLPL::Line2DVecfVecGLMV3 line1(&(camera.tempTime),&(camera.tempVec),0);
+	//line1.colour = LC_BLUE;
+	//GLPL::Line2DVecfVecGLMV3 line2(&(camera.tempTime),&(camera.tempVec),1);
+	//line2.colour = LC_RED;
+	//GLPL::Line2DVecfVecGLMV3 line3(&(camera.tempTime),&(camera.tempVec),2);
+	//line3.colour = LC_GREEN;
 	// Add line to axes
-	myplot.axes.addLine(&line1);
-	myplot.axes.addLine(&line2);
+	//myplot.axes.addLine(&line1);
+	//myplot.axes.addLine(&line2);
+	//myplot.axes.addLine(&line3);
 	myplot.axes.autoScaleRound = false;
 	myplot.axes.maxXRange = 10.0;
 
@@ -215,6 +217,11 @@ int main(int argc, char* argv[]) {
 
 		// Check Events
 		glfwPollEvents();
+
+		// Update Aircraft Position
+		mavAircraft.updatePositionAttitude();
+
+		// Do keyboard movement
 		do_movement();
 
 		// Clear the colour buffer
@@ -272,7 +279,9 @@ int main(int argc, char* argv[]) {
 
 		// Draw Plot
 		GLPL::preLoopDraw(false,&winDim);
-		line1.updateInternalData();
+		//line1.updateInternalData();
+		//line2.updateInternalData();
+		//line3.updateInternalData();
 		myplot.Draw(plot2dShader);
 
 
@@ -303,7 +312,7 @@ int main(int argc, char* argv[]) {
 		glfwSwapBuffers(window);
 
 		// Sleep to lower framerate
-		//std::this_thread::sleep_for(std::chrono::milliseconds(int(1000.0/30.0)));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(int(1000.0/5.0)));
 
 	}
 
