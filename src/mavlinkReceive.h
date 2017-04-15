@@ -79,7 +79,7 @@ public:
 
 										// First Message
 										if(this->mavAircraftPt->firstPositionMessage) {
-											(this->mavAircraftPt)->timeStart = glfwGetTime() + this->mavAircraftPt->timeDelay;
+											(this->mavAircraftPt)->timeStart = glfwGetTime();
 											(this->mavAircraftPt)->timeStartMavlink = packet.time_boot_ms/1000.0;
 											printf("Our Position Start Time: %f, Mavlink Start Time: %f\n",(this->mavAircraftPt)->timeStart,(this->mavAircraftPt)->timeStartMavlink);
 										}
@@ -130,7 +130,7 @@ public:
 
 									// First Message
 									if(this->mavAircraftPt->firstAttitudeMessage) {
-										(this->mavAircraftPt)->timeStartAtt = glfwGetTime() + this->mavAircraftPt->timeDelay;
+										(this->mavAircraftPt)->timeStartAtt = glfwGetTime();
 										(this->mavAircraftPt)->timeStartMavlinkAtt = packet.time_boot_ms/1000.0;
 										printf("Our Attitude Start Time: %f, Mavlink Start Time: %f\n",(this->mavAircraftPt)->timeStartAtt,(this->mavAircraftPt)->timeStartMavlinkAtt);
 									}

@@ -192,16 +192,52 @@ int main(int argc, char* argv[]) {
 	// Create Plot
 	GLPL::Plot myplot(0.0, 0.25, 0.75, 0.75, &winDim);
 	// Create Line
-	//GLPL::Line2DVecfVecGLMV3 line1(&(camera.tempTime),&(camera.tempVec),0);
-	//line1.colour = LC_BLUE;
-	//GLPL::Line2DVecfVecGLMV3 line2(&(camera.tempTime),&(camera.tempVec),1);
-	//line2.colour = LC_RED;
-	//GLPL::Line2DVecfVecGLMV3 line3(&(camera.tempTime),&(camera.tempVec),2);
-	//line3.colour = LC_GREEN;
+	// Position
+	GLPL::Line2DVecfVecGLMV3 pos1(&(mavAircraft.tempTime),&(mavAircraft.tempPos),0);
+	pos1.colour = LC_BLUE;
+	GLPL::Line2DVecfVecGLMV3 pos2(&(mavAircraft.tempTime),&(mavAircraft.tempPos),1);
+	pos2.colour = LC_BLUE;
+	GLPL::Line2DVecfVecGLMV3 pos3(&(mavAircraft.tempTime),&(mavAircraft.tempPos),2);
+	pos3.colour = LC_BLUE;
+	// Real Position
+	GLPL::Line2DVecfVecGLMV3 rpos1(&(mavAircraft.timePositionHistory),&(mavAircraft.positionHistory),0,GL_POINTS);
+	GLPL::Line2DVecfVecGLMV3 rpos2(&(mavAircraft.timePositionHistory),&(mavAircraft.positionHistory),1,GL_POINTS);
+	GLPL::Line2DVecfVecGLMV3 rpos3(&(mavAircraft.timePositionHistory),&(mavAircraft.positionHistory),2,GL_POINTS);
+	// Attitude
+	GLPL::Line2DVecfVecGLMV3 att1(&(mavAircraft.tempTime2),&(mavAircraft.tempAtt),0);
+	att1.colour = LC_RED;
+	GLPL::Line2DVecfVecGLMV3 att2(&(mavAircraft.tempTime2),&(mavAircraft.tempAtt),1);
+	att2.colour = LC_RED;
+	GLPL::Line2DVecfVecGLMV3 att3(&(mavAircraft.tempTime2),&(mavAircraft.tempAtt),2);
+	att3.colour = LC_RED;
+	GLPL::Line2DVecfVecGLMV3 ratt1(&(mavAircraft.timeAttitudeHistory),&(mavAircraft.attitudeHistory),0,GL_POINTS);
+	GLPL::Line2DVecfVecGLMV3 ratt2(&(mavAircraft.timeAttitudeHistory),&(mavAircraft.attitudeHistory),1,GL_POINTS);
+	GLPL::Line2DVecfVecGLMV3 ratt3(&(mavAircraft.timeAttitudeHistory),&(mavAircraft.attitudeHistory),2,GL_POINTS);
+	// Velocity
+	GLPL::Line2DVecfVecGLMV3 vel1(&(mavAircraft.tempTime),&(mavAircraft.tempVel),0);
+	vel1.colour = LC_GREEN;
+	GLPL::Line2DVecfVecGLMV3 vel2(&(mavAircraft.tempTime),&(mavAircraft.tempVel),1);
+	vel2.colour = LC_GREEN;
+	GLPL::Line2DVecfVecGLMV3 vel3(&(mavAircraft.tempTime),&(mavAircraft.tempVel),2);
+	vel3.colour = LC_GREEN;
+
 	// Add line to axes
-	//myplot.axes.addLine(&line1);
-	//myplot.axes.addLine(&line2);
-	//myplot.axes.addLine(&line3);
+	myplot.axes.addLine(&rpos1);
+	myplot.axes.addLine(&rpos2);
+	myplot.axes.addLine(&rpos3);
+	myplot.axes.addLine(&pos1);
+	myplot.axes.addLine(&pos2);
+	myplot.axes.addLine(&pos3);
+//	myplot.axes.addLine(&ratt1);
+//	myplot.axes.addLine(&ratt2);
+//	myplot.axes.addLine(&ratt3);
+//	myplot.axes.addLine(&att1);
+//	myplot.axes.addLine(&att2);
+//	myplot.axes.addLine(&att3);
+//	myplot.axes.addLine(&vel1);
+//	myplot.axes.addLine(&vel2);
+//	myplot.axes.addLine(&vel3);
+
 	myplot.axes.autoScaleRound = false;
 	myplot.axes.maxXRange = 10.0;
 
@@ -279,9 +315,21 @@ int main(int argc, char* argv[]) {
 
 		// Draw Plot
 		GLPL::preLoopDraw(false,&winDim);
-		//line1.updateInternalData();
-		//line2.updateInternalData();
-		//line3.updateInternalData();
+		rpos1.updateInternalData();
+		rpos2.updateInternalData();
+		rpos3.updateInternalData();
+		pos1.updateInternalData();
+		pos2.updateInternalData();
+		pos3.updateInternalData();
+		ratt1.updateInternalData();
+		ratt2.updateInternalData();
+		ratt3.updateInternalData();
+		att1.updateInternalData();
+		att2.updateInternalData();
+		att3.updateInternalData();
+		vel1.updateInternalData();
+		vel2.updateInternalData();
+		vel3.updateInternalData();
 		myplot.Draw(plot2dShader);
 
 
