@@ -78,45 +78,45 @@ public:
 									if(geoPos[0]>=-90 && geoPos[0]<=90 && geoPos[1]>=-180 && geoPos[1]<=180 && geoPos[0]!=0 && geoPos[1]!=0) {
 
 										// First Message
-										if(this->mavAircraftPt->firstPositionMessage) {
-											(this->mavAircraftPt)->timeStart = glfwGetTime();
-											(this->mavAircraftPt)->timeStartMavlink = packet.time_boot_ms/1000.0;
-											printf("Our Position Start Time: %f, Mavlink Start Time: %f\n",(this->mavAircraftPt)->timeStart,(this->mavAircraftPt)->timeStartMavlink);
+										if(mavAircraftPt->firstPositionMessage) {
+											mavAircraftPt->timeStart = glfwGetTime();
+											mavAircraftPt->timeStartMavlink = packet.time_boot_ms/1000.0;
+											printf("Our Position Start Time: %f, Mavlink Start Time: %f\n",mavAircraftPt->timeStart,mavAircraftPt->timeStartMavlink);
 										}
 
 										// Store GeoPosition
-										((this->mavAircraftPt)->geoPositionHistory).push_back(geoPos);
-										(this->mavAircraftPt)->geoPosition = geoPos;
+										(mavAircraftPt->geoPositionHistory).push_back(geoPos);
+										(mavAircraftPt)->geoPosition = geoPos;
 
 										/* Convert Geodetic to ECEF */
-										glm::dvec3 ecefPosition = (this->mavAircraftPt)->geo2ECEF((this->mavAircraftPt)->geoPosition);
-										glm::dvec3 ecefOrigin = (this->mavAircraftPt)->geo2ECEF((this->mavAircraftPt)->origin);
+										glm::dvec3 ecefPosition = mavAircraftPt->geo2ECEF(mavAircraftPt->geoPosition);
+										glm::dvec3 ecefOrigin = mavAircraftPt->geo2ECEF(mavAircraftPt->origin);
 
 										/* Convert from ECEF to NEU */
-										glm::dvec3 pos = (this->mavAircraftPt)->ecef2NEU(ecefPosition, ecefOrigin, (this->mavAircraftPt)->origin);
-										((this->mavAircraftPt)->positionHistory).push_back(pos);
-										if(this->mavAircraftPt->firstPositionMessage) {
-											this->mavAircraftPt->position = this->mavAircraftPt->positionHistory[0];
+										glm::dvec3 pos = mavAircraftPt->ecef2NEU(ecefPosition, ecefOrigin, mavAircraftPt->origin);
+										mavAircraftPt->positionHistory.push_back(pos);
+										if(mavAircraftPt->firstPositionMessage) {
+											mavAircraftPt->position = mavAircraftPt->positionHistory[0];
 										}
 
 										// Store velocities to enforce end position
-										if(this->mavAircraftPt->positionHistory.size() > 1) {
+										if(mavAircraftPt->positionHistory.size() > 1) {
 											glm::dvec3 vel = glm::dvec3(packet.vx/100.0,packet.vy/100.0,packet.vz/100.0);
-											(this->mavAircraftPt)->velocity = vel;
-											(this->mavAircraftPt)->velocityHistory.push_back(vel);
+											mavAircraftPt->velocity = vel;
+											mavAircraftPt->velocityHistory.push_back(vel);
 
 										} else {
 											// Store first position and time
-											(this->mavAircraftPt)->position = (this->mavAircraftPt)->positionHistory[0];
-											(this->mavAircraftPt)->currTime = glfwGetTime() - (this->mavAircraftPt)->timeStart;
+											mavAircraftPt->position = mavAircraftPt->positionHistory[0];
+											mavAircraftPt->currTime = glfwGetTime() - mavAircraftPt->timeStart;
 										}
 
 										// Store Time
-										((this->mavAircraftPt)->timePositionHistory).push_back(packet.time_boot_ms/1000.0);
+										mavAircraftPt->timePositionHistory.push_back(packet.time_boot_ms/1000.0);
 
 										// Toggle after recieving first message
-										if(this->mavAircraftPt->firstPositionMessage) {
-											(this->mavAircraftPt)->firstPositionMessage = false;
+										if(mavAircraftPt->firstPositionMessage) {
+											(mavAircraftPt)->firstPositionMessage = false;
 										}
 									} else {
 										printf("Waiting for correct data or GPS lock.\r");
@@ -129,26 +129,26 @@ public:
 									mavlink_msg_attitude_decode(&msg,&packet);
 
 									// First Message
-									if(this->mavAircraftPt->firstAttitudeMessage) {
-										(this->mavAircraftPt)->timeStartAtt = glfwGetTime();
-										(this->mavAircraftPt)->timeStartMavlinkAtt = packet.time_boot_ms/1000.0;
-										printf("Our Attitude Start Time: %f, Mavlink Start Time: %f\n",(this->mavAircraftPt)->timeStartAtt,(this->mavAircraftPt)->timeStartMavlinkAtt);
+									if(mavAircraftPt->firstAttitudeMessage) {
+										(mavAircraftPt)->timeStartAtt = glfwGetTime();
+										(mavAircraftPt)->timeStartMavlinkAtt = packet.time_boot_ms/1000.0;
+										printf("Our Attitude Start Time: %f, Mavlink Start Time: %f\n",mavAircraftPt->timeStartAtt,mavAircraftPt->timeStartMavlinkAtt);
 									}
 
 									// Store Rotations
 									glm::vec3 rot = glm::vec3(packet.roll,packet.pitch,-packet.yaw);
-									this->mavAircraftPt->attitude = rot;
-									this->mavAircraftPt->attitudeHistory.push_back(rot);
+									mavAircraftPt->attitude = rot;
+									mavAircraftPt->attitudeHistory.push_back(rot);
 
 									// Store Rotation Rates
 									glm::dvec3 rotRate = glm::dvec3(packet.rollspeed,packet.pitchspeed,-packet.yawspeed);
-									this->mavAircraftPt->attitudeRateHistory.push_back(rotRate);
+									mavAircraftPt->attitudeRateHistory.push_back(rotRate);
 									// Store Time
-									this->mavAircraftPt->timeAttitudeHistory.push_back(packet.time_boot_ms/1000.0);
+									mavAircraftPt->timeAttitudeHistory.push_back(packet.time_boot_ms/1000.0);
 
 									// Reset First Message Switch
-									if(this->mavAircraftPt->firstAttitudeMessage) {
-										this->mavAircraftPt->firstAttitudeMessage = false;
+									if(mavAircraftPt->firstAttitudeMessage) {
+										mavAircraftPt->firstAttitudeMessage = false;
 									}
 
 									break;

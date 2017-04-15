@@ -54,6 +54,7 @@ public:
 		float				currTime=0;						// The current time
 		float				dtPos=0;						// Timestep between current frame and last current position mavlink message time
 		float				dtAtt=0;						// Timestep between current frame and last current attitude mavlink message time
+		float				minDiff=10;						// Minimum difference between current sim time and time of latest mavlink message
 
 		// Interpolation Information
 		glm::dvec3 			xPosConst;
@@ -100,6 +101,13 @@ public:
 
 		// Set new time
 		currTime = glfwGetTime() - timeStart;
+		minDiff = std::min(minDiff,timePositionHistory.back() - (currTime+timeStartMavlink-timeDelay));
+
+		// Adjust delay if catching up to real messages
+		if (minDiff < 0) {
+			timeDelay += timeDelay/2.0;
+			minDiff = timePositionHistory.back() - (currTime+timeStartMavlink-timeDelay);
+		}
 
         // Check to move to next pair of position messages
         if(!firstPositionMessage) {

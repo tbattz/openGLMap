@@ -53,10 +53,12 @@ GLFWwindow* initGLFW(GLfloat* screenWidthPt, GLfloat* screenHeightPt) {
 	glfwWindowHint(GLFW_RESIZABLE,GL_FALSE);
 
 	// Screen Properties
+	int count;
+	GLFWmonitor** monitors = glfwGetMonitors(&count);
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	(*screenHeightPt) = mode->height*0.9;
-	(*screenWidthPt)  = mode->width*0.9;
-	GLFWwindow* window = glfwCreateWindow(screenWidth,screenHeight,"openGLMap",nullptr,nullptr);
+	(*screenHeightPt) = mode->height;
+	(*screenWidthPt)  = mode->width;
+	GLFWwindow* window = glfwCreateWindow(screenWidth,screenHeight,"openGLMap",monitors[1],nullptr);
 	glfwMakeContextCurrent(window);
 
 	// Set viewport size
