@@ -197,9 +197,6 @@ public:
 			printf("Incorrect view selection\n");
 		}
 		}
-
-
-
 	}
 
 private:

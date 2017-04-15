@@ -110,35 +110,24 @@ public:
 		}
 
         // Check to move to next pair of position messages
-        if(!firstPositionMessage) {
-                std::vector<float>::iterator low = std::lower_bound(timePositionHistory.begin(),timePositionHistory.end(),currTime+timeStartMavlink-timeDelay);
-                currentPosMsgIndex = low - timePositionHistory.begin();
-        }
+        std::vector<float>::iterator lowpos = std::lower_bound(timePositionHistory.begin(),timePositionHistory.end(),currTime+timeStartMavlink-timeDelay);
+		currentPosMsgIndex = lowpos - timePositionHistory.begin();
+
 
         // Check to move to the next pair of attitude messages
-        if(!firstAttitudeMessage) {
-                std::vector<float>::iterator low = std::lower_bound(timeAttitudeHistory.begin(),timeAttitudeHistory.end(),currTime+timeStartMavlinkAtt-timeDelay);
-                currentAttMsgIndex = low - timeAttitudeHistory.begin();
-        }
+		std::vector<float>::iterator lowatt = std::lower_bound(timeAttitudeHistory.begin(),timeAttitudeHistory.end(),currTime+timeStartMavlinkAtt-timeDelay);
+		currentAttMsgIndex = lowatt - timeAttitudeHistory.begin();
 
+		// Calculate position offset
+		if(!firstPositionMessage) {
+			dtPos = currTime - (timePositionHistory[currentPosMsgIndex]-timeStartMavlink) - timeDelay;
+			interpolatePosition();
+		}
 
-		if(currentPosMsgIndex>1) {
-			// Calculate position offset
-			if (timePositionHistory.size() > 0) {
-				if(!firstPositionMessage) {
-					dtPos = currTime - (timePositionHistory[currentPosMsgIndex]-timeStartMavlink) - timeDelay;
-					interpolatePosition();
-				}
-			}
-
-			// Calculate attitude offset
-			if(timeAttitudeHistory.size() > 0) {
-				if(!firstAttitudeMessage) {
-					dtAtt = currTime - (timeAttitudeHistory[currentAttMsgIndex]-timeStartMavlinkAtt) - timeDelay;
-
-					interpolateAttitude();
-				}
-			}
+		// Calculate attitude offset
+		if(!firstAttitudeMessage) {
+			dtAtt = currTime - (timeAttitudeHistory[currentAttMsgIndex]-timeStartMavlinkAtt) - timeDelay;
+			interpolateAttitude();
 		}
 	}
 
