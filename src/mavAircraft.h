@@ -105,7 +105,7 @@ public:
 
 		// Adjust delay if catching up to real messages
 		if (minDiff < 0) {
-			timeDelay += timeDelay/2.0;
+			timeDelay += timeDelay;
 			minDiff = timePositionHistory.back() - (currTime+timeStartMavlink-timeDelay);
 		}
 

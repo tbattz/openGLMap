@@ -307,7 +307,7 @@ public:
 
 								// Create New Tile
 								this->tiles.push_back(ImageTile(this->origin, geoPosition, this->fovX, this->fovY, currentOffset, mypath.c_str()));
-								currentOffset -= 0.01;
+								currentOffset += 0.01;
 
 								// Update Loading Screen
 								if (firstLoad) {

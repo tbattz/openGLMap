@@ -222,7 +222,7 @@ int main(int argc, char* argv[]) {
 	vel3.colour = LC_GREEN;
 
 	// Path Plotting
-	GLPL::Line2DVecGLMV3 map(&(mavAircraft.positionHistory));
+	GLPL::Line2DVecGLMV3 map(&(mavAircraft.positionHistory),1,0);
 
 	// Add line to axes
 //	myplot.axes.addLine(&rpos1);
