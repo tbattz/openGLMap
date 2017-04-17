@@ -50,9 +50,9 @@ public:
 	glm::vec3 position; 	// (x,y,z) relative to origin
 	float altOffset;		// (m) Offset from 0 to stop overlapping tiles flickering
 	// Frame Information
-	GLfloat fovX; // Degrees
-	GLfloat fovY; // Degrees
-	GLfloat brightness; // Multiplier for brightness
+	GLfloat fovX; 			// Degrees
+	GLfloat fovY; 			// Degrees
+	GLfloat brightness; 	// Multiplier for brightness
 	// Tile Information
 	vector<GLfloat> vertices;
 	vector<GLuint> indices;
@@ -71,28 +71,28 @@ public:
 		this->geoPosition = geoPosition; 	// Lat (deg), Lon (deg), alt (km)
 		this->fovX		= fovX;		   		// Degrees
 		this->fovY		= fovY;		   		// Degrees
-		this->altOffset = altOffset;			// m
+		this->altOffset = altOffset;		// m
 		this->filename 	= filename;			// Name of image file
 		this->brightness = 2.0;
+		printf("%s\n",filename.c_str());
 
 		/* Convert Geodetic to ECEF */
 		glm::vec3 ecefPosition = geo2ECEF(geoPosition);
 		glm::vec3 ecefOrigin = geo2ECEF(origin);
 
 		/* Convert from ECEF to ENU */
-		ecef2ENU(ecefPosition, ecefOrigin, this->origin);
+		ecef2ENU(ecefPosition, ecefOrigin, origin);
 
 		/* Calculate Vertices */
-		GLfloat xdiff = (this->geoPosition[2]) * glm::tan(glm::radians(this->fovX/2.0));
-		GLfloat ydiff = (this->geoPosition[2]) * glm::tan(glm::radians(this->fovY/2.0));
-		vector<GLfloat> vertices = {
-			// Positions			 // Normals			// Texture Coords
-			-xdiff, 0.0f,	-ydiff, 	 0.0f, 0.0f, 1.0f,	0.0f, 0.0f,
-			-xdiff, 0.0f,	+ydiff, 	 0.0f, 0.0f, 1.0f,	0.0f, 1.0f,
-			 xdiff, 0.0f,	+ydiff, 	 0.0f, 0.0f, 1.0f,	1.0f, 1.0f,
-			 xdiff, 0.0f,	-ydiff, 	 0.0f, 0.0f, 1.0f,	1.0f, 0.0f
+		GLfloat xdiff = geoPosition[2] * glm::tan(glm::radians(fovX/2.0));
+		GLfloat ydiff = geoPosition[2] * glm::tan(glm::radians(fovY/2.0));
+		vertices = {
+			// Positions			 	// Normals			// Texture Coords
+			-xdiff, 0.0f,	-ydiff, 	0.0f, 0.0f, 1.0f,	0.0f, 0.0f,
+			-xdiff, 0.0f,	+ydiff, 	0.0f, 0.0f, 1.0f,	0.0f, 1.0f,
+			 xdiff, 0.0f,	+ydiff, 	0.0f, 0.0f, 1.0f,	1.0f, 1.0f,
+			 xdiff, 0.0f,	-ydiff, 	0.0f, 0.0f, 1.0f,	1.0f, 0.0f
 		};
-		this->vertices = vertices;
 
 		/* Store Indices */
 		vector<GLuint> indices = { // Indices start from zero
@@ -143,18 +143,18 @@ public:
 	void Draw(Shader shader) {
 		// Calculate new position matrix
 		glm::mat4 tilePos;
-		tilePos = glm::translate(tilePos, glm::vec3(this->position[0],altOffset,this->position[1]));
+		tilePos = glm::translate(tilePos, glm::vec3(position[0],altOffset,position[1]));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program,"model"),1,GL_FALSE,glm::value_ptr(tilePos));
-		glUniform1f(glGetUniformLocation(shader.Program,"brightness"),this->brightness);
+		glUniform1f(glGetUniformLocation(shader.Program,"brightness"),brightness);
 
 		// Bind Texture Units
 		glActiveTexture(GL_TEXTURE0);
 		glUniform1i(glGetUniformLocation(shader.Program,"tileTexture"),0);
-		glBindTexture(GL_TEXTURE_2D,this->tileTexture);
+		glBindTexture(GL_TEXTURE_2D,tileTexture);
 
 		// Draw tile
-		glBindVertexArray(this->VAO);
-		glDrawElements(GL_TRIANGLES,this->indices.size(),GL_UNSIGNED_INT,0);
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES,indices.size(),GL_UNSIGNED_INT,0);
 		glBindVertexArray(0);
 
 		// Set back to defaults
@@ -169,12 +169,12 @@ public:
 
 	/* Prints */
 	void printNEUPosition() {
-		std::cout << this->position[0] << ", " << this->position[1] << ", " << this->position[2] << "\n";
+		std::cout << this->position[0] << ", " << position[1] << ", " << position[2] << "\n";
 	}
 
 	void printVertices() {
 		for(int i=0; i<4; i++) {
-			std::cout << "(" << this->vertices[0+(8*i)] << "," << this->vertices[1+(8*i)] << ")\n";
+			std::cout << "(" << vertices[0+(8*i)] << "," << vertices[1+(8*i)] << ")\n";
 		}
 	}
 
@@ -182,17 +182,17 @@ public:
 private:
 	void createAndSetupBuffers() {
 		/* Create Buffers */
-		glGenVertexArrays(1,&this->VAO);
-		glGenBuffers(1,&this->VBO);
-		glGenBuffers(1,&this->EBO);
+		glGenVertexArrays(1,&VAO);
+		glGenBuffers(1,&VBO);
+		glGenBuffers(1,&EBO);
 
 		/* Setup Buffers */
-		glBindVertexArray(this->VAO);
-		glBindBuffer(GL_ARRAY_BUFFER,this->VBO);
+		glBindVertexArray(VAO);
+		glBindBuffer(GL_ARRAY_BUFFER,VBO);
 
-		glBufferData(GL_ARRAY_BUFFER, (this->vertices).size()*sizeof(GLfloat),&this->vertices[0],GL_STATIC_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,this->EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,(this->indices).size()*sizeof(GLfloat),&this->indices[0],GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(GLfloat),&vertices[0],GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size()*sizeof(GLfloat),&indices[0],GL_STATIC_DRAW);
 
 		/* Position Attributes */
 		glEnableVertexAttribArray(0);
@@ -204,14 +204,13 @@ private:
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,8*sizeof(GLfloat),(GLvoid*)(6*sizeof(GLfloat)));
 
-
 		glBindVertexArray(0); // Unbind VAO
 	}
 
 	void setupTexture() {
 		// Create Texture
-		glGenTextures(1,&(this->tileTexture));
-		glBindTexture(GL_TEXTURE_2D,this->tileTexture);
+		glGenTextures(1,&tileTexture);
+		glBindTexture(GL_TEXTURE_2D,tileTexture);
 		// Set parameters
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
@@ -219,8 +218,8 @@ private:
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 		// Load texture
-		unsigned char* image = SOIL_load_image(this->filename.c_str(),&this->width,&this->height,0,SOIL_LOAD_RGB);
-		glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,this->width,this->height,0,GL_RGB,GL_UNSIGNED_BYTE,image);
+		unsigned char* image = SOIL_load_image(filename.c_str(),&width,&height,0,SOIL_LOAD_RGB);
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,image);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		SOIL_free_image_data(image);
 		glBindTexture(GL_TEXTURE_2D,0);
@@ -270,7 +269,7 @@ public:
 				mypath.append(newFilename);
 				if ((ext.compare(".png"))*(ext.compare(".jpg")) == 0) {
 					// Check if we already have loaded this filename
-					if(std::find((this->tilePaths).begin(), (this->tilePaths).end(), mypath) == (this->tilePaths).end()) {
+					if(std::find(tilePaths.begin(), tilePaths.end(), mypath) == tilePaths.end()) {
 						std::cout << "Found: " << newFilename << ".\n";
 						// Check if file is not in use
 						std::fstream myfile;
@@ -327,6 +326,14 @@ public:
 			}
 		}
 		firstLoad = false;
+	}
+
+	/* Draw Function */
+	void Draw(Shader shader) {
+		// Draw tiles
+		for(unsigned int i = 0; i != tiles.size(); i++) {
+			tiles[i].Draw(shader);
+		}
 	}
 
 private:

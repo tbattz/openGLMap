@@ -26,6 +26,7 @@
 #include "../src/skybox.h"
 #include "../src/telemOverlay.h"
 #include "../src/loadingScreen.h"
+#include "../src/satTiles.h"
 
 // openGLPlotLive Includes
 #include "../openGLPlotLive/src/fonts.h"
@@ -160,14 +161,20 @@ int main(int argc, char* argv[]) {
 	TelemOverlay telemOverlay(&mavAircraft,&textShader,&telemFont,screenWidth,screenHeight);
 	loadingScreen.appendLoadingMessage("Finished loading telemetry overlay.");
 
+	// Create Origin
+	glm::vec3 origin = glm::vec3(-37.958945f, 145.238349f, 0.0f);
+
 	// Create Tiles
-	glm::vec3 origin = glm::vec3(-37.958926f, 145.238343f, 0.0f);
 	GLfloat fovX = 48.3/2.0;
 	GLfloat fovY = 36.8/2.0;
 	TileList imageTileList(origin, fovX, fovY, window);
-
 	// Get Tile Information
 	imageTileList.updateTileList("../ImageData",&loadingScreen);
+
+	// Create Satellite Tiles
+	SatTileList satTileList(origin);
+	// Get Sat Tile Information
+	satTileList.updateSatTileList("../SatTiles");
 
 	/* ======================================================
 	 *                         Lights
@@ -300,14 +307,17 @@ int main(int argc, char* argv[]) {
 		// Check for new files
 		if ((currentFrame - fileChecklast) > 1.0) {
 			// Update image file list
-			imageTileList.updateTileList("../ImageData",&loadingScreen);
+			//imageTileList.updateTileList("../ImageData",&loadingScreen);
+			// Update sat file list
+			satTileList.updateSatTileList("../SatTiles");
+			// Update file check time
 			fileChecklast = currentFrame;
 		}
 
 		// Draw tiles
-		for(unsigned int i = 0; i != imageTileList.tiles.size(); i++) {
-			(imageTileList.tiles[i]).Draw(tileShader);
-		}
+		imageTileList.Draw(tileShader);
+		// Draw Satellite tiles
+		satTileList.Draw(tileShader);
 
 		// Draw Skybox last
 		skyboxShader.Use();
@@ -373,6 +383,8 @@ int main(int argc, char* argv[]) {
 	// Close mavlink socket
 	mavSocket.closeSocket();
 	mavThread.join();
+	// Stop Satellite Tile Threads
+	satTileList.stopThreads();
 
 	return 0;
 }
