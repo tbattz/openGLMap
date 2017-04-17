@@ -136,8 +136,8 @@ public:
 		glm::dvec3 pos2 = ecef2ENU(ecefPos2, ecefOrigin, origin);
 		glm::dvec3 diff = pos1 - pos2;
 
-		double h = fabs(diff[0]);
-		double w = fabs(diff[1]);
+		double h = fabs(diff[0])+0.05;
+		double w = fabs(diff[1])+0.05;
 
 		return {w, h};
 	}
@@ -252,8 +252,8 @@ private:
 			glGenTextures(1,&tileTexture);
 			glBindTexture(GL_TEXTURE_2D,tileTexture);
 			// Set parameters
-			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 			// Texture Filtering
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
