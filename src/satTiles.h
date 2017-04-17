@@ -8,8 +8,6 @@
 #ifndef SATTILES_H_
 #define SATTILES_H_
 
-// GL Includes
-#include "lodepng.h"
 
 #include "../src/shader.h"
 
@@ -95,32 +93,27 @@ public:
 
 		/* Calculate geoPosition from x,y,zoom */
 		vector<float> geoPos = tileNum2LatLon(x,y,zoom);
-		geoPosition = glm::vec3(geoPos[0],geoPos[1],origin[2]);
-		printf("%f,%f\n",geoPos[0],geoPos[1]);
+		geoPosition = glm::vec3(geoPos[0],geoPos[1],0.0);
 		/* Convert Geodetic to ECEF */
 		glm::vec3 ecefPosition = geo2ECEF(geoPosition);
 		glm::vec3 ecefOrigin = geo2ECEF(origin);
 
 		/* Convert from ECEF to ENU */
-		glm::vec3 position2 = ecef2ENU(ecefPosition, ecefOrigin, origin);
-		position[0] = 0.0;
-		position[1] = 0.0;
-		position[2] = 0.0;
-		printf("%f,%f,%f\n",position[0],position[1],position[2]);
+		glm::vec3 tempPos = ecef2ENU(ecefPosition, ecefOrigin, origin);
+		position = glm::vec3(tempPos[1],tempPos[0],tempPos[2]);
 
 		/* Calculate Width */
 		calcTileWidthHeight(ecefOrigin);
-		printf("%f,%f\n",geoPos[0],geoPos[1]);
 
 		/* Calculate Vertices */
 		// Tiles geo position is top left corner
-		// Image Texture coords start in bottom left
+		// Image Texture coords start in bottom left, then rotated by 90 deg (for png)
 		vertices = {
 				// Positions				// Normals			// Texture Coords
-				 0.0f,	0.0f, 0.0f,			0.0f, 0.0f, 1.0f,	0.0f, 0.0f,
-				 widthM,0.0f, 0.0f,			0.0f, 0.0f, 1.0f,	1.0f, 0.0f,
-				 widthM,0.0f, heightM,		0.0f, 0.0f, 1.0f,	1.0f, 1.0f,
-				 0.0f,	0.0f, heightM,		0.0f, 0.0f, 1.0f,	0.0f, 1.0f
+				 -heightM,	0.0f, 0.0f,			0.0f, 0.0f, 1.0f,	0.0f, 1.0f,
+				 -heightM,	0.0f, widthM,		0.0f, 0.0f, 1.0f,	1.0f, 1.0f,
+				  0.0f,		0.0f, widthM,		0.0f, 0.0f, 1.0f,	1.0f, 0.0f,
+				  0.0f,		0.0f, 0.0f,			0.0f, 0.0f, 1.0f,	0.0f, 0.0f
 		};
 
 		/* Store Indicies */
@@ -244,7 +237,6 @@ private:
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 			// Load texture
-			printf("%s\n",filename.c_str());
 			unsigned char* image = SOIL_load_image(filename.c_str(),&width,&height,0,SOIL_LOAD_RGB);
 			glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,image);
 			glGenerateMipmap(GL_TEXTURE_2D);
@@ -330,7 +322,6 @@ public:
 				mypath.append(folderPath);
 				mypath.append("/");
 				mypath.append(newFilename);
-				//printf("%s\n",mypath.c_str());
 				if((ext.compare(".png"))*(ext.compare(".jpg")) == 0) {
 					// Check if file already loaded
 					if(std::find(tilePaths.begin(), tilePaths.end(), mypath) == tilePaths.end()) {
