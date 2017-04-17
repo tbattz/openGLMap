@@ -11,7 +11,7 @@ A few scripts have been created to automate the installation process. In the eve
 On Ubuntu these dependencies can be installed by running
 ```
 sudo chmod +x installDependicies.sh
-./installDependiciesUbuntu.txt
+./installDependiciesUbuntu.sh
 ```
 ## Manual Install
 ### Linux (Ubuntu)
