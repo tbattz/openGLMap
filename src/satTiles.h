@@ -32,10 +32,10 @@ vector<int> latLon2TileNum(float lat, float lon, int zoom) {
 	return {x,y};
 }
 
-vector<float> tileNum2LatLon(float x, float y, int zoom) {
+vector<double> tileNum2LatLon(float x, float y, int zoom) {
 	int n = pow(2,zoom);
-	float lat = atan(sinh(M_PI - (y*2*M_PI/n)))*180.0/M_PI;
-	float lon = (x/n)*360.0 - 180.0;
+	double lat = atan(sinh(M_PI - (y*2*M_PI/n)))*180.0/M_PI;
+	double lon = (x/n)*360.0 - 180.0;
 
 	return {lat, lon};
 }
@@ -66,14 +66,14 @@ class SatTile {
 public:
 	/* Data */
 	// Position Information
-	glm::vec3 geoPosition;	// Lat (deg), Lon (deg), alt (km)
-	glm::vec3 origin;		// Lat (deg), Lon (deg), alt (km)
-	glm::vec3 position;		// (x,y,z) relative to origin
+	glm::dvec3 geoPosition;	// Lat (deg), Lon (deg), alt (km)
+	glm::dvec3 origin;		// Lat (deg), Lon (deg), alt (km)
+	glm::dvec3 position;		// (x,y,z) relative to origin
 	// Tile Information
 	GLfloat brightness;		// Multipler for brightness
 	vector<GLfloat> vertices;
 	vector<GLuint> indices;
-	GLfloat widthM, heightM;	// Meters
+	vector<vector<double>> xyOff;	// Meters, (wTR,hTR,wBL,hBL,wBR,hBR)
 	int x, y, zoom;
 	// Buffers
 	GLuint VAO, VBO, EBO;
@@ -83,7 +83,7 @@ public:
 	string filename;
 
 	/* Functions */
-	SatTile(glm::vec3 origin, int x, int y, int zoom , string filename) {
+	SatTile(glm::vec3 origin, int x, int y, int zoom, string filename) {
 		this->origin = origin;
 		this->x = x;
 		this->y = y;
@@ -92,28 +92,28 @@ public:
 		this->brightness = 1.0;
 
 		/* Calculate geoPosition from x,y,zoom */
-		vector<float> geoPos = tileNum2LatLon(x,y,zoom);
-		geoPosition = glm::vec3(geoPos[0],geoPos[1],0.0);
+		vector<double> geoPos = tileNum2LatLon(x,y,zoom);
+		geoPosition = glm::dvec3(geoPos[0],geoPos[1],0.0);
 		/* Convert Geodetic to ECEF */
-		glm::vec3 ecefPosition = geo2ECEF(geoPosition);
-		glm::vec3 ecefOrigin = geo2ECEF(origin);
+		glm::dvec3 ecefPosition = geo2ECEF(geoPosition);
+		glm::dvec3 ecefOrigin = geo2ECEF(origin);
 
 		/* Convert from ECEF to ENU */
-		glm::vec3 tempPos = ecef2ENU(ecefPosition, ecefOrigin, origin);
-		position = glm::vec3(tempPos[1],tempPos[0],tempPos[2]);
+		glm::dvec3 tempPos = ecef2ENU(ecefPosition, ecefOrigin, origin);
+		position = glm::dvec3(tempPos[1],tempPos[0],tempPos[2]);
 
 		/* Calculate Width */
-		calcTileWidthHeight(ecefOrigin);
+		calcTileWidthHeightAll(ecefOrigin);
 
 		/* Calculate Vertices */
 		// Tiles geo position is top left corner
 		// Image Texture coords start in bottom left, then rotated by 90 deg (for png)
 		vertices = {
 				// Positions				// Normals			// Texture Coords
-				 -heightM,	0.0f, 0.0f,			0.0f, 0.0f, 1.0f,	0.0f, 1.0f,
-				 -heightM,	0.0f, widthM,		0.0f, 0.0f, 1.0f,	1.0f, 1.0f,
-				  0.0f,		0.0f, widthM,		0.0f, 0.0f, 1.0f,	1.0f, 0.0f,
-				  0.0f,		0.0f, 0.0f,			0.0f, 0.0f, 1.0f,	0.0f, 0.0f
+				 -xyOff[1][0],	0.0f, xyOff[1][1],			0.0f, 0.0f, 1.0f,	0.0f, 1.0f,
+				 -xyOff[2][0],	0.0f, xyOff[2][1],			0.0f, 0.0f, 1.0f,	1.0f, 1.0f,
+				 -xyOff[0][0],	0.0f, xyOff[0][1],			0.0f, 0.0f, 1.0f,	1.0f, 0.0f,
+				  0.0f,			0.0f, 0.0f,					0.0f, 0.0f, 1.0f,	0.0f, 0.0f
 		};
 
 		/* Store Indicies */
@@ -128,48 +128,69 @@ public:
 		setupTexture();
 	}
 
-	void calcTileWidthHeight(glm ::vec3 ecefOrigin) {
+	vector<double> calcTileWidthHeight(glm::dvec3 ecefOrigin, glm::dvec3 geoPos1, glm::dvec3 geoPos2) {
+		// Calculates the width and height offsets between two geo positions in (x m, y m)
+		glm::dvec3 ecefPos1 = geo2ECEF(geoPos1);
+		glm::dvec3 ecefPos2 = geo2ECEF(geoPos2);
+		glm::dvec3 pos1 = ecef2ENU(ecefPos1, ecefOrigin, origin);
+		glm::dvec3 pos2 = ecef2ENU(ecefPos2, ecefOrigin, origin);
+		glm::dvec3 diff = pos1 - pos2;
+
+		double h = fabs(diff[0]);
+		double w = fabs(diff[1]);
+
+		return {w, h};
+	}
+
+	void calcTileWidthHeightAll(glm::dvec3 ecefOrigin) {
 		// Calculates the tile width and height in meters
-		vector<float> geoBL = tileNum2LatLon(x,y,zoom);
-		vector<float> geoTR = tileNum2LatLon(x+1,y+1,zoom);
-		glm::vec3 geoPosBL = glm::vec3(geoBL[0],geoBL[1],origin[2]);
-		glm::vec3 geoPosTR = glm::vec3(geoTR[0],geoTR[1],origin[2]);
-		glm::vec3 ecefBL = geo2ECEF(geoPosBL);
-		glm::vec3 ecefTR = geo2ECEF(geoPosTR);
-		glm::vec3 posBL = ecef2ENU(ecefBL, ecefOrigin, origin);
-		glm::vec3 posTR = ecef2ENU(ecefTR, ecefOrigin, origin);
-		glm::vec3 diff = posBL - posTR;
-		widthM = fabs(diff[0]);
-		heightM = fabs(diff[1]);
+		vector<double> geoTL = tileNum2LatLon(x,y,zoom);
+		vector<double> geoTR = tileNum2LatLon(x+1,y,zoom);
+		vector<double> geoBL = tileNum2LatLon(x,y+1,zoom);
+		vector<double> geoBR = tileNum2LatLon(x+1,y+1,zoom);
+		// Convert
+		glm::dvec3 geoPosTL = glm::dvec3(geoTL[0],geoTL[1],0.0f);
+		glm::dvec3 geoPosTR = glm::dvec3(geoTR[0],geoTR[1],0.0f);
+		glm::dvec3 geoPosBL = glm::dvec3(geoBL[0],geoBL[1],0.0f);
+		glm::dvec3 geoPosBR = glm::dvec3(geoBR[0],geoBR[1],0.0f);
+		// Get width height differences
+		vector<double> diffsTLTR = calcTileWidthHeight(ecefOrigin, geoPosTL, geoPosTR);
+		vector<double> diffsTLBL = calcTileWidthHeight(ecefOrigin, geoPosTL, geoPosBL);
+		vector<double> diffsTLBR = calcTileWidthHeight(ecefOrigin, geoPosTL, geoPosBR);
+		// Store differences
+		xyOff = {};
+		xyOff.push_back(diffsTLTR);
+		xyOff.push_back(diffsTLBL);
+		xyOff.push_back(diffsTLBR);
 	}
 
 	/* Conversion Geodetic to ECEF */
-	glm::vec3 geo2ECEF(glm::vec3 positionVector) {
+	glm::dvec3 geo2ECEF(glm::dvec3 positionVector) {
 		// positionVector: (latitude, longitude, altitude (m))
 		// Uses WGS84 defined here https://en.wikipedia.org/wiki/Geodetic_datum#Geodetic_to.2Ffrom_ECEF_coordinates
-		GLfloat a = 6378137.0;
-		GLfloat e2 = 6.69437999014e-3;
-		GLfloat lat = glm::radians(positionVector[0]);
-		GLfloat lon = glm::radians(positionVector[1]);
-		//GLfloat alt = glm::radians(positionVector[2]);
-		GLfloat N = a / glm::sqrt(1-(e2*glm::pow(glm::sin(lat),2)));
-		GLfloat h = positionVector[2]; // Convert to m
-		GLfloat ex = (N+h)*glm::cos(lat)*glm::cos(lon); // m
-		GLfloat ey = (N+h)*glm::cos(lat)*glm::sin(lon); // m
-		GLfloat ez = (N*(1-e2) + h) * glm::sin(lat);    // m
+		GLdouble a = 6378137.0;
+		GLdouble e2 = 6.69437999014e-3;
+		GLdouble lat = glm::radians(positionVector[0]);
+		GLdouble lon = glm::radians(positionVector[1]);
+		//GLdouble alt = glm::radians(positionVector[2]);
+		GLdouble N = a / glm::sqrt(1-(e2*glm::pow(glm::sin(lat),2)));
+		GLdouble h = positionVector[2]; // Convert to m
+		GLdouble ex = (N+h)*glm::cos(lat)*glm::cos(lon); // m
+		GLdouble ey = (N+h)*glm::cos(lat)*glm::sin(lon); // m
+		GLdouble ez = (N*(1-e2) + h) * glm::sin(lat);    // m
 
-		return glm::vec3(ex,ey,ez);
+		return glm::dvec3(ex,ey,ez);
 	}
 
 	/* Convert from ECEF to ENU */
-	glm::vec3 ecef2ENU(glm::vec3 ecefVector, glm::vec3 ecefOrigin, glm::vec3 origin) {
-		GLfloat lat = glm::radians(origin[0]);
-		GLfloat lon = glm::radians(origin[1]);
+	glm::dvec3 ecef2ENU(glm::dvec3 ecefVector, glm::dvec3 ecefOrigin, glm::dvec3 origin) {
+		GLdouble lat = glm::radians(origin[0]);
+		GLdouble lon = glm::radians(origin[1]);
 		//GLfloat alt = origin[2];
 		glm::mat3 A = glm::mat3(-glm::sin(lon),					glm::cos(lon),					0.0,
 								-glm::sin(lat)*glm::cos(lon),	-glm::sin(lat)*glm::sin(lon),	glm::cos(lat),
 								glm::cos(lat)*glm::cos(lon),	glm::cos(lat)*glm::sin(lon),	glm::sin(lat));
-		glm::vec3 B = glm::vec3(ecefVector[0]-ecefOrigin[0],ecefVector[1]-ecefOrigin[1],ecefVector[2]-ecefOrigin[2]);
+		glm::dvec3 B = glm::dvec3(ecefVector[0]-ecefOrigin[0],ecefVector[1]-ecefOrigin[1],ecefVector[2]-ecefOrigin[2]);
 		B*A; // Flipped due to GLM ordering
 
 		return B*A;

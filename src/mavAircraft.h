@@ -24,7 +24,7 @@ class MavAircraft : public Model {
 public:
 	/* Data */
 		// Position Information
-		glm::dvec3 			origin; 						// Lat (deg), Lon (deg), alt (km)
+		glm::dvec3 			origin; 						// Lat (deg), Lon (deg), alt (km)ssddssdd
 		glm::dvec3 			geoPosition; 					// Lat (deg), Lon (deg), alt (km)
 		glm::dvec3 			position; 						// (x,y,z) relative to origin
 		glm::dvec3 			velocity;						// (vx,vy,vz) (m/s)
