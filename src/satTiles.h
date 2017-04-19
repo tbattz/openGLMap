@@ -19,15 +19,16 @@ using namespace boost::filesystem;
 #include <cmath>
 #include <stdlib.h>
 #include <thread>
+#include <algorithm>
 using std::vector;
 
 /* Useful Functions */
-vector<int> latLon2TileNum(float lat, float lon, int zoom) {
+vector<float> latLon2TileNum(float lat, float lon, int zoom) {
 	// lat (deg), lon (deg)
 	float lat_rad = lat * M_PI / 180.0;
 	int n = pow(2,zoom);
-	int x = floor(n * (lon + 180.0)/360.0);
-	int y = floor(n * (1 - (log(tan(lat_rad) + 1.0/cos(lat_rad)) / M_PI)) / 2.0);
+	float x = n * (lon + 180.0) / 360.0;
+	float y = n * (1 - (log(tan(lat_rad) + 1.0/cos(lat_rad)) / M_PI)) / 2.0;
 
 	return {x,y};
 }
@@ -59,6 +60,30 @@ vector<string> splitStringDelim(string inString, string delim) {
 	}
 
 	return outVec;
+}
+
+vector<float> latLonOffsetHeading(float lat1, float lon1, float distance, float bearing, float sphereRadius = 6378.137) {
+	// Gives the lat, lon of a point at a given distance and bearing from another lat, lon point.
+	// lat1:		deg
+	// lon1:		deg
+	// distance:	km
+	// bearing:		deg
+	// sphereRadius: km (Default Earth Radius)
+
+	// Convert to radius
+	float latR = lat1 * M_PI / 180.0;
+	float lonR = lon1 * M_PI / 180.0;
+	float bearingR = bearing * M_PI / 180.0;
+
+	float d_r = distance/sphereRadius; // d/r
+	float lat2R = asin((sin(latR)*cos(d_r)) + (cos(latR)*sin(d_r)*cos(bearingR)));
+	float lon2R = lonR + atan2(sin(bearingR)*sin(d_r)*cos(latR),cos(d_r)-(sin(latR)*sin(lat2R)));
+
+	// Convert back to degrees
+	float lat2 = lat2R * 180.0 / M_PI;
+	float lon2 = lon2R * 180.0 / M_PI;
+
+	return {lat2,lon2};
 }
 
 /* Tile Classes */
@@ -272,7 +297,17 @@ public:
 	vector<SatTile>		tiles;
 	vector<string>		tilePaths;
 	glm::vec3			origin;				// lat (deg), lon (deg)
+	int					zoom = 18;			// Zoom level
+	vector<vector<int>> requiredTiles;
+	vector<vector<int>> diskTiles;
+	vector<vector<int>> loadedTiles;
+	const char* 		folderPath = "../SatTiles/";
 	bool				initFin = false;
+
+	/* Aircraft Data */
+	MavAircraft* mavAircraftPt;
+	glm::dvec3 aircraftGeoPos = glm::dvec3(0.0f,0.0f,0.0f);
+	float aircraftRadius = 500;		// metres
 
 	/* Threads */
 	std::thread satTileLoadThread;
@@ -281,13 +316,14 @@ public:
 
 	/* Functions */
 	// Initialiser
-	SatTileList(glm::vec3 origin) : satTileLoadThread(&SatTileList::satTileLoader,this), satTileDownloaderThread(&SatTileList::satTileDownloader,this) {
+	SatTileList(glm::vec3 origin, MavAircraft* mavAircraftPt = NULL) : satTileLoadThread(&SatTileList::satTileLoader,this), satTileDownloaderThread(&SatTileList::satTileDownloader,this) {
 		this->origin = origin;
+		this->mavAircraftPt = mavAircraftPt;
 
-		// Update Tile List
-		updateSatTileList("../SatTiles");
-
+		// Start Threads
 		initFin = true;
+
+
 	}
 
 
@@ -299,6 +335,14 @@ public:
 		}
 
 		while(threadRunning) {
+			// Update set of disk tiles
+			updateDiskTiles(folderPath);
+
+			// Get new set of required tiles
+			updateRequiredTiles();
+
+			// Load required tiles from disk
+			//loadRequiredTilesFromDisk();
 
 			// Delay next run
 			std::this_thread::sleep_for(std::chrono::milliseconds(int(1000.0)));
@@ -313,9 +357,162 @@ public:
 		}
 
 		while (threadRunning) {
+			// Download required tiles
+			for(unsigned int i=0; i<requiredTiles.size(); i++) {
+				string outName = "../SatTiles/" + std::to_string(zoom) + "-" + std::to_string(requiredTiles[i][0]) + "-" + std::to_string(requiredTiles[i][1]) + ".png";
+				//system(("wget http://maptile.maps.svc.ovi.com/maptiler/v2/maptile/newest/hybrid.day/" + std::to_string(zoom) +"/" + std::to_string(requiredTiles[i][0]) + "/" + std::to_string(requiredTiles[i][1]) +"/256/png8 -O " + outName.c_str()).c_str());
+				std::this_thread::sleep_for(std::chrono::milliseconds(int(1000.0)));
+			}
+
+
+
 			// Delay next run
 			std::this_thread::sleep_for(std::chrono::milliseconds(int(1000.0)));
 		}
+	}
+
+	void loadRequiredTilesFromDisk() {
+		// Loads the tiles that from the disk that are required
+		if(requiredTiles.size()>0) {
+			for(unsigned int i=0; i<requiredTiles.size(); i++) {
+				// If tile is not loaded
+				if (!(std::find(loadedTiles.begin(), loadedTiles.end(), requiredTiles[i]) != loadedTiles.end())) {
+					// If tile is on disk
+					if(std::find(diskTiles.begin(), diskTiles.end(), requiredTiles[i]) != diskTiles.end()) {
+						// Vector not in vector
+						int x = requiredTiles[i][0];
+						int y = requiredTiles[i][1];
+						string xStr = std::to_string(x);
+						string yStr = std::to_string(y);
+						string zoomStr = std::to_string(zoom);
+						string mypath;
+						mypath = "";
+						mypath.append(folderPath);
+						//mypath.append(zoomStr+"-"+xStr+"-"+yStr+".png");
+						mypath.append("18-236831-160989.png");
+						printf("%s\n",mypath.c_str());
+						// Load Tile
+						tiles.push_back(SatTile(origin, x, y, zoom, mypath));
+						loadedTiles.push_back({x,y,zoom});
+						printf("Loaded Tile %s.\n",(zoom+"-"+xStr+"-"+yStr).c_str());
+					}
+				}
+			}
+		}
+	}
+
+	// Update List
+	void updateTileList(const char* folderPath, LoadingScreen* loadingScreenPt) {
+		/* Checks the folder for any new tiles */
+		// Get current file list
+		path p(folderPath);
+		string newFilename; // Filename of image file
+		string mypath;		// Path of image file relative to src directory
+		for (auto i = directory_iterator(p); i != directory_iterator(); i++) {
+			if (!is_directory(i->path())) { // Ignore subdirectories
+				newFilename = i->path().filename().string();
+				// Check if Image file
+				string ext = extension(newFilename);
+				mypath = "";
+				mypath.append(folderPath);
+				mypath.append("/");
+				mypath.append(newFilename);
+				if ((ext.compare(".png"))*(ext.compare(".jpg")) == 0) {
+					// Check if we already have loaded this filename
+					if(std::find(tilePaths.begin(), tilePaths.end(), mypath) == tilePaths.end()) {
+						std::cout << "Found: " << newFilename << ".\n";
+						// Check if file is not in use
+						std::fstream myfile;
+						myfile.open(mypath);
+						if (myfile.is_open()) {
+							// Not in previous list
+							// Close file
+							myfile.close();
+							vector<string> split = splitStringDelim(newFilename, "-");
+							int zoom = atoi(split[0].c_str());
+							int x = atoi(split[1].c_str());
+							int y = atoi(split[2].c_str());
+							string xStr = std::to_string(x);
+							string yStr = std::to_string(y);
+							string zoomStr = std::to_string(zoom);
+							string mypath;
+							mypath = "";
+							mypath.append(folderPath);
+							mypath.append(zoomStr+"-"+xStr+"-"+yStr+".png");
+							printf("%s\n",mypath.c_str());
+							// Create New Tile
+							this->tiles.push_back(SatTile(origin, x, y, zoom, mypath.c_str()));
+
+
+						} else {
+							/* File is probably still being downloaded. */
+							std::cout << newFilename << " is in use. Not adding.\n";
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+	void updateRequiredTiles() {
+		// Calculates the tiles required at the current point in time
+		// Get current tile below aircraft
+		if (mavAircraftPt != NULL) {
+			aircraftGeoPos = mavAircraftPt->geoPosition;
+		} else {
+			aircraftGeoPos = origin;
+		}
+		vector<float> currTiles = latLon2TileNum(aircraftGeoPos[0], aircraftGeoPos[1], zoom);
+		// Find tiles within distance based on aircraft position
+		vector<float> latLonT = latLonOffsetHeading(aircraftGeoPos[0], aircraftGeoPos[1], aircraftRadius/1000.0, 0);
+		vector<float> latLonR = latLonOffsetHeading(aircraftGeoPos[0], aircraftGeoPos[1], aircraftRadius/1000.0, 90);
+		vector<float> latLonB = latLonOffsetHeading(aircraftGeoPos[0], aircraftGeoPos[1], aircraftRadius/1000.0, 180);
+		vector<float> latLonL = latLonOffsetHeading(aircraftGeoPos[0], aircraftGeoPos[1], aircraftRadius/1000.0, 270);
+		vector<float> tilesT = latLon2TileNum(latLonT[0], latLonT[1], zoom);
+		vector<float> tilesR = latLon2TileNum(latLonR[0], latLonR[1], zoom);
+		vector<float> tilesB = latLon2TileNum(latLonB[0], latLonB[1], zoom);
+		vector<float> tilesL = latLon2TileNum(latLonL[0], latLonL[1], zoom);
+		int xmin = std::min(tilesL[0],tilesR[0]);
+		int xmax = std::max(tilesL[0],tilesR[0]);
+		int ymin = std::min(tilesT[1],tilesB[1]);
+		int ymax = std::max(tilesT[1],tilesB[1]);
+		// Spiral outwards
+		int edge = std::max(xmax-xmin,ymax-ymin);
+		if (edge % 2 == 0) {
+			edge += 1;
+		}
+		// Generate in a spiral pattern
+		int maxSideLen = edge - 1; // maxSideLen x maxSideLen grid
+		vector<vector<int>> tileRowCol;
+		vector<int> centerTiles = {(int)currTiles[0],(int)currTiles[1],zoom};
+		vector<int> oldTile = centerTiles;
+		tileRowCol.push_back(centerTiles);
+		int sign = 1;
+		for(int i=1; i<maxSideLen+1; i++) {
+			// Get new tiles - x leg
+			for(int j=1; j<i+1; j++) {
+				vector<int> newTile = {oldTile[0]+sign,oldTile[1],zoom};
+				oldTile = newTile;
+				tileRowCol.push_back(newTile);
+			}
+			// Get new tiles - y leg
+			for(int j=1; j<i+1; j++) {
+				vector<int> newTile = {oldTile[0],oldTile[1]+sign,zoom};
+				oldTile = newTile;
+				tileRowCol.push_back(newTile);
+			}
+			// Flip sign
+			sign = sign * -1;
+
+			// Remove elements from list that are already loaded
+			for(unsigned int i=0; i<loadedTiles.size(); i++) {
+				tileRowCol.erase(std::remove(tileRowCol.begin(), tileRowCol.end(), loadedTiles[i]), tileRowCol.end());
+			}
+
+			// Update Required Tiles
+			requiredTiles = tileRowCol;
+		};
 	}
 
 	void stopThreads() {
@@ -326,7 +523,7 @@ public:
 	}
 
 	// Update List
-	void updateSatTileList(const char* folderPath) {
+	void updateDiskTiles(const char* folderPath) {
 		/* Checks the folder for any new tiles */
 		// Get current file list
 		path p(folderPath);
@@ -334,43 +531,36 @@ public:
 		string mypath;		// Path of image file relative to src directory
 
 		// Loop over files in directory
-		for (auto i = directory_iterator(p); i != directory_iterator(); i++) {
+		for(auto i = directory_iterator(p); i != directory_iterator(); i++) {
 			if (!is_directory(i->path())) { // Ignore subdirectories
 				newFilename = i->path().filename().string();
-				// Check if this file is already loaded
-				string ext = extension(newFilename);
+				// Check if file is not in use
+				std::fstream myfile;
 				mypath = "";
 				mypath.append(folderPath);
 				mypath.append("/");
 				mypath.append(newFilename);
-				if((ext.compare(".png"))*(ext.compare(".jpg")) == 0) {
-					// Check if file already loaded
-					if(std::find(tilePaths.begin(), tilePaths.end(), mypath) == tilePaths.end()) {
-						std::cout << "Found unloaded Satellite Tile: " << newFilename << ".\n";
-						// Check if file is not in use
-						std::fstream myfile;
-						myfile.open(mypath);
-						if (myfile.is_open()) {
-							// Not in previous list, close file
-							// Close File
-							myfile.close();
-							// Parse filename for zoom, row, col, type
-							vector<string> split = splitStringDelim(newFilename, "-");
-							// Create New Tile
-							int zoom = atoi(split[0].c_str());
-							int x = atoi(split[1].c_str());
-							int y = atoi(split[2].c_str());
-							tiles.push_back(SatTile(origin, x, y, zoom, mypath));
-
-
-							// Add to tile paths
-							tilePaths.push_back(mypath);
-
-						} else {
-							/* File is probably still being downloaded. */
-							std::cout << "Satellite Tile " << newFilename << "is in use. Not adding.\n";
-						}
+				myfile.open(mypath);
+				if (myfile.is_open()) {
+					myfile.close();
+					// File has finished downloading
+					// Parse filename for zoom, row, col
+					vector<string> split = splitStringDelim(newFilename, "-");
+					int zoom = atoi(split[0].c_str());
+					int x = atoi(split[1].c_str());
+					int y = atoi(split[2].c_str());
+					vector<int> tileVec = {x,y,zoom};
+					// Add Tiles to disk tiles list
+					if (!(std::find(diskTiles.begin(), diskTiles.end(), tileVec) != diskTiles.end())) {
+						// Vector not in vector
+						diskTiles.push_back(tileVec);
 					}
+					// Load Tile
+					tiles.push_back(SatTile(origin, x, y, zoom, mypath));
+					loadedTiles.push_back({x,y,zoom});
+					string xStr = std::to_string(x);
+					string yStr = std::to_string(y);
+					printf("Loaded Tile %s.\n",(zoom+"-"+xStr+"-"+yStr).c_str());
 				}
 			}
 		}

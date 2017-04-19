@@ -172,9 +172,8 @@ int main(int argc, char* argv[]) {
 	imageTileList.updateTileList("../ImageData",&loadingScreen);
 
 	// Create Satellite Tiles
-	SatTileList satTileList(origin);
+	SatTileList satTileList(origin, &mavAircraft);
 	// Get Sat Tile Information
-	satTileList.updateSatTileList("../SatTiles");
 
 	/* ======================================================
 	 *                         Lights
@@ -308,8 +307,6 @@ int main(int argc, char* argv[]) {
 		if ((currentFrame - fileChecklast) > 1.0) {
 			// Update image file list
 			//imageTileList.updateTileList("../ImageData",&loadingScreen);
-			// Update sat file list
-			satTileList.updateSatTileList("../SatTiles");
 			// Update file check time
 			fileChecklast = currentFrame;
 		}
