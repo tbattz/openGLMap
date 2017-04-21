@@ -172,9 +172,7 @@ int main(int argc, char* argv[]) {
 	imageTileList.updateTileList("../ImageData",&loadingScreen);
 
 	// Create Satellite Tiles
-	SatTileList satTileList(origin);
-	// Get Sat Tile Information
-	satTileList.updateSatTileList("../SatTiles");
+	SatTileList satTileList(origin,&mavAircraft);
 
 	/* ======================================================
 	 *                         Lights
@@ -285,7 +283,7 @@ int main(int argc, char* argv[]) {
         glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
 
 		// Transformation Matrices
-		glm::mat4 projection = glm::perspective(camera.Zoom, (float)screenWidth/(float)screenHeight,0.1f,1000.0f);
+		glm::mat4 projection = glm::perspective(camera.Zoom, (float)screenWidth/(float)screenHeight,0.1f,10000.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
@@ -305,14 +303,16 @@ int main(int argc, char* argv[]) {
 		glUniformMatrix4fv(glGetUniformLocation(tileShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(tileShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
 		// Check for new files
-		if ((currentFrame - fileChecklast) > 1.0) {
+		if ((currentFrame - fileChecklast) > 0.3) {
 			// Update image file list
 			//imageTileList.updateTileList("../ImageData",&loadingScreen);
-			// Update sat file list
-			satTileList.updateSatTileList("../SatTiles");
+			// Load satellite tiles
+			satTileList.updateTiles();
 			// Update file check time
 			fileChecklast = currentFrame;
 		}
+
+
 
 		// Draw tiles
 		imageTileList.Draw(tileShader);

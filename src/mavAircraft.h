@@ -101,33 +101,35 @@ public:
 
 		// Set new time
 		currTime = glfwGetTime() - timeStart;
-		minDiff = std::min(minDiff,timePositionHistory.back() - (currTime+timeStartMavlink-timeDelay));
+		if (timePositionHistory.size()>0) {
+			minDiff = std::min(minDiff,timePositionHistory.back() - (currTime+timeStartMavlink-timeDelay));
 
-		// Adjust delay if catching up to real messages
-		if (minDiff < 0) {
-			timeDelay += timeDelay;
-			minDiff = timePositionHistory.back() - (currTime+timeStartMavlink-timeDelay);
-		}
+			// Adjust delay if catching up to real messages
+			if (minDiff < 0) {
+				timeDelay += timeDelay;
+				minDiff = timePositionHistory.back() - (currTime+timeStartMavlink-timeDelay);
+			}
 
-        // Check to move to next pair of position messages
-        std::vector<float>::iterator lowpos = std::lower_bound(timePositionHistory.begin(),timePositionHistory.end(),currTime+timeStartMavlink-timeDelay);
-		currentPosMsgIndex = lowpos - timePositionHistory.begin();
+			// Check to move to next pair of position messages
+			std::vector<float>::iterator lowpos = std::lower_bound(timePositionHistory.begin(),timePositionHistory.end(),currTime+timeStartMavlink-timeDelay);
+			currentPosMsgIndex = lowpos - timePositionHistory.begin();
 
 
-        // Check to move to the next pair of attitude messages
-		std::vector<float>::iterator lowatt = std::lower_bound(timeAttitudeHistory.begin(),timeAttitudeHistory.end(),currTime+timeStartMavlinkAtt-timeDelay);
-		currentAttMsgIndex = lowatt - timeAttitudeHistory.begin();
+			// Check to move to the next pair of attitude messages
+			std::vector<float>::iterator lowatt = std::lower_bound(timeAttitudeHistory.begin(),timeAttitudeHistory.end(),currTime+timeStartMavlinkAtt-timeDelay);
+			currentAttMsgIndex = lowatt - timeAttitudeHistory.begin();
 
-		// Calculate position offset
-		if(!firstPositionMessage) {
-			dtPos = currTime - (timePositionHistory[currentPosMsgIndex]-timeStartMavlink) - timeDelay;
-			interpolatePosition();
-		}
+			// Calculate position offset
+			if(!firstPositionMessage) {
+				dtPos = currTime - (timePositionHistory[currentPosMsgIndex]-timeStartMavlink) - timeDelay;
+				interpolatePosition();
+			}
 
-		// Calculate attitude offset
-		if(!firstAttitudeMessage) {
-			dtAtt = currTime - (timeAttitudeHistory[currentAttMsgIndex]-timeStartMavlinkAtt) - timeDelay;
-			interpolateAttitude();
+			// Calculate attitude offset
+			if(!firstAttitudeMessage) {
+				dtAtt = currTime - (timeAttitudeHistory[currentAttMsgIndex]-timeStartMavlinkAtt) - timeDelay;
+				interpolateAttitude();
+			}
 		}
 	}
 
