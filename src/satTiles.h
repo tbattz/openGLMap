@@ -519,8 +519,8 @@ public:
 			for(int j=ymin; j<ymax+1; j++) {
 				// Calculate weighting for priority
 				float d = sqrt(pow(i-currTiles[0],2)+pow(j-currTiles[1],2));
-				float theta = atan2(i-currTiles[0],j-currTiles[1]) - (mavAircraftPt->heading); //atan2(y,x) but we want tan(theta)=x/y so atan2(x,y)
-				float w = (d-dmax)*cos(theta);
+				float theta = atan2(i-currTiles[0],j-currTiles[1]) - (mavAircraftPt->heading) + M_PI; //atan2(y,x) but we want tan(theta)=x/y so atan2(x,y)
+				float w = (dmax-d)*fabs(cos(theta/2.0));
 				// Store struct
 				tileRowCol.push_back({{i,j,zoom},w});
 			}
