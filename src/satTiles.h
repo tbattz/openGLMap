@@ -90,6 +90,12 @@ vector<float> latLonOffsetHeading(float lat1, float lon1, float distance, float 
 	return {lat2,lon2};
 }
 
+/* Struct for weighting sorting */
+struct weightVector {
+	vector<int> tile;
+	float 		weight;
+};
+
 /* Tile Classes */
 class SatTile {
 public:
@@ -436,7 +442,7 @@ public:
 		string mypath = folderPath + std::to_string(zoom) + "-" + std::to_string(x) + "-" + std::to_string(y) + ".png";
 		tiles.push_back(SatTile(origin, x, y, zoom, mypath));
 		loadedTiles.push_back(tileVec);
-		printf("loaded %s\n",mypath.c_str());
+		printf("Loaded %s\n",mypath.c_str());
 	}
 
 	/* Update vector functions */
@@ -504,42 +510,30 @@ public:
 		int xmax = std::max(tilesL[0],tilesR[0]);
 		int ymin = std::min(tilesT[1],tilesB[1]);
 		int ymax = std::max(tilesT[1],tilesB[1]);
-		// Spiral outwards
-		int edge = std::max(xmax-xmin,ymax-ymin);
-		if (edge % 2 == 0) {
-			edge += 1;
-		}
-		// Generate in a spiral pattern
-		int maxSideLen = edge - 1; // maxSideLen x maxSideLen grid
-		vector<vector<int>> tileRowCol;
-		vector<int> centerTiles = {(int)currTiles[0],(int)currTiles[1],zoom};
-		vector<int> oldTile = centerTiles;
-		tileRowCol.push_back(centerTiles);
-		int sign = 1;
-		for(int i=1; i<maxSideLen+1; i++) {
-			// Get new tiles - x leg
-			for(int j=1; j<i+1; j++) {
-				vector<int> newTile = {oldTile[0]+sign,oldTile[1],zoom};
-				oldTile = newTile;
-				tileRowCol.push_back(newTile);
-			}
-			// Get new tiles - y leg
-			for(int j=1; j<i+1; j++) {
-				vector<int> newTile = {oldTile[0],oldTile[1]+sign,zoom};
-				oldTile = newTile;
-				tileRowCol.push_back(newTile);
-			}
-			// Flip sign
-			sign = sign * -1;
 
-			// Remove elements from list that are already loaded
-			for(unsigned int i=0; i<loadedTiles.size(); i++) {
-				tileRowCol.erase(std::remove(tileRowCol.begin(), tileRowCol.end(), loadedTiles[i]), tileRowCol.end());
+		// Generate square around main tile
+		vector<weightVector> tileRowCol;
+		float dmax = sqrt(pow(xmax-xmin,2)+pow(ymax-ymax,2));
+		for(int i=xmin; i<xmax+1; i++) {
+			for(int j=ymin; j<ymax+1; j++) {
+				// Calculate weighting for priority
+				float d = sqrt(pow(i-currTiles[0],2)+pow(j-currTiles[1],2));
+				float theta = atan2(i-currTiles[0],j-currTiles[1]) - (mavAircraftPt->heading); //atan2(y,x) but we want tan(theta)=x/y so atan2(x,y)
+				float w = (d-dmax)*cos(theta);
+				// Store struct
+				tileRowCol.push_back({{i,j,zoom},w});
 			}
 		}
+
+		// Sort based on weightings
+		std::sort(tileRowCol.begin(), tileRowCol.end(), [](weightVector& i, weightVector& j) {return i.weight > j.weight;});
 
 		// Update Required Tiles
-		requiredTiles = tileRowCol;
+		vector<vector<int>> tempReqTiles;
+		for(unsigned int i = 0; i<tileRowCol.size(); i++) {
+			tempReqTiles.push_back(tileRowCol[i].tile);
+		}
+		requiredTiles = tempReqTiles;
 	}
 
 
@@ -567,10 +561,7 @@ public:
 		for(unsigned int i=0; i<requiredTiles.size(); i++) {
 			if (!(std::find(downloadedTiles.begin(), downloadedTiles.end(), requiredTiles[i]) != downloadedTiles.end())) {
 				// Tiles required but not on disk
-				int x = requiredTiles[i][0];
-				int y = requiredTiles[i][1];
-				int zoom = requiredTiles[i][2];
-				toDownloadTiles.push_back({x,y,zoom});
+				toDownloadTiles.push_back(requiredTiles[i]);
 			}
 		}
 		threadLock.unlock();
@@ -593,26 +584,6 @@ public:
 			tiles[i].Draw(shader);
 		}
 	}
-
-
-	/*
-	 *
-	 * 	// Global Position
-	float lat = -37.955494;	// Deg
-	float lon = 145.239152;	// Deg
-	int z = 17; 				// Zoom Level
-
-	// Conversion
-	float latRad = lat * M_PI / 180;
-	int n = pow(2,z);
-	float col = n * ((lon + 180)/360);
-	float row = n * (1-(log(tan(latRad) + 1/cos(latRad))/M_PI))/2.0;
-
-	printf("n: %i col: %f, row: %f\n",n,col,row);
-
-	//ss << "http://maptile.maps.svc.ovi.com/maptiler/v2/maptile/newest/hybrid.day/" << n << "/" << col << "/" << row << "/256/png8";
-//"http://maptile.maps.svc.ovi.com/maptiler/v2/maptile/newest/hybrid.day/17/118415/80493/256/png8"
-	 */
 
 };
 

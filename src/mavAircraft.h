@@ -66,6 +66,7 @@ public:
 
 		// Airpseed Information
 		float 				airspeed;						// (m/s)
+		float				heading;						// (rad)
 
 		// Lock
 		std::mutex positionLock;

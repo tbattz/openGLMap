@@ -159,6 +159,7 @@ public:
 
 									// Store airspeed
 									mavAircraftPt->airspeed = packet.airspeed;
+									mavAircraftPt->heading = packet.heading * M_PI / 180.0;
 								}
 
 							}
