@@ -392,8 +392,8 @@ public:
 	static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
 	{
 		// Writes data to the file from the curl stream
-	  size_t written = fwrite(ptr, size, nmemb, (FILE *)stream);
-	  return written;
+		size_t written = fwrite(ptr, size, nmemb, (FILE *)stream);
+		return written;
 	}
 
 	/* Get and Load Functions */
@@ -412,6 +412,7 @@ public:
 			curl_easy_setopt(curlPt, CURLOPT_VERBOSE, 1L);
 			// Disable progress display
 			curl_easy_setopt(curlPt, CURLOPT_NOPROGRESS, 1L);
+			curl_easy_setopt(curlPt, CURLOPT_VERBOSE, 0L);
 			// Send data here
 			curl_easy_setopt(curlPt, CURLOPT_WRITEFUNCTION, write_data);
 			// Open File
