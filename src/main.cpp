@@ -98,21 +98,22 @@ int main(int argc, char* argv[]) {
 	 *                  	  Shaders
 	   ====================================================== */
 	// Setup and compile shaders
+	loadingScreen.appendLoadingMessage("Loading lightingShader.");
 	Shader lightingShader("../Shaders/multiple_lighting.vs","../Shaders/multiple_lighting.frag");
-	loadingScreen.appendLoadingMessage("Finished lightingShader load attempt.");
+	loadingScreen.appendLoadingMessage("Loading tileShader.");
 	Shader tileShader("../Shaders/tileImage.vs","../Shaders/tileImage.frag");
-	loadingScreen.appendLoadingMessage("Finished tileShader load attempt.");
+	loadingScreen.appendLoadingMessage("Loading skyboxShader.");
 	Shader skyboxShader("../Shaders/skybox.vs","../Shaders/skybox.frag");
-	loadingScreen.appendLoadingMessage("Finished skyboxShader load attempt.");
+	loadingScreen.appendLoadingMessage("Loading simpleShader.");
 	Shader simpleShader("../Shaders/telemOverlay.vs","../Shaders/telemOverlay.frag");
-	loadingScreen.appendLoadingMessage("Finished simpleShader load attempt.");
 
 	/* ======================================================
 	 *                         Fonts
 	   ====================================================== */
 	// Load Font Shader
+	loadingScreen.appendLoadingMessage("Loading textShader.");
 	Shader textShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight);
-	loadingScreen.appendLoadingMessage("Finished textShader load attempt.");
+
 
 	// Load Telemetry Font
 	GLFont telemFont = GLFont(FONTPATH);
@@ -126,24 +127,24 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Help Font
+	loadingScreen.appendLoadingMessage("Loading fonts.");
 	GLFont helpFont = GLFont(FONTPATH);
-	loadingScreen.appendLoadingMessage("Finished loading fonts.");
+
 
 	/* ======================================================
 	 *                        Models
 	   ====================================================== */
 	// Load Models
-	//Model mavAircraft("../Models/wheel/wheelTest2.obj");
+	loadingScreen.appendLoadingMessage("Loading mavAircraft.");
 	MavAircraft mavAircraft("../Models/X8/x8Fixed.obj",glm::vec3(-37.958926f, 145.238343f, 0.0f));
-	loadingScreen.appendLoadingMessage("Finished loading mavAircraft.");
 
 	// Create thread to recieve Mavlink messages
-	//std::thread mavlinkThread(mavlinkMain,"192.168.1.1", "14550");
+	loadingScreen.appendLoadingMessage("Creating mavSocket.");
 	MavSocket mavSocket("192.168.1.1", "14550",&mavAircraft);
 	std::thread mavThread(&MavSocket::startSocket,&mavSocket);
-	loadingScreen.appendLoadingMessage("Created mavSocket.");
 
 	// Create Skybox
+	loadingScreen.appendLoadingMessage("Loading skybox.");
 	vector<const GLchar*> faces;
 	faces.push_back("../Models/skybox/right.png");
 	faces.push_back("../Models/skybox/left.png");
@@ -152,14 +153,13 @@ int main(int argc, char* argv[]) {
 	faces.push_back("../Models/skybox/back.png");
 	faces.push_back("../Models/skybox/front.png");
 	Skybox skybox(faces);
-	loadingScreen.appendLoadingMessage("Finished loading skybox.");
 
 	/* ======================================================
 	 *                      Overlays
 	   ====================================================== */
 	// Create Telem Overlay
+	loadingScreen.appendLoadingMessage("Loading telemetry overlay.");
 	TelemOverlay telemOverlay(&mavAircraft,&textShader,&telemFont,screenWidth,screenHeight);
-	loadingScreen.appendLoadingMessage("Finished loading telemetry overlay.");
 
 	// Create Origin
 	glm::vec3 origin = glm::vec3(-37.958945f, 145.238349f, 0.0f);
@@ -177,6 +177,7 @@ int main(int argc, char* argv[]) {
 	/* ======================================================
 	 *                         Lights
 	   ====================================================== */
+	loadingScreen.appendLoadingMessage("Loading Lights.");
 	// Load Lights
 	DirectionalLight myDirLight({-0.2f,-1.0f,-0.3f}, {0.5f,0.5f,0.5f}, {0.4f,0.4f,0.4f}, {0.5f,0.5f,0.5f}, &lightingShader,0);
 
@@ -184,8 +185,6 @@ int main(int argc, char* argv[]) {
 	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nDirLight"),1);
 	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nPointLight"),0);
 	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nSpotLight"),0);
-
-	loadingScreen.appendLoadingMessage("Loaded Lights.");
 
 	/* ======================================================
 	 *                     Plotting Data
