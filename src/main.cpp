@@ -15,18 +15,17 @@
 #include <thread>
 
 // openGL Includes
-#include "../src/window.h"
-#include "../src/shader.h"
-#include "../src/model.h"
-#include "../src/fonts.h"
-#include "../src/light.h"
-#include "../src/imageTile.h"
-#include "../src/mavlinkReceive.h"
-#include "../src/mavAircraft.h"
-#include "../src/skybox.h"
-#include "../src/telemOverlay.h"
-#include "../src/loadingScreen.h"
-#include "../src/satTiles.h"
+#include "window.h"
+#include "shader.h"
+#include "model.h"
+#include "fonts.h"
+#include "light.h"
+#include "imageTile.h"
+#include "mavlinkReceive.h"
+#include "mavAircraft.h"
+#include "skybox.h"
+#include "telemOverlay.h"
+#include "satTiles.h"
 
 // openGLPlotLive Includes
 #include "../openGLPlotLive/src/fonts.h"
@@ -179,7 +178,7 @@ int main(int argc, char* argv[]) {
 	   ====================================================== */
 	loadingScreen.appendLoadingMessage("Loading Lights.");
 	// Load Lights
-	DirectionalLight myDirLight({-0.2f,-1.0f,-0.3f}, {0.5f,0.5f,0.5f}, {0.4f,0.4f,0.4f}, {0.5f,0.5f,0.5f}, &lightingShader,0);
+	DirectionalLight myDirLight({-0.2,-1.0,-0.3}, {0.5,0.5,0.5}, {0.4,0.4,0.4}, {0.5,0.5,0.5}, &lightingShader,0);
 
 	// Set number of lights
 	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nDirLight"),1);

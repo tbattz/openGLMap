@@ -27,14 +27,15 @@
 	#define FONTPATH "/usr/share/fonts/truetype/abyssinica/AbyssinicaSIL-R.ttf"
 #endif
 
-// Define version number
-string OPENGLMAP_VERSION = "0.1";
 
 // openGL Includes
 #include "../src/fonts.h"
 
 class LoadingScreen {
 public:
+	// Define version number
+	string OPENGLMAP_VERSION = "0.1";
+
 	/* Data */
 	GLFWwindow* window;
 	float* screenWidthPt;
