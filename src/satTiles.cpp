@@ -501,7 +501,9 @@ void SatTileList::downloadTiles() {
 	vector<vector<int>> downloadList = toDownloadTiles;
 	threadLock.unlock();
 	for(unsigned int i=0; i<downloadList.size(); i++) {
-		downloadTile(downloadList[i]);
+		if(threadRunning) {
+			downloadTile(downloadList[i]);
+		}
 	}
 }
 
