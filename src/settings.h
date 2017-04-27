@@ -20,29 +20,24 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 
+
 /* Classes */
 class Settings {
 public:
 	/* Data */
+	std::vector<std::string> foundNames;
 	int lineNum 	= 0;
 	const char* settingsFile;
-	// Settings Name Vectors
-	std::vector<std::string> intNames = {"screenID","xRes","yRes"};
-	std::vector<int>		 intDefaults = {1,	    1920,   1080};
-	std::vector<std::string> boolNames = {"fullscreen"};
-	std::vector<bool>		 boolDefaults = {false};
-	// Setting Maps
-	std::map<std::string, int> intSets;
-	std::map<std::string, bool> boolSets;
-
-
 
 	// Display
-	int screenID 	= 0;
+	int screenID 	= 1;
 	int xRes 		= 1920;
 	int yRes		= 1080;
 	bool fullscreen = false;
 
+	// Setting Names
+	std::vector<std::string> intNames = {"screenID","xRes","yRes"};
+	std::vector<std::string> boolNames = {"fullscreen"};
 
 	/* Constructor */
 	Settings(const char* settingsFile);
@@ -51,9 +46,9 @@ public:
 	/* Functions */
 	void readFile();
 	void parseSetting(std::string line);
-	void checkSettings();
-
-
+	void parseIntSettings(std::string line, std::vector<std::string> lineSplit);
+	void parseBoolSettings(std::string line, std::vector<std::string> lineSplit);
+	void checkMissingSettings();
 
 
 };

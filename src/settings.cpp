@@ -39,8 +39,8 @@ void Settings::readFile() {
 	// Close file
 	infile.close();
 
-	// Check Settings
-	checkSettings();
+	// Check for missing settings
+	checkMissingSettings();
 }
 
 void Settings::parseSetting(std::string line) {
@@ -52,19 +52,10 @@ void Settings::parseSetting(std::string line) {
 	if (lineSplit.size() == 3) {
 		if (lineSplit[1]=="int") {
 			// Look through ints
-			for(unsigned int i=0; i<intNames.size(); i++) {
-				if (lineSplit[0]==intNames[i]) {
-					intSets[intNames[i]] = stoi(lineSplit[2]);
-					break;
-				}
-			}
+			parseIntSettings(line, lineSplit);
 		} else if (lineSplit[1]=="bool") {
 			// Look through booleans
-			for(unsigned int i=0; i<boolNames.size(); i++) {
-				if (lineSplit[0]==boolNames[i]) {
-					boolSets[boolNames[i]] = stoi(lineSplit[2]);
-				}
-			}
+			parseBoolSettings(line, lineSplit);
 		} else {
 			printf("ERROR: Unknown Setting! %s: Line %i\n",lineSplit[0].c_str(),lineNum);
 		}
@@ -73,24 +64,46 @@ void Settings::parseSetting(std::string line) {
 	}
 }
 
-void Settings::checkSettings() {
-	// Checks if all required settings have been set
+void Settings::parseIntSettings(std::string line, std::vector<std::string> lineSplit) {
+	// Parses int settings into the class
+	if (lineSplit[0] == "screenID") {
+		screenID = stoi(lineSplit[2]);
+		foundNames.push_back("screenID");
+	} else if (lineSplit[0] == "xRes") {
+		xRes = stoi(lineSplit[2]);
+		foundNames.push_back("xRes");
+	} else if (lineSplit[0] == "yRes") {
+		yRes = stoi(lineSplit[2]);
+		foundNames.push_back("yRes");
+	} else {
+		printf("Could not find int. %i: %s\n",lineNum,line.c_str());
+	}
+}
+
+void Settings::parseBoolSettings(std::string line, std::vector<std::string> lineSplit) {
+	// Parses bool settings into the class
+	if(lineSplit[0] == "fullscreen") {
+		fullscreen = stoi(lineSplit[2]) ? true : false;
+		foundNames.push_back("fullscreen");
+	}
+}
+
+void Settings::checkMissingSettings() {
+	// Checks if any settings haven't been found, and sets them to their defaults
 	// Ints
 	for(unsigned int i=0; i<intNames.size(); i++) {
-		if(intSets.count(intNames[i])==0) {
-			printf("ERROR: %s missing. Setting to default: %i\n",intNames[i].c_str(),intDefaults[i]);
-			intSets["screenID"] = intDefaults[i];
+		if(std::find(foundNames.begin(), foundNames.end(), intNames[i]) == foundNames.end()) {
+			// Not found
+			printf("%s not found! Setting to default.\n",intNames[i].c_str());
 		}
 	}
 	// Booleans
 	for(unsigned int i=0; i<boolNames.size(); i++) {
-		if(boolSets.count(boolNames[i])==0) {
-			printf("ERROR: %s missing. Setting to default: %s\n",boolNames[i].c_str(),boolDefaults[i] ? "true" : "false");
-			intSets["screenID"] = intDefaults[i];
+		if(std::find(foundNames.begin(), foundNames.end(), boolNames[i]) == foundNames.end()) {
+			// Not found
+			printf("%s not found! Setting to default.\n",boolNames[i].c_str());
 		}
 	}
 }
-
-
 
 

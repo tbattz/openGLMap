@@ -28,7 +28,7 @@ GLfloat xval = 0.0f;
 
 
 /* Functions */
-GLFWwindow* initGLFW(Settings* settingsPt) {
+GLFWwindow* initGLFW(Settings* s) {
 	// Init GLFW
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
@@ -40,21 +40,21 @@ GLFWwindow* initGLFW(Settings* settingsPt) {
 	int count;
 	GLFWmonitor** monitors = glfwGetMonitors(&count);
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	if(settingsPt->boolSets["fullscreen"]) {
-		settingsPt->intSets["xRes"]  = mode->width;
-		settingsPt->intSets["yRes"] = mode->height;
+	if(s->fullscreen) {
+		s->xRes  = mode->width;
+		s->yRes = mode->height;
 	}
 	glfwWindowHint(GLFW_AUTO_ICONIFY, GL_FALSE);
 	GLFWwindow* window;
-	if(settingsPt->boolSets["fullscreen"]) {
-		window = glfwCreateWindow(settingsPt->intSets["xRes"],settingsPt->intSets["yRes"],"openGLMap",monitors[settingsPt->intSets["screenID"]-1],nullptr);
+	if(s->fullscreen) {
+		window = glfwCreateWindow(s->xRes,s->yRes,"openGLMap",monitors[s->screenID-1],nullptr);
 	} else {
-		window = glfwCreateWindow(settingsPt->intSets["xRes"],settingsPt->intSets["yRes"],"openGLMap",nullptr,nullptr);
+		window = glfwCreateWindow(s->xRes,s->yRes,"openGLMap",nullptr,nullptr);
 	}
 	glfwMakeContextCurrent(window);
 
 	// Set viewport size
-	glViewport(0,0,settingsPt->intSets["xRes"],settingsPt->intSets["yRes"]); // Origin is bottom left
+	glViewport(0,0,s->xRes,s->yRes); // Origin is bottom left
 
 	// Disable Cursor
 	//glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_DISABLED);
