@@ -29,8 +29,8 @@ ImageTile::ImageTile(glm::vec3 origin, glm::vec3 geoPosition, GLfloat fovX, GLfl
 	ecef2ENU(ecefPosition, ecefOrigin, origin);
 
 	/* Calculate Vertices */
-	GLfloat xdiff = geoPosition[2] * glm::tan(glm::radians(fovX/2.0));
-	GLfloat ydiff = geoPosition[2] * glm::tan(glm::radians(fovY/2.0));
+	GLfloat xdiff = geoPosition[2] * tan(glm::radians(fovX/2.0));
+	GLfloat ydiff = geoPosition[2] * tan(glm::radians(fovY/2.0));
 	vertices = {
 		// Positions			 	// Normals			// Texture Coords
 		-xdiff, 0.0f,	-ydiff, 	0.0f, 0.0f, 1.0f,	0.0f, 0.0f,
@@ -63,11 +63,11 @@ glm::vec3 ImageTile::geo2ECEF(glm::vec3 positionVector) {
 	GLfloat lat = glm::radians(positionVector[0]);
 	GLfloat lon = glm::radians(positionVector[1]);
 	//GLfloat alt = glm::radians(positionVector[2]);
-	GLfloat N = a / glm::sqrt(1-(e2*glm::pow(glm::sin(lat),2)));
+	GLfloat N = a / sqrt(1-(e2*glm::pow(sin(lat),2)));
 	GLfloat h = positionVector[2]; // Convert to m
-	GLfloat ex = (N+h)*glm::cos(lat)*glm::cos(lon); // m
-	GLfloat ey = (N+h)*glm::cos(lat)*glm::sin(lon); // m
-	GLfloat ez = (N*(1-e2) + h) * glm::sin(lat);    // m
+	GLfloat ex = (N+h)*cos(lat)*cos(lon); // m
+	GLfloat ey = (N+h)*cos(lat)*sin(lon); // m
+	GLfloat ez = (N*(1-e2) + h) * sin(lat);    // m
 
 	return glm::vec3(ex,ey,ez);
 }
@@ -77,9 +77,9 @@ void ImageTile::ecef2ENU(glm::vec3 ecefVector, glm::vec3 ecefOrigin, glm::vec3 o
 	GLfloat lat = glm::radians(origin[0]);
 	GLfloat lon = glm::radians(origin[1]);
 	//GLfloat alt = origin[2];
-	glm::mat3 A = glm::mat3(-glm::sin(lon),					glm::cos(lon),					0.0,
-							-glm::sin(lat)*glm::cos(lon),	-glm::sin(lat)*glm::sin(lon),	glm::cos(lat),
-							glm::cos(lat)*glm::cos(lon),	glm::cos(lat)*glm::sin(lon),	glm::sin(lat));
+	glm::mat3 A = glm::mat3(-sin(lon),					cos(lon),					0.0,
+							-sin(lat)*cos(lon),	-sin(lat)*sin(lon),	cos(lat),
+							cos(lat)*cos(lon),	cos(lat)*sin(lon),	sin(lat));
 	glm::vec3 B = glm::vec3(ecefVector[0]-ecefOrigin[0],ecefVector[1]-ecefOrigin[1],ecefVector[2]-ecefOrigin[2]);
 	this->position = B*A; // Flipped due to GLM ordering
 }

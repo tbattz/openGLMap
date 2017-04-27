@@ -16,6 +16,7 @@
 
 // openGL Includes
 #include "window.h"
+#include "settings.h"
 #include "shader.h"
 #include "model.h"
 #include "fonts.h"
@@ -60,6 +61,11 @@ GLfloat fileChecklast = 0.0f;
 
 
 int main(int argc, char* argv[]) {
+	/* ======================================================
+	 *                      Load Settings
+	   ====================================================== */
+	Settings settings("../Configs/currentConfig.txt");
+
 	/* ======================================================
 	 *                     Setup Window
 	   ====================================================== */

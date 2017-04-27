@@ -1,3 +1,6 @@
 [submodule "openGLPlotLive"]
 	path = openGLPlotLive
 	url = https://github.com/tbattz/openGLPlotLive.git
+[submodule "configureOpenGLMap"]
+	path = configureOpenGLMap
+	url = https://github.com/tbattz/configureOpenGLMap.git
