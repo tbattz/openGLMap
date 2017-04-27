@@ -17,6 +17,7 @@
 
 // openGL Includes
 #include "camera.h"
+#include "settings.h"
 
 
 /* Camera and Screen Setup */
@@ -39,7 +40,7 @@ extern GLfloat xval;
 
 
 /* Functions */
-GLFWwindow* initGLFW(GLfloat* screenWidthPt, GLfloat* screenHeightPt);
+GLFWwindow* initGLFW(Settings* settings);
 void initGLEW();
 void key_callback(GLFWwindow* window,int key,int scancode, int action, int mode);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);

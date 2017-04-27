@@ -17,8 +17,8 @@ GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
 
 // Screen Dimensions
-GLfloat screenHeight = 0;
-GLfloat screenWidth = 0;
+GLfloat screenHeight = 1080;
+GLfloat screenWidth = 1920;
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
@@ -28,7 +28,7 @@ GLfloat xval = 0.0f;
 
 
 /* Functions */
-GLFWwindow* initGLFW(GLfloat* screenWidthPt, GLfloat* screenHeightPt) {
+GLFWwindow* initGLFW(Settings* settingsPt) {
 	// Init GLFW
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
@@ -40,14 +40,21 @@ GLFWwindow* initGLFW(GLfloat* screenWidthPt, GLfloat* screenHeightPt) {
 	int count;
 	GLFWmonitor** monitors = glfwGetMonitors(&count);
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	(*screenHeightPt) = mode->height;
-	(*screenWidthPt)  = mode->width;
+	if(settingsPt->boolSets["fullscreen"]) {
+		settingsPt->intSets["xRes"]  = mode->width;
+		settingsPt->intSets["yRes"] = mode->height;
+	}
 	glfwWindowHint(GLFW_AUTO_ICONIFY, GL_FALSE);
-	GLFWwindow* window = glfwCreateWindow(screenWidth,screenHeight,"openGLMap",monitors[1],nullptr);
+	GLFWwindow* window;
+	if(settingsPt->boolSets["fullscreen"]) {
+		window = glfwCreateWindow(settingsPt->intSets["xRes"],settingsPt->intSets["yRes"],"openGLMap",monitors[settingsPt->intSets["screenID"]-1],nullptr);
+	} else {
+		window = glfwCreateWindow(settingsPt->intSets["xRes"],settingsPt->intSets["yRes"],"openGLMap",nullptr,nullptr);
+	}
 	glfwMakeContextCurrent(window);
 
 	// Set viewport size
-	glViewport(0,0,screenWidth,screenHeight); // Origin is bottom left
+	glViewport(0,0,settingsPt->intSets["xRes"],settingsPt->intSets["yRes"]); // Origin is bottom left
 
 	// Disable Cursor
 	//glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_DISABLED);

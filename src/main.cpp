@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 	 *                     Setup Window
 	   ====================================================== */
 	// Init GLFW
-	GLFWwindow* window = initGLFW(&screenWidth,&screenHeight);
+	GLFWwindow* window = initGLFW(&settings);
 
 	// Initialise GLEW - setup OpenGL pointers
 	initGLEW();
