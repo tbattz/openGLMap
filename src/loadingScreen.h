@@ -29,8 +29,10 @@
 
 
 // openGL Includes
-#include "../src/fonts.h"
+#include "settings.h"
+#include "fonts.h"
 
+/* Classes */
 class LoadingScreen {
 public:
 	// Define version number
@@ -38,65 +40,23 @@ public:
 
 	/* Data */
 	GLFWwindow* window;
-	float* screenWidthPt;
-	float* screenHeightPt;
+	int* screenWidthPt;
+	int* screenHeightPt;
 	std::vector<string> messages;
 	string headMessage = "Loading openGLMap Version " + OPENGLMAP_VERSION + "\n";
 	GLFont textFont;
 	Shader textShader = Shader("../Shaders/font.vs", "../Shaders/font.frag");
 
 
+	/* Constructor */
+	LoadingScreen(GLFWwindow* window, Settings* settings);
+
 	/* Functions */
-	// Initialiser
-	LoadingScreen(GLFWwindow* window, float* screenWidthPt, float* screenHeightPt) : textFont(FONTPATH) {
-		this->window = window;
-		this->screenWidthPt = screenWidthPt;
-		this->screenHeightPt = screenHeightPt;
+	void drawColourScreen();
+	void drawMessages();
+	void appendLoadingMessage(string newMessage);
 
-		// Setup Font Shader
-		this->textShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag", *screenWidthPt, *screenHeightPt);
-
-		// Draw Blank Screen
-		drawColourScreen();
-
-		// Draw Mesages
-		drawMessages();
-
-	}
-
-	void drawColourScreen() {
-		// Check Events
-		glfwPollEvents();
-		// Clear the colour buffer
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-
-	void drawMessages() {
-		// Redraw Blank Screen
-		drawColourScreen();
-
-		// Draws the head message and then the messages, the latter in reverse order
-		textFont.RenderText(&textShader,headMessage,0.0f,*screenHeightPt,1.0f,glm::vec3(0.0f, 1.0f, 0.0f),0);
-
-		// Print Messages in reverse order
-		string tempString = "";
-		for(int i = messages.size()-1; i > -1; i--) {
-			tempString += messages[i] + "\n";
-		}
-		textFont.RenderText(&textShader,tempString,0.0f,*screenHeightPt-47,0.5f,glm::vec3(1.0f, 1.0f, 1.0f),0);
-
-		// Swap buffers
-		glfwSwapBuffers(window);
-	}
-
-	void appendLoadingMessage(string newMessage) {
-		// Appends load screen message and redraws loading screen
-		messages.push_back(newMessage);
-		drawMessages();
-	}
 };
-
 
 
 #endif /* LOADINGSCREEN_H_ */

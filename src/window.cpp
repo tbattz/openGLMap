@@ -17,8 +17,8 @@ GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
 
 // Screen Dimensions
-GLfloat screenHeight = 1080;
-GLfloat screenWidth = 1920;
+//GLfloat screenHeight = 1080;
+//GLfloat screenWidth = 1920;
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;

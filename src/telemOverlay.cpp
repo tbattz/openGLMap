@@ -8,7 +8,7 @@
 #include "telemOverlay.h"
 
 /* Constructor */
-TelemOverlay::TelemOverlay(MavAircraft* mavAircraftPt,Shader* telemTextShaderPt,GLFont* telemFontPt, GLfloat screenWidth, GLfloat screenHeight) {
+TelemOverlay::TelemOverlay(MavAircraft* mavAircraftPt,Shader* telemTextShaderPt,GLFont* telemFontPt, Settings* settings) {
 	// Aircraft Information
 	this->mavAircraftPt = mavAircraftPt;
 	this->aircraftPosition = glm::vec3(mavAircraftPt->position);
@@ -16,8 +16,8 @@ TelemOverlay::TelemOverlay(MavAircraft* mavAircraftPt,Shader* telemTextShaderPt,
 	// Font Information
 	this->telemTextShaderPt = telemTextShaderPt;
 	this->telemFontPt = telemFontPt;
-	this->width = screenWidth;
-	this->height = screenHeight;
+	this->width = settings->xRes;
+	this->height = settings->yRes;
 
 	// Setup Buffers
 	createAndSetupBuffers();

@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
 	/* ======================================================
 	 *                  Create Loading Screen
 	   ====================================================== */
-	LoadingScreen loadingScreen(window, &screenWidth, &screenHeight);
+	LoadingScreen loadingScreen(window, &settings);
 
 	/* ======================================================
 	 *                  	  Shaders
@@ -117,7 +117,7 @@ int main(int argc, char* argv[]) {
 	   ====================================================== */
 	// Load Font Shader
 	loadingScreen.appendLoadingMessage("Loading textShader.");
-	Shader textShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",screenWidth,screenHeight);
+	Shader textShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",&settings);
 
 
 	// Load Telemetry Font
@@ -164,7 +164,7 @@ int main(int argc, char* argv[]) {
 	   ====================================================== */
 	// Create Telem Overlay
 	loadingScreen.appendLoadingMessage("Loading telemetry overlay.");
-	TelemOverlay telemOverlay(&mavAircraft,&textShader,&telemFont,screenWidth,screenHeight);
+	TelemOverlay telemOverlay(&mavAircraft,&textShader,&telemFont,&settings);
 
 	// Create Origin
 	glm::vec3 origin = glm::vec3(-37.958945f, 145.238349f, 0.0f);
@@ -287,6 +287,8 @@ int main(int argc, char* argv[]) {
         glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
 
 		// Transformation Matrices
+        int screenWidth = settings.xRes;
+        int screenHeight = settings.yRes;
 		glm::mat4 projection = glm::perspective(camera.Zoom, (float)screenWidth/(float)screenHeight,0.1f,10000.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));

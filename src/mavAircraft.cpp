@@ -202,10 +202,10 @@ glm::dvec3 MavAircraft::geo2ECEF(glm::dvec3 positionVector) {
 	GLdouble lat = positionVector[0] * pi /180.0;
 	GLdouble lon = positionVector[1] * pi /180.0;
 	GLdouble alt = positionVector[2];
-	GLdouble N = a / glm::sqrt(1-(e2*glm::sin(lat)*glm::sin(lat)));
-	GLdouble ex = (N+alt)*glm::cos(lat)*glm::cos(lon); // m
-	GLdouble ey = (N+alt)*glm::cos(lat)*glm::sin(lon); // m
-	GLdouble ez = (N*(1-e2) + alt) * glm::sin(lat);    // m
+	GLdouble N = a / sqrt(1-(e2*sin(lat)*sin(lat)));
+	GLdouble ex = (N+alt)*cos(lat)*cos(lon); // m
+	GLdouble ey = (N+alt)*cos(lat)*sin(lon); // m
+	GLdouble ez = (N*(1-e2) + alt) * sin(lat);    // m
 
 	return glm::dvec3(ex,ey,ez);
 }
@@ -214,9 +214,9 @@ glm::dvec3 MavAircraft::geo2ECEF(glm::dvec3 positionVector) {
 glm::dvec3 MavAircraft::ecef2NEU(glm::dvec3 ecefVector, glm::dvec3 ecefOrigin, glm::dvec3 origin) {
 	GLdouble lat = glm::radians(origin[0]);
 	GLdouble lon = glm::radians(origin[1]);
-	glm::dmat3 A = glm::dmat3(-glm::sin(lat)*glm::cos(lon),	-glm::sin(lat)*glm::sin(lon),	glm::cos(lat),
-							  -glm::sin(lon),				glm::cos(lon),					0.0,
-							  glm::cos(lat)*glm::cos(lon),	glm::cos(lat)*glm::sin(lon),	glm::sin(lat));
+	glm::dmat3 A = glm::dmat3(-sin(lat)*cos(lon),	-sin(lat)*sin(lon),	cos(lat),
+							  -sin(lon),			 cos(lon),			0.0,
+							  cos(lat)*cos(lon),	 cos(lat)*sin(lon),	sin(lat));
 	glm::dvec3 B = glm::dvec3(ecefVector[0]-ecefOrigin[0],ecefVector[1]-ecefOrigin[1],ecefVector[2]-ecefOrigin[2]);
 
 	return B*A; // Flipped due to GLM ordering

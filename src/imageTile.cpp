@@ -8,7 +8,6 @@
 #include "imageTile.h"
 
 
-
 /* ImageTile Functions */
 ImageTile::ImageTile(glm::vec3 origin, glm::vec3 geoPosition, GLfloat fovX, GLfloat fovY, float altOffset, string filename) {
 	/* Instantiates the Image Tile */

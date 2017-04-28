@@ -436,11 +436,13 @@ void GLFont::drawVCentreAligned(std::string text, GLfloat x, GLfloat y, GLfloat 
 }
 
 
-Shader setupFontShader(const GLchar* vertexShaderPath, const GLchar* fragmentShaderPath, GLuint screenWidth, GLuint screenHeight) {
+Shader setupFontShader(const GLchar* vertexShaderPath, const GLchar* fragmentShaderPath, Settings* settings) {
 	/* Compile and setup shader. */
 	Shader textShader("../Shaders/font.vs","../Shaders/font.frag");
 	textShader.Use();
-	glm::mat4 textProjection = glm::ortho(0.0f, (float)screenWidth, 0.0f, (float)screenHeight);
+	float screenWidth = settings->xRes;
+	float screenHeight = settings->yRes;
+	glm::mat4 textProjection = glm::ortho(0.0f, screenWidth, 0.0f, screenHeight);
 	glUniformMatrix4fv(glGetUniformLocation(textShader.Program, "textProjection"), 1, GL_FALSE, glm::value_ptr(textProjection));
 
 

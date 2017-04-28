@@ -18,6 +18,7 @@
 
 // Project Includes
 #include "shader.h"
+#include "settings.h"
 
 // Standard Includes
 #include <vector>
@@ -34,7 +35,7 @@ struct Character {
 
 
 /* Functions */
-Shader setupFontShader(const GLchar* vertexShaderPath, const GLchar* fragmentShaderPath, GLuint screenWidth, GLuint screenHeight);
+Shader setupFontShader(const GLchar* vertexShaderPath, const GLchar* fragmentShaderPath, Settings* settings);
 
 /* Classes */
 class GLFont {

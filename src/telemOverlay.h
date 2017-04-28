@@ -45,7 +45,7 @@ public:
 	GLfloat height;
 
 	/* Constructor */
-	TelemOverlay(MavAircraft* mavAircraftPt,Shader* telemTextShaderPt,GLFont* telemFontPt, GLfloat screenWidth, GLfloat screenHeight);
+	TelemOverlay(MavAircraft* mavAircraftPt,Shader* telemTextShaderPt,GLFont* telemFontPt, Settings* settings);
 
 	/* Functions */
 	void Draw(Shader shader, glm::mat4 projection, glm::mat4 view, Camera* cameraPt);
