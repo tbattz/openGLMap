@@ -16,10 +16,7 @@ bool toggleKeys[1024];
 GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
 
-// Screen Dimensions
-//GLfloat screenHeight = 1080;
-//GLfloat screenWidth = 1920;
-
+// Timing
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 

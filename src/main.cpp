@@ -119,7 +119,6 @@ int main(int argc, char* argv[]) {
 	loadingScreen.appendLoadingMessage("Loading textShader.");
 	Shader textShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",&settings);
 
-
 	// Load Telemetry Font
 	GLFont telemFont = GLFont(FONTPATH);
 
