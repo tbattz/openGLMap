@@ -59,6 +59,11 @@ void Settings::parseSetting(std::string line) {
 		} else {
 			printf("ERROR: Unknown Setting! %s: Line %i\n",lineSplit[0].c_str(),lineNum);
 		}
+	} else if (lineSplit.size() == 5) {
+		if (lineSplit[1]=="aircraft") {
+			// Look through aircraft
+			parseAircraftSettings(line, lineSplit);
+		}
 	} else {
 		printf("ERROR: Unknown Setting! %s: Line %i\n",lineSplit[0].c_str(),lineNum);
 	}
@@ -88,8 +93,19 @@ void Settings::parseBoolSettings(std::string line, std::vector<std::string> line
 	}
 }
 
+void Settings::parseAircraftSettings(std::string line, std::vector<std::string> lineSplit) {
+	// Parses aircraft settings into the class
+	std::string name = lineSplit[0];
+	std::string filepath = lineSplit[2];
+	std::string ipString = lineSplit[3];
+	int			port = stoi(lineSplit[4]);
+
+	aircraftConnection aircraftCon = {name,filepath,ipString,port};
+	aircraftConList.push_back(aircraftCon);
+}
+
 void Settings::checkMissingSettings() {
-	// Checks if any settings haven't been found, and sets them to their defaults
+	// Checks if any settings haven't been found, and sets them to their defaults. Only checks required settings.
 	// Ints
 	for(unsigned int i=0; i<intNames.size(); i++) {
 		if(std::find(foundNames.begin(), foundNames.end(), intNames[i]) == foundNames.end()) {

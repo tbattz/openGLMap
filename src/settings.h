@@ -21,6 +21,14 @@
 #include <boost/algorithm/string/split.hpp>
 
 
+/* Structures */
+struct aircraftConnection {
+	std::string name;
+	std::string filepath;
+	std::string ipString;
+	int			port;
+};
+
 /* Classes */
 class Settings {
 public:
@@ -35,6 +43,9 @@ public:
 	int yRes		= 1080;
 	bool fullscreen = false;
 
+	// Aircraft
+	std::vector<aircraftConnection> aircraftConList;
+
 	// Setting Names
 	std::vector<std::string> intNames = {"screenID","xRes","yRes"};
 	std::vector<std::string> boolNames = {"fullscreen"};
@@ -48,6 +59,7 @@ public:
 	void parseSetting(std::string line);
 	void parseIntSettings(std::string line, std::vector<std::string> lineSplit);
 	void parseBoolSettings(std::string line, std::vector<std::string> lineSplit);
+	void parseAircraftSettings(std::string line, std::vector<std::string> lineSplit);
 	void checkMissingSettings();
 
 
