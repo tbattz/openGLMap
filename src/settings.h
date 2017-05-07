@@ -20,6 +20,9 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 
+// GLM Mathematics
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 /* Structures */
 struct aircraftConnection {
@@ -28,6 +31,7 @@ struct aircraftConnection {
 	std::string ipString;
 	std::string	port;
 };
+
 
 /* Classes */
 class Settings {

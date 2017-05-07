@@ -14,6 +14,12 @@
 #include <chrono>
 #include <thread>
 
+// openGLPlotLive Includes
+#include "../openGLPlotLive/src/fonts.h"
+#include "../openGLPlotLive/src/line2d.h"
+#include "../openGLPlotLive/src/plot.h"
+#include "../openGLPlotLive/src/window.h"
+
 // openGL Includes
 #include "window.h"
 #include "settings.h"
@@ -27,12 +33,6 @@
 #include "skybox.h"
 #include "telemOverlay.h"
 #include "satTiles.h"
-
-// openGLPlotLive Includes
-#include "../openGLPlotLive/src/fonts.h"
-#include "../openGLPlotLive/src/line2d.h"
-#include "../openGLPlotLive/src/plot.h"
-#include "../openGLPlotLive/src/window.h"
 
 // GLM Mathematics
 #include <glm/glm.hpp>
@@ -112,6 +112,9 @@ int main(int argc, char* argv[]) {
 	loadingScreen.appendLoadingMessage("Loading simpleShader.");
 	Shader simpleShader("../Shaders/telemOverlay.vs","../Shaders/telemOverlay.frag");
 
+	/* Colours */
+	std::vector<glm::vec3> colorVec = {LC_BLUE, LC_RED, LC_GREEN, LC_YELLOW, LC_CYAN, LC_MAGENTA, LC_SILVER, LC_GRAY, LC_MAROON, LC_OLIVE, LC_DARKGREEN, LC_PURPLE, LC_TEAL, LC_NAVY};
+
 	/* ======================================================
 	 *                         Fonts
 	   ====================================================== */
@@ -161,7 +164,7 @@ int main(int argc, char* argv[]) {
 		threadList.push_back(threadPt);
 		// Create Telem Overlay
 		loadingScreen.appendLoadingMessage("Loading telemetry overlay: " + settings.aircraftConList[i].name);
-		telemOverlayList.push_back(TelemOverlay(&mavAircraftList[i],&textShader,&telemFont,&settings));
+		telemOverlayList.push_back(TelemOverlay(&mavAircraftList[i],&textShader,&telemFont,colorVec[i],&settings));
 	}
 
 

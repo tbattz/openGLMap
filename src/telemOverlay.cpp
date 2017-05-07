@@ -8,7 +8,7 @@
 #include "telemOverlay.h"
 
 /* Constructor */
-TelemOverlay::TelemOverlay(MavAircraft* mavAircraftPt,Shader* telemTextShaderPt,GLFont* telemFontPt, Settings* settings) {
+TelemOverlay::TelemOverlay(MavAircraft* mavAircraftPt,Shader* telemTextShaderPt,GLFont* telemFontPt, glm::vec3 color, Settings* settings) {
 	// Aircraft Information
 	this->mavAircraftPt = mavAircraftPt;
 	this->aircraftPosition = glm::vec3(mavAircraftPt->position);
@@ -18,6 +18,9 @@ TelemOverlay::TelemOverlay(MavAircraft* mavAircraftPt,Shader* telemTextShaderPt,
 	this->telemFontPt = telemFontPt;
 	this->width = settings->xRes;
 	this->height = settings->yRes;
+
+	// Colour
+	this->color = color;
 
 	// Setup Buffers
 	createAndSetupBuffers();
@@ -46,6 +49,7 @@ void TelemOverlay::Draw(Shader shader, glm::mat4 projection, glm::mat4 view, Cam
 	float scale = 0.3;
 	glUniform3fv(glGetUniformLocation(shader.Program,"ndc"),1,glm::value_ptr(ndc));
 	glUniform1f(glGetUniformLocation(shader.Program,"scale"),scale);
+	glUniform3f(glGetUniformLocation(shader.Program, "textColor"),color.x, color.y, color.z);
 
 	// Draw Overlay
 	if(ndc[2]<1) {

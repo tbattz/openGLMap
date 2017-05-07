@@ -44,8 +44,11 @@ public:
 	GLfloat width;
 	GLfloat height;
 
+	// Color
+	glm::vec3 color;
+
 	/* Constructor */
-	TelemOverlay(MavAircraft* mavAircraftPt,Shader* telemTextShaderPt,GLFont* telemFontPt, Settings* settings);
+	TelemOverlay(MavAircraft* mavAircraftPt,Shader* telemTextShaderPt,GLFont* telemFontPt, glm::vec3 color, Settings* settings);
 
 	/* Functions */
 	void Draw(Shader shader, glm::mat4 projection, glm::mat4 view, Camera* cameraPt);
