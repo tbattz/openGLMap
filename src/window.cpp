@@ -82,13 +82,20 @@ void key_callback(GLFWwindow* window,int key,int scancode, int action, int mode)
 	// Set key states
 	if(action == GLFW_PRESS) {
 		keys[key] = true;
+		int	camNum = 3;
 		// Set toggle states
 		toggleKeys[key] = !toggleKeys[key];
 		// Change View
 		if(key==GLFW_KEY_V) {
 			camera.view += 1;
-			if(camera.view > 3) {
+			if(camera.view > camNum) {
 				camera.view = 0;
+			}
+		}
+		if(key==GLFW_KEY_B) {
+			camera.view -=1;
+			if(camera.view < 0) {
+				camera.view = camNum;
 			}
 		}
 	} else if (action == GLFW_RELEASE) {

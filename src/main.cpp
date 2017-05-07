@@ -306,7 +306,7 @@ int main(int argc, char* argv[]) {
 		lightingShader.Use();
 
 		// Update View
-		camera.setupView(&mavAircraftList[0]);
+		camera.setupView(&mavAircraftList);
 
 		// Update View Position Uniform
 		GLint viewPosLoc = glGetUniformLocation(lightingShader.Program, "viewPos");

@@ -59,6 +59,8 @@ public:
 	GLfloat Zoom;
 	// Camera Number
 	int view = 0;
+	// Aircraft
+	int aircraftID = 0;
 
 	/* Constructors */
 	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), GLfloat yaw = YAW, GLfloat pitch = PITCH);
@@ -69,7 +71,7 @@ public:
 	void ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime);
 	void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
 	void ProcessMouseScroll(GLfloat yoffset);
-	void setupView(MavAircraft* mavAircraftPt);
+	void setupView(std::vector<MavAircraft>* mavAircraftList);
 
 private:
 	/* Functions */
