@@ -218,7 +218,7 @@ int main(int argc, char* argv[]) {
 	GLPL::Plot myplot(0.75, 0.0, 0.25, 0.25, &winDim);
 	// Create Line
 	// Position
-	MavAircraft* plotAircraftPt = &mavAircraftList[0];
+	/*MavAircraft* plotAircraftPt = &mavAircraftList[0];
 	GLPL::Line2DVecfVecGLMV3 pos1(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempPos),0);
 	pos1.colour = LC_BLUE;
 	GLPL::Line2DVecfVecGLMV3 pos2(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempPos),1);
@@ -245,10 +245,17 @@ int main(int argc, char* argv[]) {
 	GLPL::Line2DVecfVecGLMV3 vel2(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempVel),1);
 	vel2.colour = LC_GREEN;
 	GLPL::Line2DVecfVecGLMV3 vel3(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempVel),2);
-	vel3.colour = LC_GREEN;
+	vel3.colour = LC_GREEN;*/
 
 	// Path Plotting
-	GLPL::Line2DVecGLMV3 map(&(plotAircraftPt->positionHistory),1,0);
+	num = settings.aircraftConList.size();
+	std::vector<GLPL::Line2DVecGLMV3> mapList;
+	mapList.reserve(num);
+	for(unsigned int i=0; i<settings.aircraftConList.size(); i++) {
+		mapList.push_back(GLPL::Line2DVecGLMV3(&(mavAircraftList[i].positionHistory),1,0));
+		mapList[i].colour = colorVec[i];
+		myplot.axes.addLine(&mapList[i]);
+	}
 
 	// Add line to axes
 //	myplot.axes.addLine(&rpos1);
@@ -266,7 +273,6 @@ int main(int argc, char* argv[]) {
 //	myplot.axes.addLine(&vel1);
 //	myplot.axes.addLine(&vel2);
 //	myplot.axes.addLine(&vel3);
-	myplot.axes.addLine(&map);
 
 	myplot.axes.autoScaleRound = false;
 	//myplot.axes.maxXRange = 10.0;
@@ -359,7 +365,7 @@ int main(int argc, char* argv[]) {
 
 		// Draw Plot
 		GLPL::preLoopDraw(false,&winDim);
-		rpos1.updateInternalData();
+		/*rpos1.updateInternalData();
 		rpos2.updateInternalData();
 		rpos3.updateInternalData();
 		pos1.updateInternalData();
@@ -373,8 +379,10 @@ int main(int argc, char* argv[]) {
 		att3.updateInternalData();
 		vel1.updateInternalData();
 		vel2.updateInternalData();
-		vel3.updateInternalData();
-		map.updateInternalData();
+		vel3.updateInternalData();*/
+		for(unsigned int i=0; i<settings.aircraftConList.size(); i++) {
+			mapList[i].updateInternalData();
+		}
 		myplot.Draw(plot2dShader);
 
 
