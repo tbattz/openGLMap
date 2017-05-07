@@ -9,7 +9,7 @@
 
 
 /* Constructor */
-MavAircraft::MavAircraft(const GLchar* path, glm::dvec3 origin) : Model(path) {
+MavAircraft::MavAircraft(const GLchar* path, glm::dvec3 origin, string name) : Model(path) {
 
 	// Set Geoposition (temporary)
 	this->geoPosition = glm::dvec3(-37.958926f, 145.238343f, 0.0f);
@@ -17,6 +17,9 @@ MavAircraft::MavAircraft(const GLchar* path, glm::dvec3 origin) : Model(path) {
 
 	// Set Origin
 	this->origin = origin;
+
+	// Set name
+	this->name = name;
 
 	// Set Airspeed
 	airspeed = 0;
@@ -33,6 +36,7 @@ void MavAircraft::updatePositionAttitude() {
 		// Adjust delay if catching up to real messages
 		if (minDiff < 0) {
 			timeDelay += timeDelay;
+			printf("Incremented time delay. Current Delay: %f\n",timeDelay);
 			minDiff = timePositionHistory.back() - (currTime+timeStartMavlink-timeDelay);
 		}
 
@@ -74,8 +78,6 @@ void MavAircraft::Draw(Shader shader) {
 		// Draw Model
 		Model::Draw(shader);
 
-		// Unlock
-		//positionLock.unlock();
 	}
 }
 

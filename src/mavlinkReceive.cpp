@@ -38,9 +38,6 @@ void MavSocket::startSocket() {
 			mavlink_message_t msg;
 			mavlink_status_t status;
 
-			// Grab Lock
-			//mavAircraftPt->positionLock.lock();
-
 			// Parse buffer
 			if(this->mavAircraftPt!=nullptr) {
 				for(size_t i=0; i < len; i++) {
@@ -60,7 +57,7 @@ void MavSocket::startSocket() {
 									if(mavAircraftPt->firstPositionMessage) {
 										mavAircraftPt->timeStart = glfwGetTime();
 										mavAircraftPt->timeStartMavlink = packet.time_boot_ms/1000.0;
-										printf("Our Position Start Time: %f, Mavlink Start Time: %f\n",mavAircraftPt->timeStart,mavAircraftPt->timeStartMavlink);
+										printf("%s: Our Position Start Time: %f, Mavlink Start Time: %f\n",mavAircraftPt->name.c_str(),mavAircraftPt->timeStart,mavAircraftPt->timeStartMavlink);
 									}
 
 									// Store GeoPosition
@@ -111,7 +108,7 @@ void MavSocket::startSocket() {
 								if(mavAircraftPt->firstAttitudeMessage) {
 									(mavAircraftPt)->timeStartAtt = glfwGetTime();
 									(mavAircraftPt)->timeStartMavlinkAtt = packet.time_boot_ms/1000.0;
-									printf("Our Attitude Start Time: %f, Mavlink Start Time: %f\n",mavAircraftPt->timeStartAtt,mavAircraftPt->timeStartMavlinkAtt);
+									printf("%s: Our Attitude Start Time: %f, Mavlink Start Time: %f\n",mavAircraftPt->name.c_str(),mavAircraftPt->timeStartAtt,mavAircraftPt->timeStartMavlinkAtt);
 								}
 
 								// Store Rotations
@@ -148,8 +145,6 @@ void MavSocket::startSocket() {
 					}
 				}
 			}
-			// Release Lock
-			//mavAircraftPt->positionLock.unlock();
 
 		}
 		// Close Socket

@@ -370,7 +370,7 @@ void SatTileList::loadTile(vector<int> tileVec) {
 	string mypath = folderPath + std::to_string(zoom) + "-" + std::to_string(x) + "-" + std::to_string(y) + ".png";
 	tiles.push_back(SatTile(origin, x, y, zoom, mypath));
 	loadedTiles.push_back(tileVec);
-	printf("Loaded %s\n",mypath.c_str());
+	//printf("Loaded %s\n",mypath.c_str());
 }
 
 /* Update vector functions */
@@ -470,6 +470,7 @@ void SatTileList::loadRequiredTiles() {
 	threadLock.lock();
 	toLoadTiles = downloadedTiles;
 	threadLock.unlock();
+	unsigned int loadedCount = 0;
 	for(unsigned int i=0; i<toLoadTiles.size(); i++) {
 		// Load tiles if still required
 		if(loadAll || std::find(requiredTiles.begin(), requiredTiles.end(), toLoadTiles[i]) != requiredTiles.end()) {
@@ -477,9 +478,14 @@ void SatTileList::loadRequiredTiles() {
 			if(!(std::find(loadedTiles.begin(), loadedTiles.end(), toLoadTiles[i]) != loadedTiles.end())) {
 				// Load tile
 				loadTile(toLoadTiles[i]);
+				loadedCount += 1;
 			}
 		}
 	}
+	if (loadedCount>0) {
+		printf("Loaded %u Satellite Tiles.\n",loadedCount);
+	}
+
 }
 
 void SatTileList::getDownloadListTiles() {

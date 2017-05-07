@@ -138,14 +138,32 @@ int main(int argc, char* argv[]) {
 	/* ======================================================
 	 *                        Models
 	   ====================================================== */
-	// Load Models
-	loadingScreen.appendLoadingMessage("Loading mavAircraft.");
-	MavAircraft mavAircraft("../Models/X8/x8Fixed.obj",glm::vec3(-37.958926f, 145.238343f, 0.0f));
+	glm::vec3 worldOrigin = glm::vec3(-37.958926f, 145.238343f, 0.0f);
+	int num = settings.aircraftConList.size();
+	std::vector<MavAircraft> mavAircraftList;
+	mavAircraftList.reserve(num);
+	std::vector<MavSocket> mavSocketList;
+	mavSocketList.reserve(num);
+	std::vector<std::thread*> threadList;
+	threadList.reserve(num);
+	std::thread* threadPt = NULL;
+	std::vector<TelemOverlay> telemOverlayList;
+	telemOverlayList.reserve(num);
+	// Load Mavlink Aircraft
+	for(unsigned int i=0; i<settings.aircraftConList.size(); i++) {
+		loadingScreen.appendLoadingMessage("Loading mavAircraft: " + settings.aircraftConList[i].name);
+		// Load Models
+		mavAircraftList.push_back(MavAircraft(settings.aircraftConList[i].filepath.c_str(),worldOrigin,settings.aircraftConList[i].name));
+		// Create thread to receive Mavlink messages
+		loadingScreen.appendLoadingMessage("Creating mavSocket: " + settings.aircraftConList[i].name);
+		mavSocketList.push_back(MavSocket(settings.aircraftConList[i].ipString, settings.aircraftConList[i].port, &mavAircraftList[i]));
+		threadPt = new std::thread(&MavSocket::startSocket,&mavSocketList[i]);
+		threadList.push_back(threadPt);
+		// Create Telem Overlay
+		loadingScreen.appendLoadingMessage("Loading telemetry overlay: " + settings.aircraftConList[i].name);
+		telemOverlayList.push_back(TelemOverlay(&mavAircraftList[i],&textShader,&telemFont,&settings));
+	}
 
-	// Create thread to recieve Mavlink messages
-	loadingScreen.appendLoadingMessage("Creating mavSocket.");
-	MavSocket mavSocket("192.168.1.1", "14550",&mavAircraft);
-	std::thread mavThread(&MavSocket::startSocket,&mavSocket);
 
 	// Create Skybox
 	loadingScreen.appendLoadingMessage("Loading skybox.");
@@ -161,10 +179,6 @@ int main(int argc, char* argv[]) {
 	/* ======================================================
 	 *                      Overlays
 	   ====================================================== */
-	// Create Telem Overlay
-	loadingScreen.appendLoadingMessage("Loading telemetry overlay.");
-	TelemOverlay telemOverlay(&mavAircraft,&textShader,&telemFont,&settings);
-
 	// Create Origin
 	glm::vec3 origin = glm::vec3(-37.958945f, 145.238349f, 0.0f);
 
@@ -176,7 +190,7 @@ int main(int argc, char* argv[]) {
 	imageTileList.updateTileList("../ImageData",&loadingScreen);
 
 	// Create Satellite Tiles
-	SatTileList satTileList(origin,&mavAircraft);
+	SatTileList satTileList(origin,&mavAircraftList[0]);
 
 	/* ======================================================
 	 *                         Lights
@@ -201,36 +215,37 @@ int main(int argc, char* argv[]) {
 	GLPL::Plot myplot(0.75, 0.0, 0.25, 0.25, &winDim);
 	// Create Line
 	// Position
-	GLPL::Line2DVecfVecGLMV3 pos1(&(mavAircraft.tempTime),&(mavAircraft.tempPos),0);
+	MavAircraft* plotAircraftPt = &mavAircraftList[0];
+	GLPL::Line2DVecfVecGLMV3 pos1(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempPos),0);
 	pos1.colour = LC_BLUE;
-	GLPL::Line2DVecfVecGLMV3 pos2(&(mavAircraft.tempTime),&(mavAircraft.tempPos),1);
+	GLPL::Line2DVecfVecGLMV3 pos2(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempPos),1);
 	pos2.colour = LC_BLUE;
-	GLPL::Line2DVecfVecGLMV3 pos3(&(mavAircraft.tempTime),&(mavAircraft.tempPos),2);
+	GLPL::Line2DVecfVecGLMV3 pos3(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempPos),2);
 	pos3.colour = LC_BLUE;
 	// Real Position
-	GLPL::Line2DVecfVecGLMV3 rpos1(&(mavAircraft.timePositionHistory),&(mavAircraft.positionHistory),0,GL_POINTS);
-	GLPL::Line2DVecfVecGLMV3 rpos2(&(mavAircraft.timePositionHistory),&(mavAircraft.positionHistory),1,GL_POINTS);
-	GLPL::Line2DVecfVecGLMV3 rpos3(&(mavAircraft.timePositionHistory),&(mavAircraft.positionHistory),2,GL_POINTS);
+	GLPL::Line2DVecfVecGLMV3 rpos1(&(plotAircraftPt->timePositionHistory),&(plotAircraftPt->positionHistory),0,GL_POINTS);
+	GLPL::Line2DVecfVecGLMV3 rpos2(&(plotAircraftPt->timePositionHistory),&(plotAircraftPt->positionHistory),1,GL_POINTS);
+	GLPL::Line2DVecfVecGLMV3 rpos3(&(plotAircraftPt->timePositionHistory),&(plotAircraftPt->positionHistory),2,GL_POINTS);
 	// Attitude
-	GLPL::Line2DVecfVecGLMV3 att1(&(mavAircraft.tempTime2),&(mavAircraft.tempAtt),0);
+	GLPL::Line2DVecfVecGLMV3 att1(&(plotAircraftPt->tempTime2),&(plotAircraftPt->tempAtt),0);
 	att1.colour = LC_RED;
-	GLPL::Line2DVecfVecGLMV3 att2(&(mavAircraft.tempTime2),&(mavAircraft.tempAtt),1);
+	GLPL::Line2DVecfVecGLMV3 att2(&(plotAircraftPt->tempTime2),&(plotAircraftPt->tempAtt),1);
 	att2.colour = LC_RED;
-	GLPL::Line2DVecfVecGLMV3 att3(&(mavAircraft.tempTime2),&(mavAircraft.tempAtt),2);
+	GLPL::Line2DVecfVecGLMV3 att3(&(plotAircraftPt->tempTime2),&(plotAircraftPt->tempAtt),2);
 	att3.colour = LC_RED;
-	GLPL::Line2DVecfVecGLMV3 ratt1(&(mavAircraft.timeAttitudeHistory),&(mavAircraft.attitudeHistory),0,GL_POINTS);
-	GLPL::Line2DVecfVecGLMV3 ratt2(&(mavAircraft.timeAttitudeHistory),&(mavAircraft.attitudeHistory),1,GL_POINTS);
-	GLPL::Line2DVecfVecGLMV3 ratt3(&(mavAircraft.timeAttitudeHistory),&(mavAircraft.attitudeHistory),2,GL_POINTS);
+	GLPL::Line2DVecfVecGLMV3 ratt1(&(plotAircraftPt->timeAttitudeHistory),&(plotAircraftPt->attitudeHistory),0,GL_POINTS);
+	GLPL::Line2DVecfVecGLMV3 ratt2(&(plotAircraftPt->timeAttitudeHistory),&(plotAircraftPt->attitudeHistory),1,GL_POINTS);
+	GLPL::Line2DVecfVecGLMV3 ratt3(&(plotAircraftPt->timeAttitudeHistory),&(plotAircraftPt->attitudeHistory),2,GL_POINTS);
 	// Velocity
-	GLPL::Line2DVecfVecGLMV3 vel1(&(mavAircraft.tempTime),&(mavAircraft.tempVel),0);
+	GLPL::Line2DVecfVecGLMV3 vel1(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempVel),0);
 	vel1.colour = LC_GREEN;
-	GLPL::Line2DVecfVecGLMV3 vel2(&(mavAircraft.tempTime),&(mavAircraft.tempVel),1);
+	GLPL::Line2DVecfVecGLMV3 vel2(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempVel),1);
 	vel2.colour = LC_GREEN;
-	GLPL::Line2DVecfVecGLMV3 vel3(&(mavAircraft.tempTime),&(mavAircraft.tempVel),2);
+	GLPL::Line2DVecfVecGLMV3 vel3(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempVel),2);
 	vel3.colour = LC_GREEN;
 
 	// Path Plotting
-	GLPL::Line2DVecGLMV3 map(&(mavAircraft.positionHistory),1,0);
+	GLPL::Line2DVecGLMV3 map(&(plotAircraftPt->positionHistory),1,0);
 
 	// Add line to axes
 //	myplot.axes.addLine(&rpos1);
@@ -267,7 +282,9 @@ int main(int argc, char* argv[]) {
 		glfwPollEvents();
 
 		// Update Aircraft Position
-		mavAircraft.updatePositionAttitude();
+		for(unsigned int i=0; i<mavAircraftList.size(); i++) {
+			mavAircraftList[i].updatePositionAttitude();
+		}
 
 		// Do keyboard movement
 		do_movement();
@@ -279,7 +296,7 @@ int main(int argc, char* argv[]) {
 		lightingShader.Use();
 
 		// Update View
-		camera.setupView(&mavAircraft);
+		camera.setupView(&mavAircraftList[0]);
 
 		// Update View Position Uniform
 		GLint viewPosLoc = glGetUniformLocation(lightingShader.Program, "viewPos");
@@ -295,13 +312,18 @@ int main(int argc, char* argv[]) {
 
 
 		// Draw Model
-		mavAircraft.Draw(lightingShader);
+		for(unsigned int i=0; i<mavAircraftList.size(); i++) {
+			mavAircraftList[i].Draw(lightingShader);
+		}
+
 
 		// Draw telem overlay
 		simpleShader.Use();
 		glUniformMatrix4fv(glGetUniformLocation(simpleShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(simpleShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
-		telemOverlay.Draw(simpleShader, projection, view, &camera);
+		for(unsigned int i=0; i<telemOverlayList.size(); i++) {
+			telemOverlayList[i].Draw(simpleShader, projection, view, &camera);
+		}
 
 		// Draw tile(s)
 		tileShader.Use();
@@ -386,8 +408,11 @@ int main(int argc, char* argv[]) {
 
 	glfwTerminate();
 	// Close mavlink socket
-	mavSocket.closeSocket();
-	mavThread.join();
+	for(unsigned int i=0; i<mavSocketList.size(); i++) {
+		mavSocketList[i].closeSocket();
+		threadList[i]->join();
+	}
+
 	// Stop Satellite Tile Threads
 	satTileList.stopThreads();
 

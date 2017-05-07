@@ -98,7 +98,7 @@ void Settings::parseAircraftSettings(std::string line, std::vector<std::string> 
 	std::string name = lineSplit[0];
 	std::string filepath = lineSplit[2];
 	std::string ipString = lineSplit[3];
-	int			port = stoi(lineSplit[4]);
+	std::string	port = lineSplit[4];
 
 	aircraftConnection aircraftCon = {name,filepath,ipString,port};
 	aircraftConList.push_back(aircraftCon);

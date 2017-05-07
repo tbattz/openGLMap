@@ -25,6 +25,9 @@
 class MavAircraft : public Model {
 public:
 	/* Data */
+	// Name
+	std::string name;
+
 	// Position Information
 	glm::dvec3 			origin; 						// Lat (deg), Lon (deg), alt (km)ssddssdd
 	glm::dvec3 			geoPosition; 					// Lat (deg), Lon (deg), alt (km)
@@ -70,9 +73,6 @@ public:
 	float 				airspeed;						// (m/s)
 	float				heading;						// (rad)
 
-	// Lock
-	std::mutex positionLock;
-
 	// Temp stuff
 	vector<float> tempTime;
 	vector<float> tempTime2;
@@ -81,7 +81,7 @@ public:
 	vector<glm::dvec3> tempVel;
 
 	/* Constructor */
-	MavAircraft(const GLchar* path, glm::dvec3 origin);
+	MavAircraft(const GLchar* path, glm::dvec3 origin, string name);
 
 	/* Functions */
 	void updatePositionAttitude();

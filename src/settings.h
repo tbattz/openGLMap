@@ -26,7 +26,7 @@ struct aircraftConnection {
 	std::string name;
 	std::string filepath;
 	std::string ipString;
-	int			port;
+	std::string	port;
 };
 
 /* Classes */
