@@ -275,6 +275,7 @@ int main(int argc, char* argv[]) {
 //	myplot.axes.addLine(&vel3);
 
 	myplot.axes.autoScaleRound = false;
+	myplot.axes.equalAxes = true;
 	//myplot.axes.maxXRange = 10.0;
 
 	/* ======================================================
