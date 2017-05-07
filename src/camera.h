@@ -60,6 +60,7 @@ public:
 	// Camera Number
 	int view = 0;
 	// Aircraft
+	std::vector<MavAircraft>* mavAircraftListPt;
 	int aircraftID = 0;
 
 	/* Constructors */

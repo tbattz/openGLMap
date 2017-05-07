@@ -85,17 +85,32 @@ void key_callback(GLFWwindow* window,int key,int scancode, int action, int mode)
 		int	camNum = 3;
 		// Set toggle states
 		toggleKeys[key] = !toggleKeys[key];
-		// Change View
+		// Change View Forward
 		if(key==GLFW_KEY_V) {
 			camera.view += 1;
 			if(camera.view > camNum) {
 				camera.view = 0;
 			}
 		}
+		// Change View Backward
 		if(key==GLFW_KEY_B) {
 			camera.view -=1;
 			if(camera.view < 0) {
 				camera.view = camNum;
+			}
+		}
+		// Change Aircraft Forward
+		if(key==GLFW_KEY_Z) {
+			camera.aircraftID += 1;
+			if (camera.aircraftID > (int)camera.mavAircraftListPt->size() - 1) {
+				camera.aircraftID = 0;
+			}
+		}
+		// Change Aircraft Backward
+		if(key==GLFW_KEY_X) {
+			camera.aircraftID -= 1;
+			if (camera.aircraftID < 0) {
+				camera.aircraftID = camera.mavAircraftListPt->size() - 1 ;
 			}
 		}
 	} else if (action == GLFW_RELEASE) {

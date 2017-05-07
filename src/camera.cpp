@@ -86,6 +86,7 @@ void Camera::ProcessMouseScroll(GLfloat yoffset) {
 
 void Camera::setupView(std::vector<MavAircraft>* mavAircraftList) {
 	// Select Aircraft
+	mavAircraftListPt = mavAircraftList;
 	MavAircraft* mavAircraftPt = &(*mavAircraftList)[aircraftID];
 	// Sets up the selected view
 	switch(view) {
