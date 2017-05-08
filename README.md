@@ -135,20 +135,42 @@ Then import the project into Eclipse using File >> Import >> General >> Existing
 # Models
 Rudimentary models are stored [here](https://drive.google.com/drive/folders/0B8WtiKHIU0VNV3l5aDEzdHhkV3c?usp=sharing). They should be placed in a Models folder at the top directory, parallel to src and Debug.
 
+# Configuration
+A configuration file must be generated before the program will run. A python tool has been developed to generate this configuration file, which is a submodule of the current repository. To run the tool, from the root directory of openGLMap,
+```
+cd configureOpenGLMap/src
+python main.py
+```
+See the configureOpenGLMap README.md for detailed instructions: https://github.com/tbattz/configureOpenGLMap/blob/master/README.md
+
+After generation, check that a configuration file exists in Configs/currentConfig.txt.
+
 # Run Options
 * The -w argument draws using wireframe mode
 * The -f argument displays the current fps
 
-To run, navigate to the Debug directory and enter
-```
-./openGLMap
-```
-Move around in the world using the wasd keys.
 
 If taking an input mavlink feed from ardupilot/SITL, sim_vehicle.py must be run with -C --streamrate 5 and with --out=192.168.1.1:14550.
 ```
 sim_vehicle.sh --out=192.168.1.1:14550 -C --streamrate 5
 ```
+
+To run, navigate to the build directory and enter
+```
+./openGLMap
+```
+# Controls
+| Control					| Input		|
+| --------------------------------------------- |:-------------:|
+| Move Camera Position (free views only)	| WASD Keys	|
+| Move Camera Direction				| Move Mouse	|
+| Toggle Lock Camera Direction			| P Key		| 
+| Change Field of View (Zoom)			| Mouse Scroll	|
+| Change View (Forward/Back)			| V/B Keys	|
+| Track Another Aircraft (Onboard Free View)	| N Key		|
+| Change Aircraft (Forward/Backward)		| Z/X Keys	|
+| Toggle Help Information			| H Key		|
+
 
 # Making Changes with Eclipse
 These instructions are retained to give a manual method for building the project with Eclipse, in the case where cmake fails due to configuration issues.

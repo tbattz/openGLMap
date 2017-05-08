@@ -169,12 +169,6 @@ void do_movement() {
 	if(keys[GLFW_KEY_D]) {
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 	}
-	if(keys[GLFW_KEY_UP]) {
-		xval += 0.05f;
-	}
-	if(keys[GLFW_KEY_DOWN]) {
-		xval -= 0.05f;
-	}
 }
 
 
