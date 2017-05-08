@@ -99,6 +99,15 @@ void key_callback(GLFWwindow* window,int key,int scancode, int action, int mode)
 				camera.view = camNum;
 			}
 		}
+		// Change Other Tracking Aircraft
+		if(key==GLFW_KEY_N) {
+			camera.otherAircraftID += 1;
+			if(camera.otherAircraftID < 0) {
+				camera.otherAircraftID = (int)camera.mavAircraftListPt->size() - 1;
+			} else if (camera.otherAircraftID > (int)camera.mavAircraftListPt->size() - 1) {
+				camera.otherAircraftID = 0;
+			}
+		}
 		// Change Aircraft Forward
 		if(key==GLFW_KEY_Z) {
 			camera.aircraftID += 1;

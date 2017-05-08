@@ -113,6 +113,22 @@ void Camera::setupView(std::vector<MavAircraft>* mavAircraftList) {
 		case ONBOARD_FREE: {
 			// Offset position below aircraft
 			Position = glm::vec3(mavAircraftPt->position[0],mavAircraftPt->position[2]-0.5,mavAircraftPt->position[1]);
+			// Track other aircraft if required
+			if (otherAircraftID != aircraftID) {
+				MavAircraft* trackMavAircraftPt = &(*mavAircraftList)[otherAircraftID];
+				// Get vector
+				float diffx = trackMavAircraftPt->position[0] - Position.x;
+				float diffy = trackMavAircraftPt->position[2] - Position.y;
+				float diffz = trackMavAircraftPt->position[1] - Position.z;
+
+				// Update Angle
+				float dist = sqrt((diffx*diffx)+(diffz*diffz));
+				Pitch = atan2(diffy,dist)*180.0/M_PI;
+				Yaw = atan2(diffz,diffx)*180.0/M_PI;
+
+				// Update Camera Vectors
+				updateCameraVectors();
+			}
 			break;
 		}
 		case ONBOARD_CHASE: {

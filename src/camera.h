@@ -62,6 +62,7 @@ public:
 	// Aircraft
 	std::vector<MavAircraft>* mavAircraftListPt;
 	int aircraftID = 0;
+	int otherAircraftID = 0; // ID to track another aircraft
 
 	/* Constructors */
 	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), GLfloat yaw = YAW, GLfloat pitch = PITCH);

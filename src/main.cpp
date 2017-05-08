@@ -405,9 +405,11 @@ int main(int argc, char* argv[]) {
 			// Note: Text lines rendered from bottom to top
 			sh << "HELP MENU\n";
 			sh << "Toggle Help:              h\n";
-			sh << "Increment view:           v\n";
+			sh << "Increment view:           v-b\n";
+			sh << "Increment aircraft:       z-x\n";
+			sh << "Increment track view:     n\n";
 			sh << "Toggle Mouse Movement:  p\n";
-			(&helpFont)->RenderText(textShaderPt,sh.str(),0.0f,0.0f,1.0f,glm::vec3(1.0f, 1.0f, 0.0f),1);
+			(&helpFont)->RenderText(textShaderPt,sh.str(),0.0f,0.05f,1.0f,glm::vec3(1.0f, 1.0f, 0.0f),1);
 		}
 
 		// Swap buffers
