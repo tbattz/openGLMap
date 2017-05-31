@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
 	/* ======================================================
 	 *                        Models
 	   ====================================================== */
-	glm::vec3 worldOrigin = glm::vec3(-37.958926f, 145.238343f, 0.0f);
+	glm::vec3 worldOrigin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]);
 	int num = settings.aircraftConList.size();
 	std::vector<MavAircraft> mavAircraftList;
 	mavAircraftList.reserve(num);
@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
 	 *                      Overlays
 	   ====================================================== */
 	// Create Origin
-	glm::vec3 origin = glm::vec3(-37.958945f, 145.238349f, 0.0f);
+	glm::vec3 origin = worldOrigin;
 
 	// Create Tiles
 	GLfloat fovX = 48.3/2.0;

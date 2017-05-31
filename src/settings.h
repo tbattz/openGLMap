@@ -32,6 +32,19 @@ struct aircraftConnection {
 	std::string	port;
 };
 
+struct volumeDef {
+	std::string 					name;
+	std::vector<int>				rgb;
+	float 							alpha;
+	std::vector<std::vector<double>>pts;
+};
+
+struct originDef {
+	double		lat;
+	double		lon;
+	double		alt;
+	double		heading;
+};
 
 /* Classes */
 class Settings {
@@ -47,8 +60,15 @@ public:
 	int yRes		= 1080;
 	bool fullscreen = false;
 
+	// Origin
+	std::vector<double> origin = {-37.958926,145.238343,44,0};
+	bool				originSet = false;
+
 	// Aircraft
 	std::vector<aircraftConnection> aircraftConList;
+
+	// Volumes
+	std::vector<volumeDef> volumeList;
 
 	// Setting Names
 	std::vector<std::string> intNames = {"screenID","xRes","yRes"};
@@ -63,7 +83,9 @@ public:
 	void parseSetting(std::string line);
 	void parseIntSettings(std::string line, std::vector<std::string> lineSplit);
 	void parseBoolSettings(std::string line, std::vector<std::string> lineSplit);
+	void parseOriginSettings(std::string line, std::vector<std::string> lineSplit);
 	void parseAircraftSettings(std::string line, std::vector<std::string> lineSplit);
+	void parseVolumeSettings(std::string line, std::vector<std::string> lineSplit);
 	void checkMissingSettings();
 
 
