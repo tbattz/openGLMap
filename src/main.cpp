@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
 	/* ======================================================
 	 *                        Models
 	   ====================================================== */
-	glm::vec3 worldOrigin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]);
+	glm::vec3 worldOrigin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]/1000.0);
 	int num = settings.aircraftConList.size();
 	std::vector<MavAircraft> mavAircraftList;
 	mavAircraftList.reserve(num);

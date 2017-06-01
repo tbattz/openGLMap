@@ -61,7 +61,7 @@ public:
 	bool fullscreen = false;
 
 	// Origin
-	std::vector<double> origin = {-37.958926,145.238343,44,0};
+	std::vector<double> origin = {-37.958926,145.238343,44/1000.0,0};
 	bool				originSet = false;
 
 	// Aircraft
