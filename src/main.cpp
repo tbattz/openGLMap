@@ -33,6 +33,7 @@
 #include "skybox.h"
 #include "telemOverlay.h"
 #include "satTiles.h"
+#include "volumes.h"
 
 // GLM Mathematics
 #include <glm/glm.hpp>
@@ -111,6 +112,8 @@ int main(int argc, char* argv[]) {
 	Shader skyboxShader("../Shaders/skybox.vs","../Shaders/skybox.frag");
 	loadingScreen.appendLoadingMessage("Loading simpleShader.");
 	Shader simpleShader("../Shaders/telemOverlay.vs","../Shaders/telemOverlay.frag");
+	loadingScreen.appendLoadingMessage("Loading volumeShader.");
+	Shader volumeShader("../Shaders/volume.vs","../Shaders/volume.frag");
 
 	/* Colours */
 	std::vector<glm::vec3> colorVec = {LC_BLUE, LC_RED, LC_GREEN, LC_YELLOW, LC_CYAN, LC_MAGENTA, LC_SILVER, LC_GRAY, LC_MAROON, LC_OLIVE, LC_DARKGREEN, LC_PURPLE, LC_TEAL, LC_NAVY};
@@ -180,7 +183,7 @@ int main(int argc, char* argv[]) {
 	Skybox skybox(faces);
 
 	/* ======================================================
-	 *                      Overlays
+	 *                       Overlays
 	   ====================================================== */
 	// Create Origin
 	glm::vec3 origin = worldOrigin;
@@ -194,6 +197,17 @@ int main(int argc, char* argv[]) {
 
 	// Create Satellite Tiles
 	SatTileList satTileList(origin,&mavAircraftList[0]);
+
+	/* ======================================================
+	 *                        Volumes
+	   ====================================================== */
+	// Create Volumes
+	std::vector<Volume> volumeList;
+	for(unsigned int i=0; i<settings.volumeList.size(); i++) {
+		// Create Volume
+		volumeList.push_back(Volume(origin, settings.volumeList[i]));
+	}
+
 
 	/* ======================================================
 	 *                         Lights
@@ -355,6 +369,14 @@ int main(int argc, char* argv[]) {
 		imageTileList.Draw(tileShader);
 		// Draw Satellite tiles
 		satTileList.Draw(tileShader);
+
+		// Draw Volumes
+		volumeShader.Use();
+		glUniformMatrix4fv(glGetUniformLocation(volumeShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(volumeShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
+		for(unsigned int i=0; i<settings.volumeList.size(); i++) {
+			volumeList[i].Draw(volumeShader);
+		}
 
 		// Draw Skybox last
 		skyboxShader.Use();

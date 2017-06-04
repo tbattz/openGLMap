@@ -100,7 +100,7 @@ SatTile::SatTile(glm::vec3 origin, int x, int y, int zoom, string filename) {
 	// Tiles geo position is top left corner
 	// Image Texture coords start in bottom left, then rotated by 90 deg (for png)
 	vertices = {
-			// Positions				// Normals			// Texture Coords
+			// Positions								// Normals			// Texture Coords
 			 -xyOff[1][0],	0.0f, xyOff[1][1],			0.0f, 0.0f, 1.0f,	0.0f, 1.0f,
 			 -xyOff[2][0],	0.0f, xyOff[2][1],			0.0f, 0.0f, 1.0f,	1.0f, 1.0f,
 			 -xyOff[0][0],	0.0f, xyOff[0][1],			0.0f, 0.0f, 1.0f,	1.0f, 0.0f,
