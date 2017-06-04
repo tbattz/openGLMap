@@ -37,15 +37,19 @@ public:
 	std::vector<std::vector<double>> pts;
 	std::vector<GLfloat> 			 vertices;
 	std::vector<GLuint>				 indices;
+	std::vector<GLfloat>			 lineVerts;
 	// Buffers
 	GLuint VAO, VBO, EBO;
+	GLuint lVAO, lVBO;
 
 	/* Constructor */
 	Volume(glm::vec3 origin, volumeDef volDef);
 
 	/* Functions */
 	void Draw(Shader shader);
+	void DrawLines(Shader lineShader);
 	void createTriangles();
+	void createLines();
 	std::vector<std::vector<int>> triangulatePolygon();
 	bool linesCross(std::vector<double> pt1, std::vector<double> pt2, std::vector<double> pt3, std::vector<double> pt4);
 

@@ -114,6 +114,8 @@ int main(int argc, char* argv[]) {
 	Shader simpleShader("../Shaders/telemOverlay.vs","../Shaders/telemOverlay.frag");
 	loadingScreen.appendLoadingMessage("Loading volumeShader.");
 	Shader volumeShader("../Shaders/volume.vs","../Shaders/volume.frag");
+	loadingScreen.appendLoadingMessage("Loading lineShader.");
+	Shader lineShader("../Shaders/line.vs","../Shaders/line.frag");
 
 	/* Colours */
 	std::vector<glm::vec3> colorVec = {LC_BLUE, LC_RED, LC_GREEN, LC_YELLOW, LC_CYAN, LC_MAGENTA, LC_SILVER, LC_GRAY, LC_MAROON, LC_OLIVE, LC_DARKGREEN, LC_PURPLE, LC_TEAL, LC_NAVY};
@@ -377,6 +379,13 @@ int main(int argc, char* argv[]) {
 		for(unsigned int i=0; i<settings.volumeList.size(); i++) {
 			volumeList[i].Draw(volumeShader);
 		}
+		lineShader.Use();
+		glUniformMatrix4fv(glGetUniformLocation(lineShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(lineShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
+		for(unsigned int i=0; i<settings.volumeList.size(); i++) {
+			volumeList[i].DrawLines(lineShader);
+		}
+
 
 		// Draw Skybox last
 		skyboxShader.Use();

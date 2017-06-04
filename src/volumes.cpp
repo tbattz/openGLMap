@@ -53,6 +53,9 @@ Volume::Volume(glm::vec3 origin, volumeDef volDef) {
 	/* Create Triangles */
 	createTriangles();
 
+	/* Create Lines */
+	createLines();
+
 	/* Create and Setup Buffers */
 	createAndSetupBuffers();
 }
@@ -134,6 +137,34 @@ void Volume::createTriangles() {
 	indices.push_back(L);
 	indices.push_back(L+topLen);
 	indices.push_back(topLen);
+}
+
+void Volume::createLines() {
+	// Creates the lines that outline the polygon
+	// Top Polygon
+	for(unsigned int i=0; i<pts.size(); i++) {
+		lineVerts.push_back(vertices[3*i]);   		// x
+		lineVerts.push_back(vertices[3*i+1]); 		// z
+		lineVerts.push_back(vertices[3*i+2]); 		// y
+	}
+
+	// Bottom Polygon
+	int topLen = vertices.size()/2;
+	for(unsigned int i=0; i<pts.size(); i++) {
+		lineVerts.push_back(vertices[3*i+topLen]);  // x
+		lineVerts.push_back(vertices[3*i+1+topLen]);// z
+		lineVerts.push_back(vertices[3*i+2+topLen]);// y
+	}
+
+	// Side Lines
+	for(unsigned int i=0; i<pts.size(); i++) {
+		lineVerts.push_back(vertices[3*i]);   		// Top x
+		lineVerts.push_back(vertices[3*i+1]); 		// Top z
+		lineVerts.push_back(vertices[3*i+2]); 		// Top y
+		lineVerts.push_back(vertices[3*i+topLen]);  // Bottom x
+		lineVerts.push_back(vertices[3*i+1+topLen]);// Bottom z
+		lineVerts.push_back(vertices[3*i+2+topLen]);// Bottom y
+	}
 }
 
 bool Volume::linesCross(std::vector<double> pt1, std::vector<double> pt2, std::vector<double> pt3, std::vector<double> pt4) {
@@ -285,13 +316,26 @@ void Volume::Draw(Shader shader) {
 	// Set colour
 	glUniform3f(glGetUniformLocation(shader.Program,"color"),rgb[0],rgb[1],rgb[2]);
 
-	// Draw tile
+	// Draw Triangles
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES,indices.size(),GL_UNSIGNED_INT,0);
 	glBindVertexArray(0);
 }
 
+void Volume::DrawLines(Shader lineShader) {
+	// Draw Lines
+	glm::vec4 inColor = glm::vec4(0.0,0.0,0.0,1.0);
+	glUniform4fv(glGetUniformLocation(lineShader.Program,"inColor"),1,glm::value_ptr(inColor));
+	glBindVertexArray(lVAO);
+	glDrawArrays(GL_LINE_LOOP,0,pts.size());
+	glDrawArrays(GL_LINE_LOOP,pts.size(),pts.size());
+	glDrawArrays(GL_LINES,2*pts.size(),2*pts.size());
+	glBindVertexArray(0);
+}
+
+
 void Volume::createAndSetupBuffers() {
+	/* Triangles */
 	/* Create Buffers */
 	glGenVertexArrays(1,&VAO);
 	glGenBuffers(1,&VBO);
@@ -308,8 +352,23 @@ void Volume::createAndSetupBuffers() {
 	/* Position Attributes */
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(GLfloat),(GLvoid*)0);
+	glBindVertexArray(0); // Unbind lVAO
 
-	glBindVertexArray(0); // Unbind VAO
+	/* Lines */
+	/* Create Buffers */
+	glGenVertexArrays(1,&lVAO);
+	glGenBuffers(1,&lVBO);
+
+	/* Setup Buffers */
+	glBindVertexArray(lVAO);
+	glBindBuffer(GL_ARRAY_BUFFER,lVBO);
+	glBufferData(GL_ARRAY_BUFFER, lineVerts.size()*sizeof(GLfloat),&lineVerts[0],GL_STATIC_DRAW);
+
+	/* Position Attributes */
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+	glBindVertexArray(0); // Unbind lVAO
 }
 
 
