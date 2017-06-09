@@ -5,6 +5,8 @@
  *      Author: bcub3d-desktop
  */
 
+#include "math.h"
+
 #include "volumes.h"
 
 
@@ -128,7 +130,7 @@ void Volume::createTriangles() {
 		indices.push_back(i+1+topLen);
 	}
 	// Do the last square
-	int L = pts.size();
+	int L = pts.size()-1;
 	// Bottom Triangle
 	indices.push_back(L);
 	indices.push_back(0);
@@ -371,6 +373,61 @@ void Volume::createAndSetupBuffers() {
 	glBindVertexArray(0); // Unbind lVAO
 }
 
-
-
 /* Constructor */
+VolumeList::VolumeList(Camera* cameraPt) {
+	this->cameraPt = cameraPt;
+}
+
+void VolumeList::addVolume(Volume volume) {
+	// Adds volume to list
+	volumeList.push_back(volume);
+}
+
+void VolumeList::sortByMaxDistance() {
+	// Sorts the volumes based on the distance to the furthest point in each volume
+	// Get distances
+	std::vector<float> dist;
+	for(unsigned int i=0; i<volumeList.size(); i++) {
+		std::vector<float> ptDist;
+		for(unsigned int j=0; j<volumeList[i].vertices.size()/3.0; j++) {
+			float dist = sqrt(pow(cameraPt->Position[0]-volumeList[i].vertices[3*j],2)+
+							  pow(cameraPt->Position[1]-volumeList[i].vertices[3*j+1],2)+
+							  pow(cameraPt->Position[2]-volumeList[i].vertices[3*j+2],2));
+			ptDist.push_back(dist);
+		}
+		double max = *max_element(ptDist.begin(), ptDist.end());
+		dist.push_back(max);
+	}
+	// Sort by distance
+	std::vector<Volume> tempVol = volumeList;
+	volumeList = {};
+	while(tempVol.size()>0) {
+		int maxInd = 0;
+		for(unsigned int i=0; i<tempVol.size(); i++) {
+			if (dist[i]>dist[maxInd]) {
+				maxInd = i;
+			}
+		}
+		// Store maximum
+		volumeList.push_back(tempVol[maxInd]);
+		tempVol.erase(tempVol.begin()+maxInd);
+		dist.erase(dist.begin()+maxInd);
+	}
+}
+
+void VolumeList::Draw(Shader shader) {
+	// Draws all volumes
+	// Sort volumes by distance
+	sortByMaxDistance();
+	for(unsigned int i=0; i<volumeList.size(); i++) {
+		volumeList[i].Draw(shader);
+	}
+}
+
+void VolumeList::DrawLines(Shader shader) {
+	// Draws all volumes lines
+	for(unsigned int i=0; i<volumeList.size(); i++) {
+		volumeList[i].DrawLines(shader);
+	}
+}
+

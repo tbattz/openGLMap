@@ -204,10 +204,11 @@ int main(int argc, char* argv[]) {
 	 *                        Volumes
 	   ====================================================== */
 	// Create Volumes
-	std::vector<Volume> volumeList;
+	//std::vector<Volume> volumeList;
+	VolumeList volumeList(&camera);
 	for(unsigned int i=0; i<settings.volumeList.size(); i++) {
 		// Create Volume
-		volumeList.push_back(Volume(origin, settings.volumeList[i]));
+		volumeList.addVolume(Volume(origin, settings.volumeList[i]));
 	}
 
 
@@ -376,15 +377,17 @@ int main(int argc, char* argv[]) {
 		volumeShader.Use();
 		glUniformMatrix4fv(glGetUniformLocation(volumeShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(volumeShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
-		for(unsigned int i=0; i<settings.volumeList.size(); i++) {
+		/*for(unsigned int i=0; i<settings.volumeList.size(); i++) {
 			volumeList[i].Draw(volumeShader);
-		}
+		}*/
+		volumeList.Draw(volumeShader);
 		lineShader.Use();
 		glUniformMatrix4fv(glGetUniformLocation(lineShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(lineShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
-		for(unsigned int i=0; i<settings.volumeList.size(); i++) {
+		/*for(unsigned int i=0; i<settings.volumeList.size(); i++) {
 			volumeList[i].DrawLines(lineShader);
-		}
+		}*/
+		volumeList.DrawLines(lineShader);
 
 
 		// Draw Skybox last

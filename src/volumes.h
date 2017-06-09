@@ -24,6 +24,7 @@
 // Project Includes
 #include "settings.h"
 #include "shader.h"
+#include "camera.h"
 
 /* Classes */
 class Volume {
@@ -56,7 +57,22 @@ public:
 private:
 	/* Functions */
 	void createAndSetupBuffers();
+};
 
+class VolumeList {
+public:
+	/* Data */
+	Camera*					cameraPt;
+	std::vector<Volume>		volumeList;
+
+	 /* Constructor */
+	VolumeList(Camera* cameraPt);
+
+	/* Functions */
+	void addVolume(Volume volume);
+	void sortByMaxDistance();
+	void Draw(Shader shader);
+	void DrawLines(Shader lineShader);
 
 };
 
