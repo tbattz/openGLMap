@@ -44,7 +44,7 @@ echo "Installing mesa depencies."
 sudo apt-get -y install xorg-dev libglu1-mesa-dev
 echo "Building glfw."
 cd glfw
-cmake -G "Unix Makefiles"
+cmake -DGLFW_BUILD_DOCS=OFF -G "Unix Makefiles"
 make -j$NPROC
 sudo make install
 cd ..
