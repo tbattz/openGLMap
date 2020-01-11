@@ -66,11 +66,12 @@ void MavAircraft::updatePositionAttitude() {
 void MavAircraft::Draw(Shader shader) {
 	if(currentPosMsgIndex>1) {
 		// Do Translation and Rotation
-		glm::mat4 model;
+		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model,glm::vec3(position[0],position[2],position[1]));// Translate first due to GLM ordering, rotations opposite order
 		model = glm::rotate(model,(float)attitude[2],glm::vec3(0.0f,1.0f,0.0f)); // Rotate about y, yaw
 		model = glm::rotate(model,(float)attitude[1],glm::vec3(0.0f,0.0f,1.0f)); // Rotate about z, pitch
 		model = glm::rotate(model,(float)attitude[0],glm::vec3(1.0f,0.0f,0.0f)); // Rotate about x, roll
+
 
 		// Update Uniforms
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program,"model"),1,GL_FALSE,glm::value_ptr(model));

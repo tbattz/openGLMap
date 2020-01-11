@@ -86,7 +86,7 @@ void ImageTile::ecef2ENU(glm::vec3 ecefVector, glm::vec3 ecefOrigin, glm::vec3 o
 /* Draw Function */
 void ImageTile::Draw(Shader shader) {
 	// Calculate new position matrix
-	glm::mat4 tilePos;
+	glm::mat4 tilePos = glm::mat4(1.0f);
 	tilePos = glm::translate(tilePos, glm::vec3(position[0],altOffset,position[1]));
 	glUniformMatrix4fv(glGetUniformLocation(shader.Program,"model"),1,GL_FALSE,glm::value_ptr(tilePos));
 	glUniform1f(glGetUniformLocation(shader.Program,"brightness"),brightness);

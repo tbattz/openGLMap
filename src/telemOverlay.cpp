@@ -32,7 +32,7 @@ void TelemOverlay::Draw(Shader shader, glm::mat4 projection, glm::mat4 view, Cam
 	aircraftPosition = glm::vec3(mavAircraftPt->position);
 
 	// Calculate Normalised Device Coordinates
-	glm::mat4 model;
+	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model,glm::vec3(mavAircraftPt->position[0],mavAircraftPt->position[2],mavAircraftPt->position[1]));// Translate first due to GLM ordering, rotations opposite order
 	glm::vec4 clip = (projection * view * glm::vec4(mavAircraftPt->position[0],mavAircraftPt->position[2],mavAircraftPt->position[1],1.0f));
 	ndc = glm::vec3(clip[0]/clip[3],clip[1]/clip[3],clip[2]/clip[3]);

@@ -191,7 +191,7 @@ glm::dvec3 SatTile::ecef2ENU(glm::dvec3 ecefVector, glm::dvec3 ecefOrigin, glm::
 /* Draw Function */
 void SatTile::Draw(Shader shader) {
 	// Calculate new position matrix
-	glm::mat4 tilePos;
+	glm::mat4 tilePos = glm::mat4(1.0f);
 	tilePos = glm::translate(tilePos, glm::vec3(position[0],0.0f,position[1]));
 	glUniformMatrix4fv(glGetUniformLocation(shader.Program,"model"),1,GL_FALSE,glm::value_ptr(tilePos));
 	glUniform1f(glGetUniformLocation(shader.Program,"brightness"),brightness);
