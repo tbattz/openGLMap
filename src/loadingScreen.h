@@ -45,7 +45,7 @@ public:
 	std::vector<string> messages;
 	string headMessage = "Loading openGLMap Version " + OPENGLMAP_VERSION + "\n";
 	GLFont textFont;
-	Shader textShader = Shader("../Shaders/font.vs", "../Shaders/font.frag");
+	Shader* textShader;
 
 
 	/* Constructor */

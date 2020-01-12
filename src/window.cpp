@@ -38,7 +38,7 @@ GLFWwindow* initGLFW(Settings* s) {
 	GLFWmonitor** monitors = glfwGetMonitors(&count);
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 	if(s->fullscreen) {
-		s->xRes  = mode->width;
+		s->xRes = mode->width;
 		s->yRes = mode->height;
 	}
 	glfwWindowHint(GLFW_AUTO_ICONIFY, GL_FALSE);

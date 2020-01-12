@@ -38,14 +38,14 @@ void LoadingScreen::drawMessages() {
 	drawColourScreen();
 
 	// Draws the head message and then the messages, the latter in reverse order
-	textFont.RenderText(&textShader,headMessage,0.0f,*screenHeightPt,1.0f,glm::vec3(0.0f, 1.0f, 0.0f),0);
+	textFont.RenderText(textShader,headMessage,0.0f,*screenHeightPt,1.0f,glm::vec3(0.0f, 1.0f, 0.0f),0);
 
 	// Print Messages in reverse order
 	string tempString = "";
 	for(int i = messages.size()-1; i > -1; i--) {
 		tempString += messages[i] + "\n";
 	}
-	textFont.RenderText(&textShader,tempString,0.0f,*screenHeightPt-47,0.5f,glm::vec3(1.0f, 1.0f, 1.0f),0);
+	textFont.RenderText(textShader,tempString,0.0f,*screenHeightPt-47,0.5f,glm::vec3(1.0f, 1.0f, 1.0f),0);
 
 	// Swap buffers
 	glfwSwapBuffers(window);

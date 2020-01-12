@@ -35,7 +35,7 @@ struct Character {
 
 
 /* Functions */
-Shader setupFontShader(const GLchar* vertexShaderPath, const GLchar* fragmentShaderPath, Settings* settings);
+Shader* setupFontShader(const GLchar* vertexShaderPath, const GLchar* fragmentShaderPath, Settings* settings);
 
 /* Classes */
 class GLFont {

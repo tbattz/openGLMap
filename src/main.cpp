@@ -47,6 +47,9 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+// Simulation Engine
+#include "engine/RenderEngine.h"
+
 using std::vector;
 
 // Define Fonts based on OS
@@ -67,14 +70,10 @@ int main(int argc, char* argv[]) {
 	   ====================================================== */
 	Settings settings("../Configs/currentConfig.txt");
 
-	/* ======================================================
-	 *                     Setup Window
-	   ====================================================== */
-	// Init GLFW
-	GLFWwindow* window = initGLFW(&settings);
-
-	// Initialise GLEW - setup OpenGL pointers
-	initGLEW();
+    /* ======================================================
+     *                Create Simulation RenderEngine
+       ====================================================== */
+    RenderEngine renderEngine(&settings);
 
 	/* ======================================================
 	 *                  Command Line Arguments
@@ -91,56 +90,10 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Wireframe command line argument
-	if(wireFrameOn) {
-		glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-	}
+    renderEngine.setWireFrameBool(wireFrameOn);
 
-	/* ======================================================
-	 *                  Create Loading Screen
-	   ====================================================== */
-	LoadingScreen loadingScreen(window, &settings);
-
-	/* ======================================================
-	 *                  	  Shaders
-	   ====================================================== */
-	// Setup and compile shaders
-	loadingScreen.appendLoadingMessage("Loading lightingShader.");
-	Shader lightingShader("../Shaders/multiple_lighting.vs","../Shaders/multiple_lighting.frag");
-	loadingScreen.appendLoadingMessage("Loading tileShader.");
-	Shader tileShader("../Shaders/tileImage.vs","../Shaders/tileImage.frag");
-	loadingScreen.appendLoadingMessage("Loading skyboxShader.");
-	Shader skyboxShader("../Shaders/skybox.vs","../Shaders/skybox.frag");
-	loadingScreen.appendLoadingMessage("Loading simpleShader.");
-	Shader simpleShader("../Shaders/telemOverlay.vs","../Shaders/telemOverlay.frag");
-	loadingScreen.appendLoadingMessage("Loading volumeShader.");
-	Shader volumeShader("../Shaders/volume.vs","../Shaders/volume.frag");
-	loadingScreen.appendLoadingMessage("Loading lineShader.");
-	Shader lineShader("../Shaders/line.vs","../Shaders/line.frag");
-
-	/* Colours */
-	std::vector<glm::vec3> colorVec = {LC_BLUE, LC_RED, LC_GREEN, LC_YELLOW, LC_CYAN, LC_MAGENTA, LC_SILVER, LC_GRAY, LC_MAROON, LC_OLIVE, LC_DARKGREEN, LC_PURPLE, LC_TEAL, LC_NAVY};
-
-	/* ======================================================
-	 *                         Fonts
-	   ====================================================== */
-	// Load Font Shader
-	loadingScreen.appendLoadingMessage("Loading textShader.");
-	Shader textShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag",&settings);
-
-	// Load Telemetry Font
-	GLFont telemFont = GLFont(FONTPATH);
-
-	// Load Font
-	GLFont* fpsFontPt;
-
-	Shader* textShaderPt = &textShader;
-	if(fpsOn) {
-		fpsFontPt = new GLFont(FONTPATH);
-	}
-
-	// Help Font
-	loadingScreen.appendLoadingMessage("Loading fonts.");
-	GLFont helpFont = GLFont(FONTPATH);
+	// Fps command line argument
+	renderEngine.setFpsOn(fpsOn);
 
 
 	/* ======================================================
@@ -159,22 +112,22 @@ int main(int argc, char* argv[]) {
 	telemOverlayList.reserve(num);
 	// Load Mavlink Aircraft
 	for(unsigned int i=0; i<settings.aircraftConList.size(); i++) {
-		loadingScreen.appendLoadingMessage("Loading mavAircraft: " + settings.aircraftConList[i].name);
+        renderEngine.loadingScreen->appendLoadingMessage("Loading mavAircraft: " + settings.aircraftConList[i].name);
 		// Load Models
 		mavAircraftList.push_back(MavAircraft(settings.aircraftConList[i].filepath.c_str(),worldOrigin,settings.aircraftConList[i].name));
 		// Create thread to receive Mavlink messages
-		loadingScreen.appendLoadingMessage("Creating mavSocket: " + settings.aircraftConList[i].name);
+        renderEngine.loadingScreen->appendLoadingMessage("Creating mavSocket: " + settings.aircraftConList[i].name);
 		mavSocketList.push_back(MavSocket(settings.aircraftConList[i].ipString, settings.aircraftConList[i].port, &mavAircraftList[i]));
 		threadPt = new std::thread(&MavSocket::startSocket,&mavSocketList[i]);
 		threadList.push_back(threadPt);
 		// Create Telem Overlay
-		loadingScreen.appendLoadingMessage("Loading telemetry overlay: " + settings.aircraftConList[i].name);
-		telemOverlayList.push_back(TelemOverlay(&mavAircraftList[i],&textShader,&telemFont,colorVec[i],&settings));
+        renderEngine.loadingScreen->appendLoadingMessage("Loading telemetry overlay: " + settings.aircraftConList[i].name);
+		telemOverlayList.push_back(TelemOverlay(&mavAircraftList[i],renderEngine.textShader,renderEngine.telemFont,renderEngine.colorVec[i],&settings));
 	}
 
 
 	// Create Skybox
-	loadingScreen.appendLoadingMessage("Loading skybox.");
+    renderEngine.loadingScreen->appendLoadingMessage("Loading skybox.");
 	vector<const GLchar*> faces;
 	faces.push_back("../Models/skybox/right.png");
 	faces.push_back("../Models/skybox/left.png");
@@ -193,9 +146,9 @@ int main(int argc, char* argv[]) {
 	// Create Tiles
 	GLfloat fovX = 48.3/2.0;
 	GLfloat fovY = 36.8/2.0;
-	TileList imageTileList(origin, fovX, fovY, window);
+	TileList imageTileList(origin, fovX, fovY, renderEngine.window);
 	// Get Tile Information
-	imageTileList.updateTileList("../ImageData",&loadingScreen);
+	imageTileList.updateTileList("../ImageData",renderEngine.loadingScreen);
 
 	// Create Satellite Tiles
 	SatTileList satTileList(origin,&mavAircraftList[0]);
@@ -215,20 +168,20 @@ int main(int argc, char* argv[]) {
 	/* ======================================================
 	 *                         Lights
 	   ====================================================== */
-	loadingScreen.appendLoadingMessage("Loading Lights.");
+    renderEngine.loadingScreen->appendLoadingMessage("Loading Lights.");
 	// Load Lights
-	DirectionalLight myDirLight({-0.2,-1.0,-0.3}, {0.5,0.5,0.5}, {0.4,0.4,0.4}, {0.5,0.5,0.5}, &lightingShader,0);
+	DirectionalLight myDirLight({-0.2,-1.0,-0.3}, {0.5,0.5,0.5}, {0.4,0.4,0.4}, {0.5,0.5,0.5}, renderEngine.lightingShader,0);
 
 	// Set number of lights
-	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nDirLight"),1);
-	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nPointLight"),0);
-	glUniform1i(glGetUniformLocation(lightingShader.Program,"numLights.nSpotLight"),0);
+	glUniform1i(glGetUniformLocation(renderEngine.lightingShader->Program,"numLights.nDirLight"),1);
+	glUniform1i(glGetUniformLocation(renderEngine.lightingShader->Program,"numLights.nPointLight"),0);
+	glUniform1i(glGetUniformLocation(renderEngine.lightingShader->Program,"numLights.nSpotLight"),0);
 
 	/* ======================================================
 	 *                     Plotting Data
 	   ====================================================== */
 	// Create Window Dimensions Class
-	GLPL::WinDimensions winDim(window);
+	GLPL::WinDimensions winDim(renderEngine.window);
 	// Setup Shader
 	GLPL::Shader plot2dShader("../openGLPlotLive/Shaders/plot2d.vs","../openGLPlotLive/Shaders/plot2d.frag");
 	// Create Plot
@@ -270,7 +223,7 @@ int main(int argc, char* argv[]) {
 	mapList.reserve(num);
 	for(unsigned int i=0; i<settings.aircraftConList.size(); i++) {
 		mapList.push_back(GLPL::Line2DVecGLMV3(&(mavAircraftList[i].positionHistory),1,0));
-		mapList[i].colour = colorVec[i];
+		mapList[i].colour = renderEngine.colorVec[i];
 		myplot.axes.addLine(&mapList[i]);
 	}
 
@@ -299,7 +252,7 @@ int main(int argc, char* argv[]) {
 	 *                     Drawing Loop
 	   ====================================================== */
 	// Game Loop
-	while(!glfwWindowShouldClose(window)) {
+	while(!glfwWindowShouldClose(renderEngine.window)) {
 		// Set Frame Time
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
@@ -320,13 +273,13 @@ int main(int argc, char* argv[]) {
 		glClearColor(0.64f, 0.64f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		lightingShader.Use();
+        renderEngine.lightingShader->Use();
 
 		// Update View
 		camera.setupView(&mavAircraftList);
 
 		// Update View Position Uniform
-		GLint viewPosLoc = glGetUniformLocation(lightingShader.Program, "viewPos");
+		GLint viewPosLoc = glGetUniformLocation(renderEngine.lightingShader->Program, "viewPos");
         glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
 
 		// Transformation Matrices
@@ -334,28 +287,28 @@ int main(int argc, char* argv[]) {
         int screenHeight = settings.yRes;
 		glm::mat4 projection = glm::perspective(camera.Zoom, (float)screenWidth/(float)screenHeight,0.1f,10000.0f);
 		glm::mat4 view = camera.GetViewMatrix();
-		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
-		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(renderEngine.lightingShader->Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(renderEngine.lightingShader->Program,"view"),1,GL_FALSE,glm::value_ptr(view));
 
 
 		// Draw Model
 		for(unsigned int i=0; i<mavAircraftList.size(); i++) {
-			mavAircraftList[i].Draw(lightingShader);
+			mavAircraftList[i].Draw(*(renderEngine.lightingShader));
 		}
 
 
 		// Draw telem overlay
-		simpleShader.Use();
-		glUniformMatrix4fv(glGetUniformLocation(simpleShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
-		glUniformMatrix4fv(glGetUniformLocation(simpleShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
+		renderEngine.simpleShader->Use();
+		glUniformMatrix4fv(glGetUniformLocation(renderEngine.simpleShader->Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(renderEngine.simpleShader->Program,"view"),1,GL_FALSE,glm::value_ptr(view));
 		for(unsigned int i=0; i<telemOverlayList.size(); i++) {
-			telemOverlayList[i].Draw(simpleShader, projection, view, &camera);
+			telemOverlayList[i].Draw(*(renderEngine.simpleShader), projection, view, &camera);
 		}
 
 		// Draw tile(s)
-		tileShader.Use();
-		glUniformMatrix4fv(glGetUniformLocation(tileShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
-		glUniformMatrix4fv(glGetUniformLocation(tileShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
+		renderEngine.tileShader->Use();
+		glUniformMatrix4fv(glGetUniformLocation(renderEngine.tileShader->Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(renderEngine.tileShader->Program,"view"),1,GL_FALSE,glm::value_ptr(view));
 		// Check for new files
 		if ((currentFrame - fileChecklast) > 0.3) {
 			// Update image file list
@@ -369,14 +322,14 @@ int main(int argc, char* argv[]) {
 
 
 		// Draw tiles
-		imageTileList.Draw(tileShader);
+		imageTileList.Draw(*(renderEngine.tileShader));
 		// Draw Satellite tiles
-		satTileList.Draw(tileShader);
+		satTileList.Draw(*(renderEngine.tileShader));
 
 		// Draw Volumes
-		volumeShader.Use();
-		glUniformMatrix4fv(glGetUniformLocation(volumeShader.Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
-		glUniformMatrix4fv(glGetUniformLocation(volumeShader.Program,"view"),1,GL_FALSE,glm::value_ptr(view));
+		renderEngine.volumeShader->Use();
+		glUniformMatrix4fv(glGetUniformLocation(renderEngine.volumeShader->Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(renderEngine.volumeShader->Program,"view"),1,GL_FALSE,glm::value_ptr(view));
 		/*for(unsigned int i=0; i<settings.volumeList.size(); i++) {
 			volumeList[i].Draw(volumeShader);
 		}*/
@@ -391,12 +344,12 @@ int main(int argc, char* argv[]) {
 
 
 		// Draw Skybox last
-		skyboxShader.Use();
+		renderEngine.skyboxShader->Use();
 		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));	// Remove any translation component of the view matrix
-		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		glUniform1i(glGetUniformLocation(skyboxShader.Program, "skybox"), 0);
-		skybox.Draw(skyboxShader);
+		glUniformMatrix4fv(glGetUniformLocation(renderEngine.skyboxShader->Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(renderEngine.skyboxShader->Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniform1i(glGetUniformLocation(renderEngine.skyboxShader->Program, "skybox"), 0);
+		skybox.Draw(*(renderEngine.skyboxShader));
 
 		// Draw Plot
 		GLPL::preLoopDraw(false,&winDim);
@@ -428,7 +381,7 @@ int main(int argc, char* argv[]) {
 		if(fpsOn) {
 			std::stringstream ss;
 			ss << int(1.0f/deltaTime) << " fps";
-			fpsFontPt->RenderText(textShaderPt,ss.str(),screenWidth-150.0f,screenHeight-50.0f,1.0f,glm::vec3(0.0f, 1.0f, 0.0f),0);
+			renderEngine.fpsFontPt->RenderText(renderEngine.textShader,ss.str(),screenWidth-150.0f,screenHeight-50.0f,1.0f,glm::vec3(0.0f, 1.0f, 0.0f),0);
 			//std::cout << (1.0f/deltaTime) << "fps" << "\r";
 		}
 
@@ -443,11 +396,11 @@ int main(int argc, char* argv[]) {
 			sh << "Increment aircraft:       z-x\n";
 			sh << "Increment track view:     n\n";
 			sh << "Toggle Mouse Movement:  p\n";
-			(&helpFont)->RenderText(textShaderPt,sh.str(),0.0f,0.05f,1.0f,glm::vec3(1.0f, 1.0f, 0.0f),1);
+			renderEngine.helpFont->RenderText(renderEngine.textShader,sh.str(),0.0f,0.05f,1.0f,glm::vec3(1.0f, 1.0f, 0.0f),1);
 		}
 
 		// Swap buffers
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(renderEngine.window);
 
 		// Sleep to lower framerate
 		//std::this_thread::sleep_for(std::chrono::milliseconds(int(1000.0/5.0)));

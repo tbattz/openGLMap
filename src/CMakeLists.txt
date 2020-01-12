@@ -20,7 +20,7 @@ elseif(UNIX)
 endif(WIN32)
 
 # Add Sources
-file(GLOB SOURCES "*.cpp" "*.h")
+file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
 
 if(WIN32)
 	link_directories(${CMAKE_SOURCE_DIR}/../Includes)
