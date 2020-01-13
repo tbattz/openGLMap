@@ -114,7 +114,10 @@ int main(int argc, char* argv[]) {
 	for(unsigned int i=0; i<settings.aircraftConList.size(); i++) {
         renderEngine.loadingScreen->appendLoadingMessage("Loading mavAircraft: " + settings.aircraftConList[i].name);
 		// Load Models
-		mavAircraftList.push_back(MavAircraft(settings.aircraftConList[i].filepath.c_str(),worldOrigin,settings.aircraftConList[i].name));
+		MavAircraft mavAircraft = MavAircraft(settings.aircraftConList[i].filepath.c_str(),worldOrigin,settings.aircraftConList[i].name);
+		mavAircraftList.push_back(mavAircraft);
+        MavAircraft* mavAircraftPt = &(mavAircraftList.back()); // TODO - FIX - May invalidate the pointer if the vector size changes, causing reallocation
+        renderEngine.registerSixDofModel(mavAircraftPt);
 		// Create thread to receive Mavlink messages
         renderEngine.loadingScreen->appendLoadingMessage("Creating mavSocket: " + settings.aircraftConList[i].name);
 		mavSocketList.push_back(MavSocket(settings.aircraftConList[i].ipString, settings.aircraftConList[i].port, &mavAircraftList[i]));
@@ -269,18 +272,8 @@ int main(int argc, char* argv[]) {
 		// Do keyboard movement
 		do_movement();
 
-		// Clear the colour buffer
-		glClearColor(0.64f, 0.64f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        renderEngine.lightingShader->Use();
-
 		// Update View
 		camera.setupView(&mavAircraftList);
-
-		// Update View Position Uniform
-		GLint viewPosLoc = glGetUniformLocation(renderEngine.lightingShader->Program, "viewPos");
-        glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
 
 		// Transformation Matrices
         int screenWidth = settings.xRes;
@@ -291,10 +284,8 @@ int main(int argc, char* argv[]) {
 		glUniformMatrix4fv(glGetUniformLocation(renderEngine.lightingShader->Program,"view"),1,GL_FALSE,glm::value_ptr(view));
 
 
-		// Draw Model
-		for(unsigned int i=0; i<mavAircraftList.size(); i++) {
-			mavAircraftList[i].Draw(*(renderEngine.lightingShader));
-		}
+		// Run Render Loop
+		renderEngine.DrawFrame(camera);
 
 
 		// Draw telem overlay

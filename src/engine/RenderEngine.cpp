@@ -77,3 +77,43 @@ void RenderEngine::setFpsOn(bool fpsOn) {
         fpsFontPt = new GLFont(FONTPATH);
     }
 }
+
+void RenderEngine::registerSixDofModel(SixDofModel* sixDofModel) {
+    int newId = this->lastId + 1;
+    this->sixDofModels.insert({newId, sixDofModel});
+    sixDofModel->setId(newId);
+    this->lastId = newId;
+}
+
+void RenderEngine::removeSixDofModel(SixDofModel* sixDofModel) {
+    this->sixDofModels.erase(sixDofModel->getId());
+}
+
+void RenderEngine::DrawFrame(Camera camera) {
+    /* Draw the frame for the current world. */
+    // Clear the colour buffer
+    glClearColor(0.64f, 0.64f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Set correct shader
+    this->lightingShader->Use();
+
+    // Update View Position Uniform
+    GLint viewPosLoc = glGetUniformLocation(this->lightingShader->Program, "viewPos");
+    glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
+
+    // Transformation Matrices
+    int screenWidth = settings->xRes;
+    int screenHeight = settings->yRes;
+    glm::mat4 projection = glm::perspective(camera.Zoom, (float)screenWidth/(float)screenHeight,0.1f,10000.0f);
+    glm::mat4 view = camera.GetViewMatrix();
+    glUniformMatrix4fv(glGetUniformLocation(this->lightingShader->Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
+    glUniformMatrix4fv(glGetUniformLocation(this->lightingShader->Program,"view"),1,GL_FALSE,glm::value_ptr(view));
+
+    /* Six Dof Models */
+   for (auto i : this->sixDofModels) {
+        i.second->Draw(*(this->lightingShader));
+    }
+
+
+}

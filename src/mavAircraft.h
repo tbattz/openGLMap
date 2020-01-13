@@ -18,11 +18,11 @@
 #include <mutex>
 
 // Project Includes
-#include "model.h"
 #include "fonts.h"
+#include "sixDofModel.h"
 
 // Derived Class
-class MavAircraft : public Model {
+class MavAircraft : public SixDofModel {
 public:
 	/* Data */
 	// Name
@@ -31,7 +31,6 @@ public:
 	// Position Information
 	glm::dvec3 			origin; 						// Lat (deg), Lon (deg), alt (km)
 	glm::dvec3 			geoPosition; 					// Lat (deg), Lon (deg), alt (km)
-	glm::dvec3 			position; 						// (x,y,z) relative to origin
 	glm::dvec3 			velocity;						// (vx,vy,vz) (m/s)
 
 	// Position History Information
@@ -43,8 +42,7 @@ public:
 	unsigned int		currentPosMsgIndex = 0;			// Index of the 'latest' position mavlink message being displayed (this is behind the data)
 
 	// Attitude Information
-	glm::dvec3 			attitude;						// roll (rad), pitch (rad), yaw (rad)
-	vector<glm::dvec3>	attitudeHistory; 				// Vector if attiudes
+	vector<glm::dvec3>	attitudeHistory; 				// Vector if attitudes
 	vector<glm::dvec3>	attitudeRateHistory;			// Vector of attitude rates
 	vector<float>		timeAttitudeHistory;			// Vector of floats corresponding to times of attitude history
 	bool				firstAttitudeMessage = true;	// True if the first message has been recieved
@@ -85,7 +83,6 @@ public:
 
 	/* Functions */
 	void updatePositionAttitude();
-	void Draw(Shader shader);
 	void interpolatePosition();
 	void interpolateAttitude();
 	void calculatePositionInterpolationConstants();
