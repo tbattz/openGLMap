@@ -18,11 +18,12 @@
 #include <glm/gtc/type_ptr.hpp>
 
 // Project Includes
-#include "model.h"
+#include "model/objModel.h"
+//#include "telemOverlay.h"
 
 
 // Derived Class
-class SixDofModel : public Model {
+class SixDofModel : public ObjModel {
 private:
     // Identifier
     int id;
@@ -33,6 +34,9 @@ public:
 
     // Attitude Information
     glm::dvec3          attitude;                       // roll (rad), pitch (rad), yaw (rad)
+
+    // Telem Overlay
+    //TelemOverlay telemOverlay;
 
     /* Constructor */
     SixDofModel(const GLchar* path);

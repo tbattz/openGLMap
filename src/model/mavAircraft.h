@@ -18,7 +18,7 @@
 #include <mutex>
 
 // Project Includes
-#include "fonts.h"
+#include "view/fonts.h"
 #include "sixDofModel.h"
 
 // Derived Class

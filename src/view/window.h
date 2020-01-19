@@ -16,7 +16,7 @@
 #include <GLFW/glfw3.h>
 
 // openGL Includes
-#include "camera.h"
+#include "view/camera.h"
 #include "settings.h"
 
 

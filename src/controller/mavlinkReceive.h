@@ -18,7 +18,7 @@ using boost::asio::ip::udp;
 #define MAV_INCOMING_BUFFER_LENGTH 2041
 
 // Project Includes
-#include "mavAircraft.h"
+#include "model/mavAircraft.h"
 
 
 class MavSocket {

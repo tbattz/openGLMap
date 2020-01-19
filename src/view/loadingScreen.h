@@ -30,7 +30,7 @@
 
 // openGL Includes
 #include "settings.h"
-#include "fonts.h"
+#include "view/fonts.h"
 
 /* Classes */
 class LoadingScreen {

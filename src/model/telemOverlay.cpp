@@ -8,28 +8,25 @@
 #include "telemOverlay.h"
 
 /* Constructor */
-TelemOverlay::TelemOverlay(MavAircraft* mavAircraftPt,Shader* telemTextShaderPt,GLFont* telemFontPt, glm::vec3 color, Settings* settings) {
-	// Aircraft Information
-	this->mavAircraftPt = mavAircraftPt;
-	this->aircraftPosition = glm::vec3(mavAircraftPt->position);
+TelemOverlay::TelemOverlay(int colorId, Settings* settings) {
+	// Store settings
+	this->settings = settings;
 
 	// Font Information
-	this->telemTextShaderPt = telemTextShaderPt;
-	this->telemFontPt = telemFontPt;
 	this->width = settings->xRes;
 	this->height = settings->yRes;
 
 	// Colour
-	this->color = color;
+	this->colorId = colorId;
 
 	// Setup Buffers
 	createAndSetupBuffers();
 }
 
 /* Functions */
-void TelemOverlay::Draw(Shader shader, glm::mat4 projection, glm::mat4 view, Camera* cameraPt) {
+void TelemOverlay::Draw(Shader shader, MavAircraft* mavAircraftPt, glm::mat4 projection, glm::mat4 view, Camera* cameraPt) {
 	// Convert position from double to float
-	aircraftPosition = glm::vec3(mavAircraftPt->position);
+	//aircraftPosition = glm::vec3(mavAircraftPt->position);
 
 	// Calculate Normalised Device Coordinates
 	glm::mat4 model = glm::mat4(1.0f);
@@ -45,6 +42,9 @@ void TelemOverlay::Draw(Shader shader, glm::mat4 projection, glm::mat4 view, Cam
 		scale = 0.3;
 	}
 
+	// Get Color
+	glm::vec3 color = this->settings->colorVec[this->colorId];
+
 	// Update Uniforms
 	float scale = 0.3;
 	glUniform3fv(glGetUniformLocation(shader.Program,"ndc"),1,glm::value_ptr(ndc));
@@ -59,28 +59,6 @@ void TelemOverlay::Draw(Shader shader, glm::mat4 projection, glm::mat4 view, Cam
 	}
 }
 
-void TelemOverlay::DrawAirspeed() {
-	// Find position on screen
-	glm::vec2 pos = convertNDC2Screen();
-
-	// Draw Airspeed
-	std::stringstream ss;
-	ss << std::setprecision(3) << mavAircraftPt->airspeed << " m/s";
-	telemFontPt->RenderText(telemTextShaderPt,ss.str(),pos[0],pos[1],1.0f,glm::vec3(0.0f, 1.0f, 0.0f),0);
-}
-
-glm::vec2 TelemOverlay::convertNDC2Screen() {
-	// Calculate Position on screen
-	float x,y;
-	x = (width/2.0)*(ndc[0]-1) + width;
-	y = (height/2.0)*(ndc[1]-1) + height;
-
-	// Add offset
-	y -= 30;
-	x -= 25;
-
-	return glm::vec2(x,y);
-}
 
 void TelemOverlay::createAndSetupBuffers() {
 	/* Create Buffers */

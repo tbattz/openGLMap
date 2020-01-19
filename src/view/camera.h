@@ -16,7 +16,7 @@
 #include <GL/glew.h>
 
 // Project Includes
-#include "mavAircraft.h"
+#include "model/mavAircraft.h"
 
 
 // Camera Views
@@ -73,7 +73,8 @@ public:
 	void ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime);
 	void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
 	void ProcessMouseScroll(GLfloat yoffset);
-	void setupView(std::vector<MavAircraft>* mavAircraftList);
+	//void setupView(std::vector<MavAircraft>* mavAircraftList);
+    void setupView();
 
 private:
 	/* Functions */

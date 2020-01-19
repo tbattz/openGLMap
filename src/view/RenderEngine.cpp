@@ -4,7 +4,7 @@
 
 #include "../settings.h"
 #include "RenderEngine.h"
-#include "../window.h"
+#include "window.h"
 
 /* Constructor */
 RenderEngine::RenderEngine(Settings* settings) {
@@ -27,7 +27,7 @@ void RenderEngine::setupWindow() {
     // Init GLFW
     window = initGLFW(settings);
 
-    // Initialise GLEW - engine OpenGL pointers
+    // Initialise GLEW - view OpenGL pointers
     initGLEW();
 }
 
@@ -110,10 +110,15 @@ void RenderEngine::DrawFrame(Camera camera) {
     glUniformMatrix4fv(glGetUniformLocation(this->lightingShader->Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
     glUniformMatrix4fv(glGetUniformLocation(this->lightingShader->Program,"view"),1,GL_FALSE,glm::value_ptr(view));
 
+    /* ======================================================
+	 *                    Drawing Objects
+	   ====================================================== */
     /* Six Dof Models */
    for (auto i : this->sixDofModels) {
         i.second->Draw(*(this->lightingShader));
     }
+
+
 
 
 }

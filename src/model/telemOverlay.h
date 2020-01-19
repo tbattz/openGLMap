@@ -12,7 +12,7 @@
 #include "iomanip"
 
 // Project Includes
-#include "camera.h"
+#include "view/camera.h"
 
 
 class TelemOverlay {
@@ -33,10 +33,11 @@ public:
 	GLuint VBO, VAO, EBO;
 
 	// Aircraft Information
-	MavAircraft* mavAircraftPt;
-	glm::vec3 aircraftPosition;
 	glm::vec3 ndc;
 	float scale;
+
+	// Settings
+	Settings* settings;
 
 	// Font Information
 	Shader* telemTextShaderPt;
@@ -45,15 +46,13 @@ public:
 	GLfloat height;
 
 	// Color
-	glm::vec3 color;
+	int colorId;
 
 	/* Constructor */
-	TelemOverlay(MavAircraft* mavAircraftPt,Shader* telemTextShaderPt,GLFont* telemFontPt, glm::vec3 color, Settings* settings);
+	TelemOverlay(int colorId, Settings* settings);
 
 	/* Functions */
-	void Draw(Shader shader, glm::mat4 projection, glm::mat4 view, Camera* cameraPt);
-	void DrawAirspeed();
-	glm::vec2 convertNDC2Screen();
+	void Draw(Shader shader, MavAircraft* mavAircraftPt, glm::mat4 projection, glm::mat4 view, Camera* cameraPt);
 	void createAndSetupBuffers();
 
 

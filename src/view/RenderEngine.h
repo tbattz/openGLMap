@@ -16,11 +16,10 @@
 #include <unordered_map>
 
 #include "../settings.h"
-#include "../loadingScreen.h"
-#include "../../openGLPlotLive/src/lineColours.h"
-#include "../model.h"
-#include "../satTiles.h"
-#include "../camera.h"
+#include "loadingScreen.h"
+#include "model/objModel.h"
+#include "model/satTiles.h"
+#include "camera.h"
 
 /* Classes */
 class RenderEngine {
@@ -47,9 +46,6 @@ public:
     GLFont* telemFont;
     GLFont* helpFont;
 
-    /* Colours */
-    std::vector<glm::vec3> colorVec = {LC_BLUE, LC_RED, LC_GREEN, LC_YELLOW, LC_CYAN, LC_MAGENTA, LC_SILVER, LC_GRAY, LC_MAROON, LC_OLIVE, LC_DARKGREEN, LC_PURPLE, LC_TEAL, LC_NAVY};
-
     /* Models */
     // TODO - Find a better way to store objects and their IDs
     std::unordered_map<int, SixDofModel*> sixDofModels;
@@ -71,7 +67,7 @@ public:
     void removeSixDofModel(SixDofModel* sixDofModel);
 
     void DrawFrame(Camera camera);
-    //void Draw(Model model);
+    //void Draw(ObjModel model);
     //void Draw(SatTile satTile);
 
 };

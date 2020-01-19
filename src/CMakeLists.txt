@@ -20,6 +20,10 @@ elseif(UNIX)
 endif(WIN32)
 
 # Add Sources
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+add_subdirectory(view)
+add_subdirectory(model)
+add_subdirectory(controller)
 file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
 
 if(WIN32)
@@ -67,6 +71,6 @@ endif(WIN32)
 # Define executables
 MESSAGE( STATUS "Sources: " ${SOURCES} )
 add_executable(openGLMap ${SOURCES})
-target_link_libraries(openGLMap ${LIBS})
+target_link_libraries(openGLMap ${LIBS} view)
 
 

@@ -8,7 +8,7 @@
 #include "sixDofModel.h"
 
 /* Constructor */
-SixDofModel::SixDofModel(const GLchar* path) : Model(path) {
+SixDofModel::SixDofModel(const GLchar* path) : ObjModel(path) {
     // Set default id until assigned
     this->id = -1;
     // Set default position and attitude
@@ -36,9 +36,11 @@ void SixDofModel::Draw(Shader shader) {
     // Update Uniforms
     glUniformMatrix4fv(glGetUniformLocation(shader.Program,"model"),1,GL_FALSE,glm::value_ptr(model));
 
-    // Draw Model
-    Model::Draw(shader);
+    // Draw ObjModel
+    ObjModel::Draw(shader);
 }
+
+
 
 
 

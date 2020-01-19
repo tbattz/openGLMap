@@ -24,6 +24,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+// Project Includes
+#include "../openGLPlotLive/src/lineColours.h"
+
+
 /* Structures */
 struct aircraftConnection {
 	std::string name;
@@ -73,6 +77,9 @@ public:
 	// Setting Names
 	std::vector<std::string> intNames = {"screenID","xRes","yRes"};
 	std::vector<std::string> boolNames = {"fullscreen"};
+
+    // Colours
+    std::vector<glm::vec3> colorVec = {LC_BLUE, LC_RED, LC_GREEN, LC_YELLOW, LC_CYAN, LC_MAGENTA, LC_SILVER, LC_GRAY, LC_MAROON, LC_OLIVE, LC_DARKGREEN, LC_PURPLE, LC_TEAL, LC_NAVY};
 
 	/* Constructor */
 	Settings(const char* settingsFile);

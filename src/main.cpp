@@ -21,19 +21,19 @@
 #include "../openGLPlotLive/src/window.h"
 
 // openGL Includes
-#include "window.h"
+#include "view/window.h"
 #include "settings.h"
-#include "shader.h"
-#include "model.h"
-#include "fonts.h"
-#include "light.h"
-#include "imageTile.h"
-#include "mavlinkReceive.h"
-#include "mavAircraft.h"
-#include "skybox.h"
-#include "telemOverlay.h"
-#include "satTiles.h"
-#include "volumes.h"
+#include "view/shader.h"
+#include "model/objModel.h"
+#include "view/fonts.h"
+#include "view/light.h"
+#include "model/imageTile.h"
+#include "controller/mavlinkReceive.h"
+#include "model/mavAircraft.h"
+#include "model/skybox.h"
+//#include "telemOverlay.h"
+#include "model/satTiles.h"
+#include "model/volumes.h"
 
 // GLM Mathematics
 #include <glm/glm.hpp>
@@ -48,7 +48,8 @@
 #include FT_FREETYPE_H
 
 // Simulation Engine
-#include "engine/RenderEngine.h"
+#include <controller/worldController.h>
+#include "view/RenderEngine.h"
 
 using std::vector;
 
@@ -95,11 +96,16 @@ int main(int argc, char* argv[]) {
 	// Fps command line argument
 	renderEngine.setFpsOn(fpsOn);
 
+    /* ======================================================
+     *                    World Controller
+       ====================================================== */
+    WorldController worldController = WorldController(&settings, &renderEngine);
+
 
 	/* ======================================================
 	 *                        Models
 	   ====================================================== */
-	glm::vec3 worldOrigin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]/1000.0);
+	/*glm::vec3 worldOrigin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]/1000.0);
 	int num = settings.aircraftConList.size();
 	std::vector<MavAircraft> mavAircraftList;
 	mavAircraftList.reserve(num);
@@ -108,8 +114,8 @@ int main(int argc, char* argv[]) {
 	std::vector<std::thread*> threadList;
 	threadList.reserve(num);
 	std::thread* threadPt = NULL;
-	std::vector<TelemOverlay> telemOverlayList;
-	telemOverlayList.reserve(num);
+	//std::vector<TelemOverlay> telemOverlayList;
+	//telemOverlayList.reserve(num);
 	// Load Mavlink Aircraft
 	for(unsigned int i=0; i<settings.aircraftConList.size(); i++) {
         renderEngine.loadingScreen->appendLoadingMessage("Loading mavAircraft: " + settings.aircraftConList[i].name);
@@ -125,8 +131,9 @@ int main(int argc, char* argv[]) {
 		threadList.push_back(threadPt);
 		// Create Telem Overlay
         renderEngine.loadingScreen->appendLoadingMessage("Loading telemetry overlay: " + settings.aircraftConList[i].name);
-		telemOverlayList.push_back(TelemOverlay(&mavAircraftList[i],renderEngine.textShader,renderEngine.telemFont,renderEngine.colorVec[i],&settings));
-	}
+		//telemOverlayList.push_back(TelemOverlay(&mavAircraftList[i], renderEngine.colorVec[i],&settings));
+	}*/
+
 
 
 	// Create Skybox
@@ -144,7 +151,7 @@ int main(int argc, char* argv[]) {
 	 *                       Overlays
 	   ====================================================== */
 	// Create Origin
-	glm::vec3 origin = worldOrigin;
+	glm::vec3 origin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]/1000.0);
 
 	// Create Tiles
 	GLfloat fovX = 48.3/2.0;
@@ -154,7 +161,7 @@ int main(int argc, char* argv[]) {
 	imageTileList.updateTileList("../ImageData",renderEngine.loadingScreen);
 
 	// Create Satellite Tiles
-	SatTileList satTileList(origin,&mavAircraftList[0]);
+	//SatTileList satTileList(origin,&mavAircraftList[0]);
 
 	/* ======================================================
 	 *                        Volumes
@@ -221,14 +228,14 @@ int main(int argc, char* argv[]) {
 	vel3.colour = LC_GREEN;*/
 
 	// Path Plotting
-	num = settings.aircraftConList.size();
+	/*num = settings.aircraftConList.size();
 	std::vector<GLPL::Line2DVecGLMV3> mapList;
 	mapList.reserve(num);
 	for(unsigned int i=0; i<settings.aircraftConList.size(); i++) {
 		mapList.push_back(GLPL::Line2DVecGLMV3(&(mavAircraftList[i].positionHistory),1,0));
-		mapList[i].colour = renderEngine.colorVec[i];
+		mapList[i].colour = renderEngine.settings->colorVec[i];
 		myplot.axes.addLine(&mapList[i]);
-	}
+	}*/
 
 	// Add line to axes
 //	myplot.axes.addLine(&rpos1);
@@ -265,15 +272,17 @@ int main(int argc, char* argv[]) {
 		glfwPollEvents();
 
 		// Update Aircraft Position
-		for(unsigned int i=0; i<mavAircraftList.size(); i++) {
-			mavAircraftList[i].updatePositionAttitude();
-		}
+		worldController.updatePositions();
+		//for(unsigned int i=0; i<mavAircraftList.size(); i++) {
+		//	mavAircraftList[i].updatePositionAttitude();
+		//}
 
 		// Do keyboard movement
 		do_movement();
 
 		// Update View
-		camera.setupView(&mavAircraftList);
+		//camera.setupView(&mavAircraftList);
+        camera.setupView();
 
 		// Transformation Matrices
         int screenWidth = settings.xRes;
@@ -292,9 +301,9 @@ int main(int argc, char* argv[]) {
 		renderEngine.simpleShader->Use();
 		glUniformMatrix4fv(glGetUniformLocation(renderEngine.simpleShader->Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(renderEngine.simpleShader->Program,"view"),1,GL_FALSE,glm::value_ptr(view));
-		for(unsigned int i=0; i<telemOverlayList.size(); i++) {
+		/*for(unsigned int i=0; i<telemOverlayList.size(); i++) {
 			telemOverlayList[i].Draw(*(renderEngine.simpleShader), projection, view, &camera);
-		}
+		}*/
 
 		// Draw tile(s)
 		renderEngine.tileShader->Use();
@@ -305,7 +314,7 @@ int main(int argc, char* argv[]) {
 			// Update image file list
 			//imageTileList.updateTileList("../ImageData",&loadingScreen);
 			// Load satellite tiles
-			satTileList.updateTiles();
+			//satTileList.updateTiles();
 			// Update file check time
 			fileChecklast = currentFrame;
 		}
@@ -315,7 +324,7 @@ int main(int argc, char* argv[]) {
 		// Draw tiles
 		imageTileList.Draw(*(renderEngine.tileShader));
 		// Draw Satellite tiles
-		satTileList.Draw(*(renderEngine.tileShader));
+		//satTileList.Draw(*(renderEngine.tileShader));
 
 		// Draw Volumes
 		renderEngine.volumeShader->Use();
@@ -359,9 +368,9 @@ int main(int argc, char* argv[]) {
 		vel1.updateInternalData();
 		vel2.updateInternalData();
 		vel3.updateInternalData();*/
-		for(unsigned int i=0; i<settings.aircraftConList.size(); i++) {
+		/*for(unsigned int i=0; i<settings.aircraftConList.size(); i++) {
 			mapList[i].updateInternalData();
-		}
+		}*/
 		myplot.Draw(plot2dShader);
 
 
@@ -400,13 +409,13 @@ int main(int argc, char* argv[]) {
 
 	glfwTerminate();
 	// Close mavlink socket
-	for(unsigned int i=0; i<mavSocketList.size(); i++) {
+	/*for(unsigned int i=0; i<mavSocketList.size(); i++) {
 		mavSocketList[i].closeSocket();
 		threadList[i]->join();
 	}
 
 	// Stop Satellite Tile Threads
-	satTileList.stopThreads();
+	satTileList.stopThreads();*/
 
 	return 0;
 }

@@ -18,7 +18,7 @@ using namespace boost::filesystem;
 using std::vector;
 
 // Project Includes
-#include "mavAircraft.h"
+#include "model/mavAircraft.h"
 
 
 /* Structures */

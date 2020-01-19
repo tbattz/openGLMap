@@ -1,12 +1,12 @@
 /*
- * model.h
+ * objModel.h
  *
  *  Created on: 1Jan.,2017
  *      Author: bcub3d-desktop
  */
 
-#ifndef MODEL_H_
-#define MODEL_H_
+#ifndef OBJMODEL_H_
+#define OBJMODEL_H_
 
 // Standard Includes
 #include <map>
@@ -22,16 +22,16 @@ using std::string;
 
 
 
-class Model {
+class ObjModel {
 public:
 	/* Constructor */
-	Model(const GLchar* path);
+	ObjModel(const GLchar* path);
 
 	/* Functions */
 	void Draw(Shader shader);
 
 private:
-	/* Model Data */
+	/* ObjModel Data */
 	vector<Mesh> meshes;
 	string directory;
 	vector<Texture> textures_loaded; // Store textures once
@@ -47,4 +47,4 @@ private:
 
 
 
-#endif /* MODEL_H_ */
+#endif /* OBJMODEL_H_ */

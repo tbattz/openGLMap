@@ -24,7 +24,7 @@ using std::vector;
 #include <glm/gtc/matrix_transform.hpp>
 
 // Project Includes
-#include "shader.h"
+#include "view/shader.h"
 
 
 struct Vertex {

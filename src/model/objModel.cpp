@@ -5,16 +5,16 @@
  *      Author: bcub3d-desktop
  */
 
-#include "model.h"
+#include "objModel.h"
 
 
 /* Constructor */
-Model::Model(const GLchar* path) {
+ObjModel::ObjModel(const GLchar* path) {
 	this->loadModel(path);
 }
 
 /* Functions */
-void Model::Draw(Shader shader) {
+void ObjModel::Draw(Shader shader) {
 	for(GLuint i = 0; i < this->meshes.size(); i++) {
 		this->meshes[i].Draw(shader);
 	}
@@ -23,7 +23,7 @@ void Model::Draw(Shader shader) {
 
 /* Functions */
 // Loads model from file using assimp, stores resulting meshes
-void Model::loadModel(string path) {
+void ObjModel::loadModel(string path) {
 	// Read using assimp
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -40,7 +40,7 @@ void Model::loadModel(string path) {
 }
 
 // Process node using recursion, looking for meshes
-void Model::processNode(aiNode* node, const aiScene* scene) {
+void ObjModel::processNode(aiNode* node, const aiScene* scene) {
 	// Process meshes in the current node
 	for(GLuint i=0; i < node->mNumMeshes; i++) {
 		// Node only has index for data, scene holds the data
@@ -53,7 +53,7 @@ void Model::processNode(aiNode* node, const aiScene* scene) {
 	}
 }
 
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
+Mesh ObjModel::processMesh(aiMesh* mesh, const aiScene* scene) {
 	// Mesh Data
 	vector<Vertex> vertices;
 	vector<GLuint> indices;
@@ -118,7 +118,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 }
 
 // Check material textures are a given type and loads them if not already loaded
-vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName) {
+vector<Texture> ObjModel::loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName) {
 	vector<Texture> textures;
 	for(GLuint i=0; i<mat->GetTextureCount(type); i++) {
 		aiString str;
@@ -145,7 +145,7 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
 	return textures;
 }
 
-GLint Model::TextureFromFile(const char* path, string directory) {
+GLint ObjModel::TextureFromFile(const char* path, string directory) {
 	// Generate texture ID and load texture data
 	string filename = string(path);
 	filename = directory + '/' + filename;
