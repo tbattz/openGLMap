@@ -12,9 +12,12 @@
 // GLFW (Multi-platform library for OpenGL)
 #include <GLFW/glfw3.h>
 
+// Project Includes
 #include "../settings.h"
 #include "../loadingScreen.h"
 #include "../../openGLPlotLive/src/lineColours.h"
+#include <controller/WorldObjectController.h>
+
 
 /* Classes */
 class RenderEngine {
@@ -51,8 +54,16 @@ public:
     void setupShaders();
     void loadFontShaders();
 
+    void registerController(std::shared_ptr<WorldObjectController> worldObjController);
+
+    void preRender();
+    void renderFrame();
+
     void setWireFrameBool(bool wireFrameOn);
     void setFpsOn(bool fpsOn);
+
+private:
+    std::vector<std::shared_ptr<WorldObjectController>> controllerList;
 
 };
 

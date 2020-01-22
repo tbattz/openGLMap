@@ -73,7 +73,8 @@ public:
 	void ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime);
 	void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
 	void ProcessMouseScroll(GLfloat yoffset);
-	void setupView(std::vector<MavAircraft>* mavAircraftList);
+	//void setupView(std::vector<MavAircraft>* mavAircraftList);
+    void setupView();
 
 private:
 	/* Functions */

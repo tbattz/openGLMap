@@ -20,6 +20,11 @@ elseif(UNIX)
 endif(WIN32)
 
 # Add Sources
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+add_subdirectory(model)
+add_subdirectory(view)
+add_subdirectory(controller)
+add_subdirectory(renderEngine)
 file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
 
 if(WIN32)

@@ -84,17 +84,18 @@ void Camera::ProcessMouseScroll(GLfloat yoffset) {
 	}
 }
 
-void Camera::setupView(std::vector<MavAircraft>* mavAircraftList) {
+//void Camera::setupView(std::vector<MavAircraft>* mavAircraftList) {
+void Camera::setupView() {
 	// Select Aircraft
-	mavAircraftListPt = mavAircraftList;
-	MavAircraft* mavAircraftPt = &(*mavAircraftList)[aircraftID];
+	//mavAircraftListPt = mavAircraftList;
+	//MavAircraft* mavAircraftPt = &(*mavAircraftList)[aircraftID];
 	// Sets up the selected view
 	switch(view) {
 		case FREE_CAM: {
 			// Do nothing
 			break;
 		};
-		case TRACKING_CAM: {
+		/*case TRACKING_CAM: {
 			// Change view angles
 			// Get vector
 			float diffx = mavAircraftPt->position[0] - Position.x;
@@ -157,7 +158,7 @@ void Camera::setupView(std::vector<MavAircraft>* mavAircraftList) {
 			// Update Camera Vectors
 			updateCameraVectors();
 			break;
-		}
+		}*/
 		default: {
 			printf("Incorrect view selection\n");
 		}

@@ -27,7 +27,7 @@ void RenderEngine::setupWindow() {
     // Init GLFW
     window = initGLFW(settings);
 
-    // Initialise GLEW - engine OpenGL pointers
+    // Initialise GLEW - renderEngine OpenGL pointers
     initGLEW();
 }
 
@@ -64,6 +64,17 @@ void RenderEngine::loadFontShaders() {
     // Help Font
     loadingScreen->appendLoadingMessage("Loading fonts.");
     helpFont = new GLFont(FONTPATH);
+}
+
+void RenderEngine::registerController(std::shared_ptr<WorldObjectController> worldObjController) {
+    this->controllerList.push_back(worldObjController);
+}
+
+void RenderEngine::renderFrame() {
+    for(unsigned int i =0; i < controllerList.size(); i++) {
+        controllerList[i]->draw(*lightingShader);
+    }
+
 }
 
 void RenderEngine::setWireFrameBool(bool wireFrameOn) {
