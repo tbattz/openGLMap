@@ -22,7 +22,7 @@
 
 /* Camera and Screen Setup */
 // Camera View Setup
-extern Camera camera;
+/*extern Camera camera;
 extern bool keys[1024];
 extern bool toggleKeys[1024];
 extern GLfloat lastX, lastY;
@@ -36,16 +36,29 @@ extern GLfloat deltaTime;
 extern GLfloat lastFrame;
 
 // X Position
-extern GLfloat xval;
+extern GLfloat xval;/
+
+
+class Window {
+public:
+    /* Constructor */
+    //Window(Settings* settings);
+
+    /* Functions */
+    //GLFWwindow* initGLFW(Settings* s);
+    //void initGLEW();
+
+    /* Data */
+    //GLFWwindow* window;
+//};
 
 
 /* Functions */
-GLFWwindow* initGLFW(Settings* settings);
-void initGLEW();
-void key_callback(GLFWwindow* window,int key,int scancode, int action, int mode);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void do_movement();
+
+//void key_callback(GLFWwindow* window,int key,int scancode, int action, int mode);
+//void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+//void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+//void do_movement();
 
 
 #endif /* WINDOW_H_ */

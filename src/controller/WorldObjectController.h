@@ -30,6 +30,7 @@ public:
     /* Functions */
     void draw(Shader shader);
     void updatePosition(glm::dvec3 position, glm::dvec3 attitude);
+    glm::dvec3 getPosition();
 
     void incrementPosition();
 

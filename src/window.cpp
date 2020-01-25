@@ -10,7 +10,7 @@
 
 /* Camera and Screen Setup */
 // Camera View Setup
-Camera camera(glm::vec3(0.0f, 3.0f, 3.0f));
+/*Camera camera(glm::vec3(0.0f, 3.0f, 3.0f));
 bool keys[1024];
 bool toggleKeys[1024];
 GLfloat lastX = 400, lastY = 300;
@@ -24,57 +24,18 @@ GLfloat lastFrame = 0.0f;
 GLfloat xval = 0.0f;
 
 
+Window::Window(Settings* settings) {
+
+}*/
+
+
 /* Functions */
-GLFWwindow* initGLFW(Settings* s) {
-	// Init GLFW
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE); // Set core profile
-	glfwWindowHint(GLFW_RESIZABLE,GL_FALSE);
 
-	// Screen Properties
-	int count;
-	GLFWmonitor** monitors = glfwGetMonitors(&count);
-	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	if(s->fullscreen) {
-		s->xRes = mode->width;
-		s->yRes = mode->height;
-	}
-	glfwWindowHint(GLFW_AUTO_ICONIFY, GL_FALSE);
-	GLFWwindow* window;
-	if(s->fullscreen) {
-		window = glfwCreateWindow(s->xRes,s->yRes,"openGLMap",monitors[s->screenID-1],nullptr);
-	} else {
-		window = glfwCreateWindow(s->xRes,s->yRes,"openGLMap",nullptr,nullptr);
-	}
-	glfwMakeContextCurrent(window);
 
-	// Set viewport size
-	glViewport(0,0,s->xRes,s->yRes); // Origin is bottom left
 
-	// Disable Cursor
-	//glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_DISABLED);
-
-	// Test for objects in front of each other
-	glEnable(GL_DEPTH_TEST);
-
-	// Setup Callbacks for user input
-	glfwSetKeyCallback(window,key_callback);
-	glfwSetCursorPosCallback(window,mouse_callback);
-	glfwSetScrollCallback(window,scroll_callback);
-
-	return window;
-}
-
-void initGLEW() {
-	// Initialise GLEW - setup OpenGL pointers
-	glewExperimental = GL_TRUE;
-	glewInit();
-}
 
 // Smoothing key input callback
-void key_callback(GLFWwindow* window,int key,int scancode, int action, int mode) {
+/*void key_callback(GLFWwindow* window,int key,int scancode, int action, int mode) {
 	// ESC to close window
 	if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window,GL_TRUE);
@@ -170,5 +131,5 @@ void do_movement() {
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 	}
 }
-
+*/
 

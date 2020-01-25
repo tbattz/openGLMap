@@ -4,12 +4,13 @@
 
 #include "../settings.h"
 #include "RenderEngine.h"
+
+#include <memory>
 #include "../window.h"
 
 /* Constructor */
 RenderEngine::RenderEngine(Settings* settings) {
     this->settings = settings;
-
 
     /* Setup Window */
     setupWindow();
@@ -21,14 +22,58 @@ RenderEngine::RenderEngine(Settings* settings) {
     setupShaders();
     loadFontShaders();
 
+    /* Create Camera */
+    camera = std::make_shared<Camera>(glm::vec3(0.0f, 3.0f, 3.0f));
+
 }
 
 void RenderEngine::setupWindow() {
     // Init GLFW
-    window = initGLFW(settings);
+    initGLFW();
 
     // Initialise GLEW - renderEngine OpenGL pointers
     initGLEW();
+}
+
+void RenderEngine::initGLFW() {
+    // Init GLFW
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE); // Set core profile
+    glfwWindowHint(GLFW_RESIZABLE,GL_FALSE);
+
+    // Screen Properties
+    int count;
+    GLFWmonitor** monitors = glfwGetMonitors(&count);
+    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    if(settings->fullscreen) {
+        settings->xRes = mode->width;
+        settings->yRes = mode->height;
+    }
+    glfwWindowHint(GLFW_AUTO_ICONIFY, GL_FALSE);
+    if(settings->fullscreen) {
+        this->window = glfwCreateWindow(settings->xRes,settings->yRes,"openGLMap",monitors[settings->screenID-1],nullptr);
+    } else {
+        this->window = glfwCreateWindow(settings->xRes,settings->yRes,"openGLMap",nullptr,nullptr);
+    }
+    glfwMakeContextCurrent(this->window);
+
+    // Set viewport size
+    glViewport(0,0,settings->xRes,settings->yRes); // Origin is bottom left
+
+    // Disable Cursor
+    //glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_DISABLED);
+
+    // Test for objects in front of each other
+    glEnable(GL_DEPTH_TEST);
+
+}
+
+void RenderEngine::initGLEW() {
+    // Initialise GLEW - setup OpenGL pointers
+    glewExperimental = GL_TRUE;
+    glewInit();
 }
 
 void RenderEngine::createLoadingScreen() {
@@ -64,6 +109,10 @@ void RenderEngine::loadFontShaders() {
     // Help Font
     loadingScreen->appendLoadingMessage("Loading fonts.");
     helpFont = new GLFont(FONTPATH);
+}
+
+std::shared_ptr<Camera> RenderEngine::getCamera() {
+    return this->camera;
 }
 
 void RenderEngine::registerController(std::shared_ptr<WorldObjectController> worldObjController) {

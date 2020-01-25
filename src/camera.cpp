@@ -31,6 +31,11 @@ glm::mat4 Camera::GetViewMatrix() {
 	return glm::lookAt(this->Position, this->Position + this->Front, this->Up);
 }
 
+// Set aircraft to track
+void Camera::setCurrentAircraft(std::shared_ptr<WorldObjectController> currentAircraftController) {
+    this->currentAircraftController = currentAircraftController;
+};
+
 // Process Keyboard input
 void Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime) {
 	GLfloat velocity = this->MovementSpeed * deltaTime;
@@ -89,18 +94,19 @@ void Camera::setupView() {
 	// Select Aircraft
 	//mavAircraftListPt = mavAircraftList;
 	//MavAircraft* mavAircraftPt = &(*mavAircraftList)[aircraftID];
+	glm::dvec3 position = currentAircraftController->getPosition();
 	// Sets up the selected view
 	switch(view) {
 		case FREE_CAM: {
 			// Do nothing
 			break;
 		};
-		/*case TRACKING_CAM: {
+		case TRACKING_CAM: {
 			// Change view angles
 			// Get vector
-			float diffx = mavAircraftPt->position[0] - Position.x;
-			float diffy = mavAircraftPt->position[2] - Position.y;
-			float diffz = mavAircraftPt->position[1] - Position.z;
+			float diffx = position[0] - Position.x;
+			float diffy = position[2] - Position.y;
+			float diffz = position[1] - Position.z;
 
 			// Update Angle
 			float dist = sqrt((diffx*diffx)+(diffz*diffz));
@@ -111,7 +117,7 @@ void Camera::setupView() {
 			updateCameraVectors();
 			break;
 		}
-		case ONBOARD_FREE: {
+		/*case ONBOARD_FREE: {
 			// Offset position below aircraft
 			Position = glm::vec3(mavAircraftPt->position[0],mavAircraftPt->position[2]-0.5,mavAircraftPt->position[1]);
 			// Track other aircraft if required
@@ -131,8 +137,8 @@ void Camera::setupView() {
 				updateCameraVectors();
 			}
 			break;
-		}
-		case ONBOARD_CHASE: {
+		}*/
+		/*case ONBOARD_CHASE: {
 			// Calculate velocity vector
 			glm::vec3 v2 = mavAircraftPt->velocity;
 			glm::vec3 unitv = v2/glm::length(v2);

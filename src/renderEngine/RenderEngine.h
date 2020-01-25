@@ -17,6 +17,7 @@
 #include "../loadingScreen.h"
 #include "../../openGLPlotLive/src/lineColours.h"
 #include <controller/WorldObjectController.h>
+#include <camera.h>
 
 
 /* Classes */
@@ -50,9 +51,13 @@ public:
 
     /* Functions */
     void setupWindow();
+    void initGLFW();
+    void initGLEW();
     void createLoadingScreen();
     void setupShaders();
     void loadFontShaders();
+
+    std::shared_ptr<Camera> getCamera();
 
     void registerController(std::shared_ptr<WorldObjectController> worldObjController);
 
@@ -63,6 +68,8 @@ public:
     void setFpsOn(bool fpsOn);
 
 private:
+    std::shared_ptr<Camera> camera;
+
     std::vector<std::shared_ptr<WorldObjectController>> controllerList;
 
 };

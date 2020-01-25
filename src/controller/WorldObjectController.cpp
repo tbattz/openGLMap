@@ -36,6 +36,10 @@ void WorldObjectController::updatePosition(glm::dvec3 position, glm::dvec3 attit
     this->worldObjectModel.setAttitude(attitude);
 }
 
+glm::dvec3 WorldObjectController::getPosition() {
+    return this->worldObjectModel.getPosition();
+};
+
 void WorldObjectController::incrementPosition() {
     glm::dvec3 currPos = worldObjectModel.getPosition();
     glm::dvec3 diff = glm::dvec3(0.1f, 0.0f, 0.0f);

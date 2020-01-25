@@ -46,10 +46,14 @@
 
 // Free Type Library
 #include <ft2build.h>
+
 #include FT_FREETYPE_H
 
 // Simulation Engine
 #include "renderEngine/RenderEngine.h"
+// Input Controller
+#include <controller/InputController.h>
+
 
 using std::vector;
 
@@ -76,6 +80,12 @@ int main(int argc, char* argv[]) {
        ====================================================== */
     RenderEngine renderEngine(&settings);
 
+    /* ======================================================
+     *                 Create Input Controller
+       ====================================================== */
+    std::shared_ptr<RenderEngine> renderEnginePt = std::make_shared<RenderEngine>(renderEngine);
+    InputController inputController = InputController(renderEnginePt);
+
 	/* ======================================================
 	 *                  Command Line Arguments
 	   ====================================================== */
@@ -101,6 +111,8 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<WorldObjectController> worldObjectController;
     worldObjectController = std::shared_ptr<WorldObjectController>(new WorldObjectController(path));
     renderEngine.registerController(worldObjectController);
+    // Set aircraft for camera
+    renderEngine.getCamera()->setCurrentAircraft(worldObjectController);
 
 
 
@@ -263,8 +275,10 @@ int main(int argc, char* argv[]) {
 	while(!glfwWindowShouldClose(renderEngine.window)) {
 		// Set Frame Time
 		GLfloat currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+		inputController.setDeltaTime(currentFrame - inputController.getLastFrameTime());
+		inputController.setLastFrameTime(currentFrame);
+		////deltaTime = currentFrame - lastFrame;
+		////lastFrame = currentFrame;
 
 		// Check Events
 		glfwPollEvents();
@@ -276,7 +290,7 @@ int main(int argc, char* argv[]) {
 		worldObjectController->incrementPosition();
 
 		// Do keyboard movement
-		do_movement();
+		inputController.do_movement();
 
 		// Clear the colour buffer
 		glClearColor(0.64f, 0.64f, 1.0f, 1.0f);
@@ -286,17 +300,18 @@ int main(int argc, char* argv[]) {
 
 		// Update View
 		//camera.setupView(&mavAircraftList);
-        camera.setupView();
+		std::shared_ptr<Camera> camera = inputController.getCamera();
+        camera->setupView();
 
 		// Update View Position Uniform
 		GLint viewPosLoc = glGetUniformLocation(renderEngine.lightingShader->Program, "viewPos");
-        glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
+        glUniform3f(viewPosLoc, camera->Position.x, camera->Position.y, camera->Position.z);
 
 		// Transformation Matrices
         int screenWidth = settings.xRes;
         int screenHeight = settings.yRes;
-		glm::mat4 projection = glm::perspective(camera.Zoom, (float)screenWidth/(float)screenHeight,0.1f,10000.0f);
-		glm::mat4 view = camera.GetViewMatrix();
+		glm::mat4 projection = glm::perspective(camera->Zoom, (float)screenWidth/(float)screenHeight,0.1f,10000.0f);
+		glm::mat4 view = camera->GetViewMatrix();
 		glUniformMatrix4fv(glGetUniformLocation(renderEngine.lightingShader->Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(renderEngine.lightingShader->Program,"view"),1,GL_FALSE,glm::value_ptr(view));
 
@@ -357,7 +372,7 @@ int main(int argc, char* argv[]) {
 
 		// Draw Skybox last
 		renderEngine.skyboxShader->Use();
-		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));	// Remove any translation component of the view matrix
+		view = glm::mat4(glm::mat3(camera->GetViewMatrix()));	// Remove any translation component of the view matrix
 		glUniformMatrix4fv(glGetUniformLocation(renderEngine.skyboxShader->Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(renderEngine.skyboxShader->Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 		glUniform1i(glGetUniformLocation(renderEngine.skyboxShader->Program, "skybox"), 0);
@@ -392,14 +407,15 @@ int main(int argc, char* argv[]) {
 		// Print FPS
 		if(fpsOn) {
 			std::stringstream ss;
-			ss << int(1.0f/deltaTime) << " fps";
+			ss << int(1.0f/inputController.getDeltaTime()) << " fps";
 			renderEngine.fpsFontPt->RenderText(renderEngine.textShader,ss.str(),screenWidth-150.0f,screenHeight-50.0f,1.0f,glm::vec3(0.0f, 1.0f, 0.0f),0);
 			//std::cout << (1.0f/deltaTime) << "fps" << "\r";
 		}
 
 		// Overlay Help Menu
 		//std::cout << toggleKeys[GLFW_KEY_H] << '\n';
-		if(toggleKeys[GLFW_KEY_H]) {
+		////if(toggleKeys[GLFW_KEY_H]) {
+        if(inputController.getToggleKeyStateByIndex(GLFW_KEY_H)) {
 			std::stringstream sh;
 			// Note: Text lines rendered from bottom to top
 			sh << "HELP MENU\n";
