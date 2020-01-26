@@ -6,7 +6,7 @@
 #include "RenderEngine.h"
 
 #include <memory>
-#include "../window.h"
+
 
 /* Constructor */
 RenderEngine::RenderEngine(Settings* settings) {

@@ -19,14 +19,13 @@
 #include "../openGLPlotLive/src/line2d.h"
 #include "../openGLPlotLive/src/plot.h"
 #include "../openGLPlotLive/src/window.h"
-#include <controller/WorldObjectController.h>
+#include <objects/worldObject/WorldObjectController.h>
 
 // openGL Includes
-#include "window.h"
 #include "settings.h"
-#include "shader.h"
-#include "model.h"
-#include "fonts.h"
+#include "renderEngine/shader.h"
+#include "renderEngine/objectLoading/model.h"
+#include "renderEngine/fonts.h"
 #include "light.h"
 #include "imageTile.h"
 #include "mavlinkReceive.h"
@@ -52,7 +51,7 @@
 // Simulation Engine
 #include "renderEngine/RenderEngine.h"
 // Input Controller
-#include <controller/InputController.h>
+#include <userInput/InputController.h>
 
 
 using std::vector;

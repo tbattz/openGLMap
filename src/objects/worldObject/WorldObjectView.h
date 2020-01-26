@@ -14,7 +14,7 @@
 #include <assimp/scene.h>
 
 // Project Includes
-#include <mesh.h>
+#include <renderEngine/objectLoading/mesh.h>
 
 
 class WorldObjectView {

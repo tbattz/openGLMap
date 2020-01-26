@@ -18,8 +18,8 @@
 #include <vector>
 
 // Project Includes
-#include <model/WorldObjectModel.h>
-#include <view/WorldObjectView.h>
+#include <objects/worldObject/WorldObjectModel.h>
+#include <objects/worldObject/WorldObjectView.h>
 
 
 class WorldObjectController {

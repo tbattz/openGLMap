@@ -14,10 +14,10 @@
 
 // Project Includes
 #include "../settings.h"
-#include "../loadingScreen.h"
+#include "renderEngine/loadingScreen/loadingScreen.h"
 #include "../../openGLPlotLive/src/lineColours.h"
-#include <controller/WorldObjectController.h>
-#include <camera.h>
+#include <objects/worldObject/WorldObjectController.h>
+#include <renderEngine/camera.h>
 
 
 /* Classes */

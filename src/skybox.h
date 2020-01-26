@@ -12,7 +12,7 @@
 #include <SOIL.h>
 
 // Project Includes
-#include "shader.h"
+#include "renderEngine/shader.h"
 
 // Standard Includes
 #include <vector>

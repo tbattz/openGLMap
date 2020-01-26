@@ -16,7 +16,7 @@
 
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    // Retrieve controller
+    // Retrieve userInput
     InputController* controllerPt = (InputController*)glfwGetWindowUserPointer(window);
     // Get Camera
     std::shared_ptr<Camera> camera = controllerPt->getCamera();
@@ -78,7 +78,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 // Callback to position the camera
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    // Retrieve controller
+    // Retrieve userInput
     InputController* controllerPt = (InputController*)glfwGetWindowUserPointer(window);
     // Get Camera
     std::shared_ptr<Camera> camera = controllerPt->getCamera();
@@ -108,7 +108,7 @@ static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
 // Scrolling zoom callback
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    // Retrieve controller
+    // Retrieve userInput
     InputController* controllerPt = (InputController*)glfwGetWindowUserPointer(window);
     // Get Camera
     std::shared_ptr<Camera> camera = controllerPt->getCamera();

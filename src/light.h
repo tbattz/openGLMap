@@ -12,7 +12,7 @@
 #include <GL/glew.h>
 
 // Project Includes
-#include "shader.h"
+#include "renderEngine/shader.h"
 
 // Standard Inclues
 #include <vector>

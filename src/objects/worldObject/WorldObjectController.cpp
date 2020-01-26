@@ -44,7 +44,6 @@ void WorldObjectController::incrementPosition() {
     glm::dvec3 currPos = worldObjectModel.getPosition();
     glm::dvec3 diff = glm::dvec3(0.1f, 0.0f, 0.0f);
     glm::dvec3 newPos = currPos + diff;
-    std::cout << worldObjectModel.getPosition()[2] << std::endl;
 
     worldObjectModel.setPosition(newPos);
 }

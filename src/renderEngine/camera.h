@@ -17,7 +17,7 @@
 
 // Project Includes
 #include "mavAircraft.h"
-#include <controller/WorldObjectController.h>
+#include <objects/worldObject/WorldObjectController.h>
 
 
 // Camera Views

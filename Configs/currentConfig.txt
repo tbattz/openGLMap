@@ -1,0 +1,18 @@
+# OpenGLMap Configuration File
+# Created Sat Jan 11 22:44:38 2020 by bcub3d-desktop
+
+# Display Settings
+screenID int 3
+xRes int 1920
+yRes int 1080
+fullscreen bool 1
+
+# Origin Settings
+origin -37.958926 145.238343 44 0
+
+# Aircraft
+aircraft Aircraft_0 /home/bcub3d-desktop/git/openGLMap/Models/X8/x8Fixed.obj 192.168.8.0 14550
+
+# Volumes
+volume Polygon_1 0 0 255 0.3 4 (-37.959426,145.237843,0.000000,10.000000) (-37.959426,145.238843,0.000000,10.000000) (-37.958426,145.238843,0.000000,10.000000) (-37.958101,145.236820,0.000000,10.000000) 
+

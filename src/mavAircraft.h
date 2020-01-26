@@ -18,8 +18,8 @@
 #include <mutex>
 
 // Project Includes
-#include "model.h"
-#include "fonts.h"
+#include "renderEngine/objectLoading/model.h"
+#include "renderEngine/fonts.h"
 
 // Derived Class
 class MavAircraft : public Model {

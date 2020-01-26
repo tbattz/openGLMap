@@ -23,8 +23,8 @@
 
 // Project Includes
 #include "settings.h"
-#include "shader.h"
-#include "camera.h"
+#include "renderEngine/shader.h"
+#include "renderEngine/camera.h"
 
 /* Classes */
 class Volume {

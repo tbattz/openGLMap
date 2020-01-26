@@ -12,7 +12,7 @@
 #include <GL/glew.h>
 #include <SOIL.h>
 
-#include "loadingScreen.h"
+#include "renderEngine/loadingScreen/loadingScreen.h"
 
 // Standard Includes
 #include <iomanip>
