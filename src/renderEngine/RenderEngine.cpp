@@ -123,7 +123,37 @@ void RenderEngine::registerTileController(std::shared_ptr<SatTileGroupController
     this->satTileGroupController = satTileGroupController;
 }
 
+void RenderEngine::preRender() {
+    // Clear the colour buffer
+    glClearColor(0.64f, 0.64f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Update View
+    camera->setupView();
+
+    // Update View Position Uniforms
+    lightingShader->Use();
+    GLint viewPosLoc = glGetUniformLocation(lightingShader->Program, "viewPos");
+    glUniform3f(viewPosLoc, camera->Position.x, camera->Position.y, camera->Position.z);
+
+    // Transformation Matrices
+    int screenWidth = settings->xRes;
+    int screenHeight = settings->yRes;
+    glm::mat4 projection = glm::perspective(camera->Zoom, (float)screenWidth/(float)screenHeight,0.1f,10000.0f);
+    glm::mat4 view = camera->GetViewMatrix();
+    glUniformMatrix4fv(glGetUniformLocation(lightingShader->Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
+    glUniformMatrix4fv(glGetUniformLocation(lightingShader->Program,"view"),1,GL_FALSE,glm::value_ptr(view));
+
+    tileShader->Use();
+    glUniformMatrix4fv(glGetUniformLocation(tileShader->Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
+    glUniformMatrix4fv(glGetUniformLocation(tileShader->Program,"view"),1,GL_FALSE,glm::value_ptr(view));
+
+}
+
 void RenderEngine::renderFrame() {
+    /* Setup Rendering */
+    preRender();
+
     /* World Object Models */
     this->lightingShader->Use();
     for(unsigned int i =0; i < controllerList.size(); i++) {

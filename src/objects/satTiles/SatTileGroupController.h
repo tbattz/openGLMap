@@ -20,6 +20,12 @@ using namespace boost::filesystem;
 // GLM Mathematics
 #include <glm/glm.hpp>
 
+// GL Includes
+#include <GL/glew.h>
+
+// GLFW (Multi-platform library for OpenGL)
+#include <GLFW/glfw3.h>
+
 // Project Includes
 #include <renderEngine/shader.h>
 #include <objects/worldObject/WorldObjectController.h>
@@ -46,6 +52,7 @@ public:
     void setWorldObjectController(std::shared_ptr<WorldObjectController> worldObjectController);
     std::vector<float> latLonOffsetHeading(float lat1, float lon1, float distance, float bearing, float sphereRadius = 6378.137);
     std::vector<float> latLon2TileNum(float lat, float lon, int zoom);
+    void updateTiles();
     void draw(Shader shader);
 
 private:
@@ -55,6 +62,7 @@ private:
     float           aircraftRadius = 1000; // m
     const char*     folderPath = "../SatTiles/";
     bool            initFin = false;
+    GLfloat         fileChecklast = 0.0f;
 
     /* Aircraft */
     std::shared_ptr<WorldObjectController> currWorldObjectController;
@@ -75,7 +83,6 @@ private:
     bool		threadRunning = true;
 
     /* Functions */
-    void updateTiles();
     void satTileDownloader();
     void stopThreads();
     void downloadTile(std::vector<int> tileVec);

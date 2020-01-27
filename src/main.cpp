@@ -296,11 +296,14 @@ int main(int argc, char* argv[]) {
 		// Do keyboard movement
 		inputController.do_movement();
 
-		// Clear the colour buffer
-		glClearColor(0.64f, 0.64f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// Update Satellite tiles
+		satTileGroupController->updateTiles();
 
-        renderEngine.lightingShader->Use();
+		// Clear the colour buffer
+		//glClearColor(0.64f, 0.64f, 1.0f, 1.0f);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        //renderEngine.lightingShader->Use();
 
 		// Update View
 		//camera.setupView(&mavAircraftList);

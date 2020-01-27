@@ -286,6 +286,7 @@ void SatTileGroupController::loadRequiredTiles() {
                 // Load tile
                 loadTile(toLoadTiles[i]);
                 loadedCount += 1;
+                std::cout << "Loaded tile." << std::endl;
             }
         }
     }
@@ -323,14 +324,20 @@ void SatTileGroupController::downloadTiles() {
 /* Functions */
 void SatTileGroupController::updateTiles() {
     // Loads tiles that have been downloaded and are required
-    // Update Required Tiles
-    updateRequiredTiles();
+    GLfloat currentFrame = glfwGetTime();
+    if ((currentFrame - fileChecklast) > 0.3) {
+        // Update Required Tiles
+        updateRequiredTiles();
 
-    // Load Required Tiles
-    loadRequiredTiles();
+        // Load Required Tiles
+        loadRequiredTiles();
 
-    // Update tiles to be downloaded
-    getDownloadListTiles();
+        // Update tiles to be downloaded
+        //getDownloadListTiles();
+
+        // Update file check time
+        fileChecklast = currentFrame;
+    }
 }
 
 
