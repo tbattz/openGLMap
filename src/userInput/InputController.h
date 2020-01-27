@@ -41,8 +41,8 @@ public:
 private:
     std::shared_ptr<RenderEngine> renderEngine;
 
-    bool keys[1024];
-    bool toggleKeys[1024];
+    bool keys[1024] = {false};
+    bool toggleKeys[1024] = {false};
     GLfloat lastX = 400, lastY = 300;
     bool firstMouse = true;
 
