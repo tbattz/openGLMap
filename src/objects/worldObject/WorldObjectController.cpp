@@ -48,3 +48,7 @@ void WorldObjectController::incrementPosition() {
     worldObjectModel.setPosition(newPos);
 }
 
+std::shared_ptr<WorldObjectModel> WorldObjectController::getWorldObjectModel() {
+    return std::make_shared<WorldObjectModel>(worldObjectModel);
+}
+

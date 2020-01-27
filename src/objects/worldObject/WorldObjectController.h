@@ -16,6 +16,7 @@
 // Standard Includes
 #include <map>
 #include <vector>
+#include <memory>
 
 // Project Includes
 #include <objects/worldObject/WorldObjectModel.h>
@@ -31,6 +32,7 @@ public:
     void draw(Shader shader);
     void updatePosition(glm::dvec3 position, glm::dvec3 attitude);
     glm::dvec3 getPosition();
+    std::shared_ptr<WorldObjectModel> getWorldObjectModel();
 
     void incrementPosition();
 

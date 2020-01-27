@@ -52,6 +52,8 @@
 #include "renderEngine/RenderEngine.h"
 // Input Controller
 #include <userInput/InputController.h>
+// Satelite Tiles
+#include <objects/satTiles/SatTileGroupController.h>
 
 
 using std::vector;
@@ -109,7 +111,7 @@ int main(int argc, char* argv[]) {
     const GLchar* path = settings.aircraftConList[0].filepath.c_str(); // TODO - Fix this hardcoding
     std::shared_ptr<WorldObjectController> worldObjectController;
     worldObjectController = std::shared_ptr<WorldObjectController>(new WorldObjectController(path));
-    renderEngine.registerController(worldObjectController);
+    renderEngine.registerWorldObjController(worldObjectController);
     // Set aircraft for camera
     renderEngine.getCamera()->setCurrentAircraft(worldObjectController);
 
@@ -171,6 +173,9 @@ int main(int argc, char* argv[]) {
 
 	// Create Satellite Tiles
 	//SatTileList satTileList(origin,&mavAircraftList[0]);
+	glm::vec3 origin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]);
+	std::shared_ptr<SatTileGroupController> satTileGroupController = std::make_shared<SatTileGroupController>(origin, worldObjectController);
+	renderEngine.registerTileController(satTileGroupController);
 
 	/* ======================================================
 	 *                        Volumes
@@ -314,7 +319,12 @@ int main(int argc, char* argv[]) {
 		glUniformMatrix4fv(glGetUniformLocation(renderEngine.lightingShader->Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(renderEngine.lightingShader->Program,"view"),1,GL_FALSE,glm::value_ptr(view));
 
+        renderEngine.tileShader->Use();
+        glUniformMatrix4fv(glGetUniformLocation(renderEngine.tileShader->Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
+        glUniformMatrix4fv(glGetUniformLocation(renderEngine.tileShader->Program,"view"),1,GL_FALSE,glm::value_ptr(view));
+
         // Draw Models
+
 		renderEngine.renderFrame();
 
 		// Draw Model

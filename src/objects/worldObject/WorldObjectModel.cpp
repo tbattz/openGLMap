@@ -4,7 +4,7 @@
 
 #include "WorldObjectModel.h"
 
-/* Constructors*/
+/* Constructors */
 WorldObjectModel::WorldObjectModel() {
     this->position = glm::dvec3(0.0f, 0.0f, 0.0f);
     this->attitude = glm::dvec3(0.0f, 0.0f, 0.0f);
