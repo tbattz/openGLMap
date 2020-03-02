@@ -15,7 +15,7 @@ LoadingScreen::LoadingScreen(GLFWwindow* window, Settings* settings)  : textFont
 	this->screenHeightPt = &(settings->yRes);
 
 	// Setup Font Shader
-	this->textShader = setupFontShader("../Shaders/font.vs", "../Shaders/font.frag", settings);
+	this->textShader = setupFontShader("../../Shaders/font.vs", "../../Shaders/font.frag", settings);
 
 	// Draw Blank Screen
 	drawColourScreen();

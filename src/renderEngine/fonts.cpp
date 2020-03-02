@@ -438,7 +438,7 @@ void GLFont::drawVCentreAligned(std::string text, GLfloat x, GLfloat y, GLfloat 
 
 Shader* setupFontShader(const GLchar* vertexShaderPath, const GLchar* fragmentShaderPath, Settings* settings) {
 	/* Compile and setup shader. */
-	Shader* textShader = new Shader("../Shaders/font.vs","../Shaders/font.frag");
+	Shader* textShader = new Shader("../../Shaders/font.vs","../../Shaders/font.frag");
 	textShader->Use();
 	float screenWidth = settings->xRes;
 	float screenHeight = settings->yRes;

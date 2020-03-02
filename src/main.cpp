@@ -51,7 +51,7 @@
 // Simulation Engine
 #include "renderEngine/RenderEngine.h"
 // Input Controller
-#include <userInput/InputController.h>
+#include "userInput/InputController.h"
 // Satelite Tiles
 #include <objects/satTiles/SatTileGroupController.h>
 
@@ -74,7 +74,8 @@ int main(int argc, char* argv[]) {
 	/* ======================================================
 	 *                      Load Settings
 	   ====================================================== */
-	Settings settings("../Configs/currentConfig.txt");
+	// TODO - Fix relative paths
+	Settings settings("../../Configs/currentConfig.txt");
 
     /* ======================================================
      *                Create Simulation RenderEngine
@@ -150,12 +151,13 @@ int main(int argc, char* argv[]) {
 	// Create Skybox
     renderEngine.loadingScreen->appendLoadingMessage("Loading skybox.");
 	vector<const GLchar*> faces;
-	faces.push_back("../Models/skybox/right.png");
-	faces.push_back("../Models/skybox/left.png");
-	faces.push_back("../Models/skybox/top.png");
-	faces.push_back("../Models/skybox/bottom.png");
-	faces.push_back("../Models/skybox/back.png");
-	faces.push_back("../Models/skybox/front.png");
+	// TODO - Fix relative paths
+	faces.push_back("../../Models/skybox/right.png");
+	faces.push_back("../../Models/skybox/left.png");
+	faces.push_back("../../Models/skybox/top.png");
+	faces.push_back("../../Models/skybox/bottom.png");
+	faces.push_back("../../Models/skybox/back.png");
+	faces.push_back("../../Models/skybox/front.png");
 	Skybox skybox(faces);
 
 	/* ======================================================
@@ -207,7 +209,7 @@ int main(int argc, char* argv[]) {
 	/*// Create Window Dimensions Class
 	GLPL::WinDimensions winDim(renderEngine.window);
 	// Setup Shader
-	GLPL::Shader plot2dShader("../openGLPlotLive/Shaders/plot2d.vs","../openGLPlotLive/Shaders/plot2d.frag");
+	GLPL::Shader plot2dShader("../openGLPlotLive/../../Shaders/plot2d.vs","../openGLPlotLive/../../Shaders/plot2d.frag");
 	// Create Plot
 	GLPL::Plot myplot(0.75, 0.0, 0.25, 0.25, &winDim);*/
 	// Create Line
@@ -332,7 +334,7 @@ int main(int argc, char* argv[]) {
 
 		// Draw Model
 		/*for(unsigned int i=0; i<mavAircraftList.size(); i++) {
-			mavAircraftList[i].Draw(*(renderEngine.lightingShader));
+			mavAircraftsList[i].Draw(*(renderEngine.lightingShader));
 		}*/
 
 

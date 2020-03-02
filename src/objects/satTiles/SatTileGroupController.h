@@ -12,6 +12,7 @@
 #include <thread>
 #include <curl/curl.h>
 #include <mutex>
+#include <cstdio>
 
 // Boost
 #include <boost/filesystem.hpp>
@@ -58,9 +59,11 @@ public:
 private:
     /* Data */
     glm::dvec3      origin;
-    int             zoom = 18;
+    //int             zoom = 18;
+    int             zoom = 14;
     float           aircraftRadius = 1000; // m
-    const char*     folderPath = "../SatTiles/";
+    // TODO - Fix relative paths
+    const char*     folderPath = "../../SatTiles/";
     bool            initFin = false;
     GLfloat         fileChecklast = 0.0f;
 
@@ -68,11 +71,11 @@ private:
     std::shared_ptr<WorldObjectController> currWorldObjectController;
 
     /* Tiles */
-    std::vector<SatTileController>   tileControllers;
+    std::vector<SatTileController>  tileControllers;
     std::vector<std::vector<int>>	requiredTiles;
-    std::vector<std::vector<int>> toDownloadTiles;
-    std::vector<std::vector<int>> downloadedTiles;
-    std::vector<std::vector<int>> toLoadTiles;
+    std::vector<std::vector<int>>   toDownloadTiles;
+    std::vector<std::vector<int>>   downloadedTiles;
+    std::vector<std::vector<int>>   toLoadTiles;
     std::vector<std::vector<int>>	loadedTiles;
     bool 				loadAll = true;
     CURL*				curlPt;
@@ -92,6 +95,8 @@ private:
     void updateRequiredTiles();
     void loadRequiredTiles();
     void getDownloadListTiles();
+    int getMSDigit(int x, int y);
+    std::string getQuadCode(int x, int y, int zoom);
     void downloadTiles();
 
 };

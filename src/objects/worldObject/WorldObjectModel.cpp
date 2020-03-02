@@ -32,4 +32,3 @@ void WorldObjectModel::setAttitude(glm::dvec3 newAttitude) {
 }
 
 
-#include "WorldObjectModel.h"

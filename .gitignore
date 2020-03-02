@@ -6,3 +6,6 @@
 /SatTiles/
 /Models/
 *.swp
+*.idea
+*.vscode
+cmake-build-debug

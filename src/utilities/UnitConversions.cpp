@@ -36,7 +36,54 @@ glm::dvec3 UnitConversions::ecef2ENU(glm::dvec3 ecefVector, glm::dvec3 ecefOrigi
                             -sin(lat)*cos(lon),	-sin(lat)*sin(lon),	cos(lat),
                             cos(lat)*cos(lon),	cos(lat)*sin(lon),	sin(lat));
     glm::dvec3 B = glm::dvec3(ecefVector[0]-ecefOrigin[0],ecefVector[1]-ecefOrigin[1],ecefVector[2]-ecefOrigin[2]);
-    B*A; // Flipped due to GLM ordering
 
-    return B*A;
+    // Flipped due to GLM ordering
+    glm::dvec3 tempPos = B*A;
+    glm::dvec3 position = glm::dvec3(tempPos[1], tempPos[0], tempPos[2]);
+
+    return position;
 }
+
+glm::dvec3 UnitConversions::geo2ENU(glm::dvec3 geoPosition, glm::dvec3 origin) {
+    // Convert geo-position to x,y,z position
+    /* Convert Geodetic to ECEF */
+    glm::dvec3 ecefPosition = geo2ECEF(geoPosition);
+    glm::dvec3 ecefOrigin = geo2ECEF(origin);
+
+    /* Convert from ECEF to ENU */
+    glm::dvec3 position = ecef2ENU(ecefPosition, ecefOrigin, origin);
+
+    return position;
+}
+
+
+glm::dvec3 UnitConversions::enu2Geo(glm::dvec3 positionVector, glm::dvec3 origin) {
+    // Convert x,y,z position to geo-position
+
+
+    return glm::dvec3();
+}
+
+glm::dvec3 UnitConversions::enu2Ecef(glm::dvec3 position, glm::dvec3 origin) {
+    // Convert x,y,z position to ECEF
+    GLdouble lat = glm::radians(origin[0]);
+    GLdouble lon = glm::radians(origin[1]);
+    /* Calculate origin in ECEF */
+    glm::dvec3 ecefOrigin = geo2ECEF(origin);
+
+    glm::dvec3 tempPos = glm::dvec3(position[1], position[0], position[2]);
+
+    /* Create Matrices */
+    glm::mat3 A = glm::mat3(-sin(lon), -sin(lat)*cos(lon), cos(lat)*cos(lon),
+                            cos(lon),  -sin(lat)*sin(lon), cos(lat)*sin(lon),
+                            0,     cos(lat),               sin(lat));
+    glm::dvec3 B = tempPos;
+
+    // Flipped due to GLM ordering
+    glm::dvec3 ecefTemp = B*A;
+    glm::dvec3 ecefPosition = ecefTemp + ecefOrigin;
+
+    return ecefPosition;
+}
+
+

@@ -104,14 +104,40 @@ static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
     return written;
 }
 
+int SatTileGroupController::getMSDigit(int x, int y) {
+    return (((y & 3) << 1) + (x & 1));
+}
+
+std::string SatTileGroupController::getQuadCode(int x, int y, int zoom) {
+    std::ostringstream quadcode;
+    //std::string quadcode(zoom, '*');
+    //std::vector<int> digits;
+    int pos = -1;
+    for (int i=zoom-1; i--; i > -1) {
+        pos += 1;
+        quadcode << ((((y >> i) & 1) << 1) + ((x >> i) & 1));
+    }
+
+    return quadcode.str();
+}
+
 /* Get and Load Functions */
 void SatTileGroupController::downloadTile(std::vector<int> tileVec) {
     // Downloads the tile specified by tileVec
     int x = tileVec[0];
     int y = tileVec[1];
+    //int x = 0;
+    //int y = 0;
     int tileZoom = tileVec[2];
-    string outName = "../SatTiles/" + std::to_string(tileZoom) + "-" + std::to_string(x) + "-" + std::to_string(y) + ".png";
-    string url = "http://maptile.maps.svc.ovi.com/maptiler/v2/maptile/newest/hybrid.day/" + std::to_string(tileZoom) +"/" + std::to_string(x) + "/" + std::to_string(y) +"/256/png8";
+    //int tileZoom = 2;
+    // Prepare paths
+    std::string msDigit = std::to_string(getMSDigit(x, y));
+    std::string quadCode = getQuadCode(x, y, tileZoom);
+    string outName = folderPath + std::to_string(tileZoom) + "-" + std::to_string(x) + "-" + std::to_string(y) + ".jpeg";
+    ///string url = "http://maptile.maps.svc.ovi.com/maptiler/v2/maptile/newest/hybrid.day/" + std::to_string(tileZoom) +"/" + std::to_string(x) + "/" + std::to_string(y) +"/256/png8";
+    // TODO - Allow selector of different microsoft maps. Store each in a different folder.
+    string url = "http://ecn.t" + msDigit + ".tiles.virtualearth.net/tiles/h" + quadCode + ".png?g=441&mkt=en-us&n=z";
+    std::cout << url << std::endl;
     if(curlPt) {
         CURLcode result;
         FILE *outfile;
@@ -224,7 +250,7 @@ void SatTileGroupController::updateRequiredTiles() {
     // Calculates the tiles required at the current point in time
     // Get current tile below aircraft
     glm::dvec3 aircraftGeoPos;
-    if (currWorldObjectController != NULL) {
+    if (currWorldObjectController != nullptr) {
         aircraftGeoPos = currWorldObjectController->getPosition();
     } else {
         aircraftGeoPos = origin;
@@ -333,7 +359,7 @@ void SatTileGroupController::updateTiles() {
         loadRequiredTiles();
 
         // Update tiles to be downloaded
-        //getDownloadListTiles();
+        getDownloadListTiles();
 
         // Update file check time
         fileChecklast = currentFrame;
