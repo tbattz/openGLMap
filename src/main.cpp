@@ -167,8 +167,8 @@ int main(int argc, char* argv[]) {
 	//glm::vec3 origin = worldOrigin;
 
 	// Create Tiles
-	GLfloat fovX = 48.3/2.0;
-	GLfloat fovY = 36.8/2.0;
+	//GLfloat fovX = 48.3/2.0;
+	//GLfloat fovY = 36.8/2.0;
 	//TileList imageTileList(origin, fovX, fovY, renderEngine.window);
 	// Get Tile Information
 	//imageTileList.updateTileList("../ImageData",renderEngine.loadingScreen);

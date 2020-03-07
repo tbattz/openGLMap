@@ -1,7 +1,10 @@
 # cmake version
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.10)
 # Project Name
 project(openGLMap)
+
+# Set OpenGL Policy
+set(OpenGL_GL_PREFERENCE "GLVND")
 
 # Add c11++ flag to compiler
 list(APPEND CMAKE_CXX_FLAGS "-std=c++11 -Wno-narrowing")

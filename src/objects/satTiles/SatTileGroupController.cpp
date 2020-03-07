@@ -113,7 +113,7 @@ std::string SatTileGroupController::getQuadCode(int x, int y, int zoom) {
     //std::string quadcode(zoom, '*');
     //std::vector<int> digits;
     int pos = -1;
-    for (int i=zoom-1; i--; i > -1) {
+    for (int i=zoom-1; i > -1; i--) {
         pos += 1;
         quadcode << ((((y >> i) & 1) << 1) + ((x >> i) & 1));
     }
