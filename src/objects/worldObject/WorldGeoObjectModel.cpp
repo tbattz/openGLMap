@@ -12,13 +12,12 @@
 WorldGeoObjectModel::WorldGeoObjectModel(glm::dvec3 origin) : WorldObjectModel() {
     this->origin = origin;
 
-
 }
 
 WorldGeoObjectModel::WorldGeoObjectModel(glm::dvec3 geoPosition, glm::dvec3 attitude, glm::dvec3 origin) {
     this->origin = origin;
-    setGeoPosition(geoPosition);
-    setAttitude(attitude);
+    WorldGeoObjectModel::setGeoPosition(geoPosition);
+    WorldObjectModel::setAttitude(attitude);
 }
 
 
@@ -29,8 +28,8 @@ glm::dvec3 WorldGeoObjectModel::getGeoPosition() {
 void WorldGeoObjectModel::setPosition(glm::dvec3 newPosition) {
     WorldObjectModel::setPosition(newPosition);
     // Calculate equivalent geo-position
-
-
+    glm::dvec3 newGeoPosition = UnitConversions::enu2Geo(newPosition, this->origin);
+    WorldGeoObjectModel::setGeoPosition(newGeoPosition);
 }
 
 void WorldGeoObjectModel::setGeoPosition(glm::dvec3 newGeoPosition) {
