@@ -30,7 +30,7 @@ glm::dvec3 UnitConversions::ecef2ENU(glm::dvec3 ecefVector, glm::dvec3 ecefOrigi
     GLdouble lat = glm::radians(origin[0]);
     GLdouble lon = glm::radians(origin[1]);
     //GLfloat alt = origin[2];
-    glm::mat3 A = glm::mat3(-sin(lon),					cos(lon),					0.0,
+    glm::dmat3 A = glm::dmat3(-sin(lon),					cos(lon),					0.0,
                             -sin(lat)*cos(lon),	-sin(lat)*sin(lon),	cos(lat),
                             cos(lat)*cos(lon),	cos(lat)*sin(lon),	sin(lat));
     glm::dvec3 B = glm::dvec3(ecefVector[0]-ecefOrigin[0],ecefVector[1]-ecefOrigin[1],ecefVector[2]-ecefOrigin[2]);
