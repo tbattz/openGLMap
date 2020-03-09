@@ -17,6 +17,7 @@
 #include "renderEngine/loadingScreen/loadingScreen.h"
 #include "../../openGLPlotLive/src/lineColours.h"
 #include <objects/worldObject/WorldObjectController.h>
+#include <objects/worldObject/WorldGeoObjectController.h>
 #include <renderEngine/camera.h>
 #include <objects/satTiles/SatTileGroupController.h>
 
@@ -61,6 +62,7 @@ public:
     std::shared_ptr<Camera> getCamera();
 
     void registerWorldObjController(std::shared_ptr<WorldObjectController> worldObjController);
+    void registerWorldGeoObjController(std::shared_ptr<WorldGeoObjectController> worldGeoObjController);
     void registerTileController(std::shared_ptr<SatTileGroupController> satTileGroupController);
 
     void preRender();
@@ -72,7 +74,8 @@ public:
 private:
     std::shared_ptr<Camera> camera;
 
-    std::vector<std::shared_ptr<WorldObjectController>> controllerList;
+    std::vector<std::shared_ptr<WorldObjectController>> worldObjectControllerList;
+    std::vector<std::shared_ptr<WorldGeoObjectController>> worldGeoObjectControllerList;
     std::shared_ptr<SatTileGroupController> satTileGroupController;
 
 };

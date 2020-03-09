@@ -19,7 +19,6 @@
 #include "../openGLPlotLive/src/line2d.h"
 #include "../openGLPlotLive/src/plot.h"
 #include "../openGLPlotLive/src/window.h"
-#include <objects/worldObject/WorldObjectController.h>
 
 // openGL Includes
 #include "settings.h"
@@ -52,6 +51,9 @@
 #include "renderEngine/RenderEngine.h"
 // Input Controller
 #include "userInput/InputController.h"
+// Object Controllers
+#include <objects/worldObject/WorldObjectController.h>
+#include <objects/worldObject/WorldGeoObjectController.h>
 // Satelite Tiles
 #include <objects/satTiles/SatTileGroupController.h>
 
@@ -110,9 +112,16 @@ int main(int argc, char* argv[]) {
 
 	/* Create controllers */
     const GLchar* path = settings.aircraftConList[0].filepath.c_str(); // TODO - Fix this hardcoding
+    // XYZ Aircraft
     std::shared_ptr<WorldObjectController> worldObjectController;
     worldObjectController = std::shared_ptr<WorldObjectController>(new WorldObjectController(path));
     renderEngine.registerWorldObjController(worldObjectController);
+    // LatLonAlt Aircraft
+    glm::vec3 origin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]);
+    std::shared_ptr<WorldGeoObjectController> worldGeoObjectController;
+    worldGeoObjectController = std::shared_ptr<WorldGeoObjectController>(new WorldGeoObjectController(path, origin));
+    renderEngine.registerWorldGeoObjController(worldGeoObjectController);
+
     // Set aircraft for camera
     renderEngine.getCamera()->setCurrentAircraft(worldObjectController);
 
@@ -175,7 +184,7 @@ int main(int argc, char* argv[]) {
 
 	// Create Satellite Tiles
 	//SatTileList satTileList(origin,&mavAircraftList[0]);
-	glm::vec3 origin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]);
+	//glm::vec3 origin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]);
 	std::shared_ptr<SatTileGroupController> satTileGroupController = std::make_shared<SatTileGroupController>(origin, worldObjectController);
 	renderEngine.registerTileController(satTileGroupController);
 

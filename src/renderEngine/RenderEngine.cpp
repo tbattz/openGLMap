@@ -116,7 +116,11 @@ std::shared_ptr<Camera> RenderEngine::getCamera() {
 }
 
 void RenderEngine::registerWorldObjController(std::shared_ptr<WorldObjectController> worldObjController) {
-    this->controllerList.push_back(worldObjController);
+    this->worldObjectControllerList.push_back(worldObjController);
+}
+
+void RenderEngine::registerWorldGeoObjController(std::shared_ptr<WorldGeoObjectController> worldGeoObjController) {
+    this->worldGeoObjectControllerList.push_back(worldGeoObjController);
 }
 
 void RenderEngine::registerTileController(std::shared_ptr<SatTileGroupController> satTileGroupController) {
@@ -156,14 +160,17 @@ void RenderEngine::renderFrame() {
 
     /* World Object Models */
     this->lightingShader->Use();
-    for(unsigned int i =0; i < controllerList.size(); i++) {
-        controllerList[i]->draw(*lightingShader);
+    for(unsigned int i=0; i < worldObjectControllerList.size(); i++) {
+        worldObjectControllerList[i]->draw(*lightingShader);
+    }
+    /* World Geo Object Models */
+    this->lightingShader->Use();
+    for(unsigned int i=0; i < worldGeoObjectControllerList.size(); i++) {
+        worldGeoObjectControllerList[i]->draw(*lightingShader);
     }
     /* Satellite Tiles */
     this->tileShader->Use();
     satTileGroupController->draw(*tileShader);
-
-
 
 }
 

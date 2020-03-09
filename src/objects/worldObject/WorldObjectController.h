@@ -19,7 +19,7 @@
 #include <memory>
 
 // Project Includes
-#include <objects/worldObject/WorldObjectModel.h>
+#include <objects/worldObject/WorldGeoObjectModel.h>
 #include <objects/worldObject/WorldObjectView.h>
 
 
