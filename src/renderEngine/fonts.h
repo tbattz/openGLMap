@@ -18,7 +18,7 @@
 
 // Project Includes
 #include "shader.h"
-#include "settings.h"
+#include "utilities/settings.h"
 
 // Standard Includes
 #include <vector>

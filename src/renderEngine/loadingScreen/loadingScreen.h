@@ -29,7 +29,7 @@
 
 
 // openGL Includes
-#include "settings.h"
+#include "utilities/settings.h"
 #include "renderEngine/fonts.h"
 
 /* Classes */

@@ -110,11 +110,15 @@ rm -r *
 ```
 Run cmake to generate a makefile.
 ```
-cmake ../src/						# Linux
+cmake ..						# Linux
+```
+To debug.
+```
+cmake .. -DCMAKE_BUILD_TYPE=Debug
 ```
 Compile the program.
 ```
-make -j4
+make all -j4
 ```
 
 ## Debugging

@@ -21,17 +21,16 @@
 #include "../openGLPlotLive/src/window.h"
 
 // openGL Includes
-#include "settings.h"
+#include "utilities/settings.h"
 #include "renderEngine/shader.h"
 #include "renderEngine/objectLoading/model.h"
 #include "renderEngine/fonts.h"
-#include "light.h"
+#include "renderEngine/light.h"
 #include "imageTile.h"
 #include "mavlinkReceive.h"
 #include "mavAircraft.h"
-#include "skybox.h"
+#include "renderEngine/skybox/skybox.h"
 #include "telemOverlay.h"
-#include "satTiles.h"
 #include "volumes.h"
 
 // GLM Mathematics
@@ -110,6 +109,12 @@ int main(int argc, char* argv[]) {
 	// Fps command line argument
 	renderEngine.setFpsOn(fpsOn);
 
+	// World Axes
+	std::shared_ptr<AxesView> axesView = std::shared_ptr<AxesView>(new AxesView());
+	renderEngine.registerAxesView(axesView);
+    renderEngine.toggleAxes(true);
+
+
 	/* Create controllers */
     const GLchar* path = settings.aircraftConList[0].filepath.c_str(); // TODO - Fix this hardcoding
     // XYZ Aircraft
@@ -119,7 +124,7 @@ int main(int argc, char* argv[]) {
     // LatLonAlt Aircraft
     glm::vec3 origin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]);
     std::shared_ptr<WorldGeoObjectController> worldGeoObjectController;
-    worldGeoObjectController = std::shared_ptr<WorldGeoObjectController>(new WorldGeoObjectController(path, origin));
+    worldGeoObjectController = std::shared_ptr<WorldGeoObjectController>(new WorldGeoObjectController(path, origin, origin));
     renderEngine.registerWorldGeoObjController(worldGeoObjectController);
 
     // Set aircraft for camera
@@ -185,7 +190,7 @@ int main(int argc, char* argv[]) {
 	// Create Satellite Tiles
 	//SatTileList satTileList(origin,&mavAircraftList[0]);
 	//glm::vec3 origin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]);
-	std::shared_ptr<SatTileGroupController> satTileGroupController = std::make_shared<SatTileGroupController>(origin, worldObjectController);
+	std::shared_ptr<SatTileGroupController> satTileGroupController = std::make_shared<SatTileGroupController>(origin, worldGeoObjectController);
 	renderEngine.registerTileController(satTileGroupController);
 
 	/* ======================================================

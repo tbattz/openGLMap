@@ -25,7 +25,6 @@ public:
     SatTileModel(glm::vec3 origin, int x, int y, int zoom);
 
     /* Functions */
-    std::vector<float> latLon2TileNum(float lat, float lon, int zoom);
     std::vector<std::vector<double>> getXYOffset();
     glm::dvec3 getPosition();
     GLfloat getBrightness();

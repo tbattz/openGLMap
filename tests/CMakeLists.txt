@@ -10,7 +10,7 @@ MESSAGE( STATUS "Test Sources: " ${TEST_SOURCES})
 add_executable(${BINARY} ${TEST_SOURCES})
 
 # Specify libraries to be linked
-target_link_libraries(openGLMapTests PUBLIC gtest objects renderEngine userInput utilities)
+target_link_libraries(openGLMapTests PUBLIC gtest openGLMap_objects ${LIBS} userInput renderEngine objects utilities)
 
 # Add tests to be run
 add_test(NAME ${BINARY} COMMAND ${BINARY})

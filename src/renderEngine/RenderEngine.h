@@ -13,13 +13,15 @@
 #include <GLFW/glfw3.h>
 
 // Project Includes
-#include "../settings.h"
+#include "utilities/settings.h"
 #include "renderEngine/loadingScreen/loadingScreen.h"
 #include "../../openGLPlotLive/src/lineColours.h"
 #include <objects/worldObject/WorldObjectController.h>
 #include <objects/worldObject/WorldGeoObjectController.h>
+#include <objects/worldObject/SimpleObjectController.h>
 #include <renderEngine/camera.h>
 #include <objects/satTiles/SatTileGroupController.h>
+#include <renderEngine/axes/AxesView.h>
 
 
 /* Classes */
@@ -38,6 +40,7 @@ public:
     Shader* volumeShader;
     Shader* lineShader;
     Shader* textShader;
+    Shader* axesShader;
 
     /* Fonts */
     GLFont* fpsFontPt;
@@ -63,6 +66,7 @@ public:
 
     void registerWorldObjController(std::shared_ptr<WorldObjectController> worldObjController);
     void registerWorldGeoObjController(std::shared_ptr<WorldGeoObjectController> worldGeoObjController);
+    void registerSimpleObjController(std::shared_ptr<SimpleObjectController> simpleObjectController);
     void registerTileController(std::shared_ptr<SatTileGroupController> satTileGroupController);
 
     void preRender();
@@ -71,12 +75,19 @@ public:
     void setWireFrameBool(bool wireFrameOn);
     void setFpsOn(bool fpsOn);
 
+    void registerAxesView(std::shared_ptr<AxesView> axesView);
+    void toggleAxes(bool axesOnBool);
+
 private:
     std::shared_ptr<Camera> camera;
 
     std::vector<std::shared_ptr<WorldObjectController>> worldObjectControllerList;
     std::vector<std::shared_ptr<WorldGeoObjectController>> worldGeoObjectControllerList;
+    std::vector<std::shared_ptr<SimpleObjectController>> simpleObjectControllerList;
     std::shared_ptr<SatTileGroupController> satTileGroupController;
+
+    bool axesOn = false;
+    std::shared_ptr<AxesView> axesView;
 
 };
 

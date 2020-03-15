@@ -29,7 +29,7 @@ using namespace boost::filesystem;
 
 // Project Includes
 #include <renderEngine/shader.h>
-#include <objects/worldObject/WorldObjectController.h>
+#include <objects/worldObject/WorldGeoObjectController.h>
 #include "SatTileController.h"
 
 
@@ -44,13 +44,13 @@ struct weightVector {
 class SatTileGroupController {
 public:
     /* Constructor */
-    SatTileGroupController(glm::vec3 origin, std::shared_ptr<WorldObjectController> worldObjectController);
+    SatTileGroupController(glm::vec3 origin, std::shared_ptr<WorldGeoObjectController> worldGeoObjectController);
     /* Destructor */
     ~SatTileGroupController();
 
 
     /* Functions */
-    void setWorldObjectController(std::shared_ptr<WorldObjectController> worldObjectController);
+    void setWorldObjectController(std::shared_ptr<WorldGeoObjectController> worldGeoObjectController);
     std::vector<float> latLonOffsetHeading(float lat1, float lon1, float distance, float bearing, float sphereRadius = 6378.137);
     std::vector<float> latLon2TileNum(float lat, float lon, int zoom);
     void updateTiles();
@@ -59,8 +59,7 @@ public:
 private:
     /* Data */
     glm::dvec3      origin;
-    //int             zoom = 18;
-    int             zoom = 14;
+    int             zoom = 18;
     float           aircraftRadius = 1000; // m
     // TODO - Fix relative paths
     const char*     folderPath = "../../SatTiles/";
@@ -68,7 +67,7 @@ private:
     GLfloat         fileChecklast = 0.0f;
 
     /* Aircraft */
-    std::shared_ptr<WorldObjectController> currWorldObjectController;
+    std::shared_ptr<WorldGeoObjectController> currWorldGeoObjectController;
 
     /* Tiles */
     std::vector<SatTileController>  tileControllers;

@@ -12,7 +12,7 @@
 class WorldGeoObjectModel : public WorldObjectModel, public UnitConversions {
 public:
     /* Constructors */
-    WorldGeoObjectModel(glm::dvec3 origin);
+    WorldGeoObjectModel(glm::dvec3 geoPosition, glm::dvec3 origin);
     WorldGeoObjectModel(glm::dvec3 geoPosition, glm::dvec3 attitude, glm::dvec3 origin);
 
     /* Functions */

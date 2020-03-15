@@ -6,11 +6,11 @@
 
 
 /* Constructor */
-SatTileGroupController::SatTileGroupController(glm::vec3 origin, std::shared_ptr<WorldObjectController> worldObjectController) {
+SatTileGroupController::SatTileGroupController(glm::vec3 origin, std::shared_ptr<WorldGeoObjectController> worldGeoObjectController) {
     this->origin = origin;
 
     // Set current model used to update position to search for new tiles
-    setWorldObjectController(worldObjectController);
+    setWorldObjectController(worldGeoObjectController);
 
     // Setup Curl
     curlPt = curl_easy_init();
@@ -174,7 +174,7 @@ void SatTileGroupController::loadTile(std::vector<int> tileVec) {
     int x = tileVec[0];
     int y = tileVec[1];
     int tileZoom = tileVec[2];
-    string mypath = folderPath + std::to_string(tileZoom) + "-" + std::to_string(x) + "-" + std::to_string(y) + ".png";
+    string mypath = folderPath + std::to_string(tileZoom) + "-" + std::to_string(x) + "-" + std::to_string(y) + ".jpeg";
     // Create tile
     tileControllers.push_back(SatTileController(origin, x, y, tileZoom, mypath));
     loadedTiles.push_back(tileVec);
@@ -221,7 +221,7 @@ void SatTileGroupController::getDiskTiles() {
             mypath.append(folderPath);
             mypath.append("/");
             mypath.append(newFilename);
-            if((ext.compare(".png"))*(ext.compare(".jpg")) == 0) {
+            if(ext.compare(".png")*ext.compare(".jpg")*ext.compare(".jpeg") == 0) {
                 // Check if file is not in use
                 std::fstream myfile;
                 myfile.open(mypath);
@@ -250,8 +250,8 @@ void SatTileGroupController::updateRequiredTiles() {
     // Calculates the tiles required at the current point in time
     // Get current tile below aircraft
     glm::dvec3 aircraftGeoPos;
-    if (currWorldObjectController != nullptr) {
-        aircraftGeoPos = currWorldObjectController->getPosition();
+    if (currWorldGeoObjectController != nullptr) {
+        aircraftGeoPos = currWorldGeoObjectController->getGeoPosition();
     } else {
         aircraftGeoPos = origin;
     }
@@ -369,13 +369,15 @@ void SatTileGroupController::updateTiles() {
 
 
 void SatTileGroupController::draw(Shader shader) {
-    for(unsigned int i=0; i != tileControllers.size(); i++) {
-        // Draw tile
-        tileControllers[i].draw(shader);
+    if (!tileControllers.empty()) {
+        for (unsigned int i = 0; i != tileControllers.size(); i++) {
+            // Draw tile
+            tileControllers[i].draw(shader);
+        }
     }
 
 }
 
-void SatTileGroupController::setWorldObjectController(std::shared_ptr<WorldObjectController> worldObjectController) {
-    currWorldObjectController = worldObjectController;
+void SatTileGroupController::setWorldObjectController(std::shared_ptr<WorldGeoObjectController> worldGeoObjectController) {
+    currWorldGeoObjectController = worldGeoObjectController;
 }

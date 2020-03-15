@@ -25,8 +25,8 @@ glm::dvec3 UnitConversions::geo2ECEF(glm::dvec3 positionVector) {
     return glm::dvec3(ex,ey,ez);
 }
 
-/* Convert from ECEF to ENU */
-glm::dvec3 UnitConversions::ecef2ENU(glm::dvec3 ecefVector, glm::dvec3 ecefOrigin, glm::dvec3 origin) {
+/* Convert from ECEF to NEU */
+glm::dvec3 UnitConversions::ecef2NEU(glm::dvec3 ecefVector, glm::dvec3 ecefOrigin, glm::dvec3 origin) {
     GLdouble lat = glm::radians(origin[0]);
     GLdouble lon = glm::radians(origin[1]);
     //GLfloat alt = origin[2];
@@ -37,25 +37,28 @@ glm::dvec3 UnitConversions::ecef2ENU(glm::dvec3 ecefVector, glm::dvec3 ecefOrigi
 
     // Flipped due to GLM ordering
     glm::dvec3 tempPos = B*A;
-    glm::dvec3 position = glm::dvec3(tempPos[1], tempPos[0], tempPos[2]);
+    glm::dvec3 position = glm::dvec3(tempPos[0], tempPos[1], tempPos[2]);
 
     return position;
 }
 
-glm::dvec3 UnitConversions::geo2ENU(glm::dvec3 geoPosition, glm::dvec3 origin) {
+/* Geodetic to NEU */
+glm::dvec3 UnitConversions::geo2NEU(glm::dvec3 geoPosition, glm::dvec3 origin) {
     // Convert geo-position to x,y,z position
     /* Convert Geodetic to ECEF */
     glm::dvec3 ecefPosition = UnitConversions::geo2ECEF(geoPosition);
     glm::dvec3 ecefOrigin = UnitConversions::geo2ECEF(origin);
 
-    /* Convert from ECEF to ENU */
-    glm::dvec3 position = UnitConversions::ecef2ENU(ecefPosition, ecefOrigin, origin);
+    /* Convert from ECEF to NEU */
+    glm::dvec3 position = UnitConversions::ecef2NEU(ecefPosition, ecefOrigin, origin);
 
     return position;
 }
 
+/* ---------------------------------------------------------------------------------- */
 
-glm::dvec3 UnitConversions::enu2Ecef(glm::dvec3 position, glm::dvec3 origin) {
+/* NEU to ECEF */
+glm::dvec3 UnitConversions::neu2Ecef(glm::dvec3 position, glm::dvec3 origin) {
     // Convert x,y,z position to ECEF
     GLdouble lat = glm::radians(origin[0]);
     GLdouble lon = glm::radians(origin[1]);
@@ -77,21 +80,25 @@ glm::dvec3 UnitConversions::enu2Ecef(glm::dvec3 position, glm::dvec3 origin) {
     return ecefPosition;
 }
 
+/* ECEF to Geodetic */
 glm::dvec3 UnitConversions::ecef2Geo(glm::dvec3 ecefPosition) {
     /* Convert ECEF position to (lat, lon, alt) using Ferrari's solution */
     return UnitConversions::calcFerrariSolution(ecefPosition);
 }
 
-glm::dvec3 UnitConversions::enu2Geo(glm::dvec3 positionVector, glm::dvec3 origin) {
+/* NEU to Geodetic */
+glm::dvec3 UnitConversions::neu2Geo(glm::dvec3 positionVector, glm::dvec3 origin) {
     // Convert x,y,z position to geo-position
-    /* Convert from ENU to ECEF */
-    glm::dvec3 ecefPosition = UnitConversions::enu2Ecef(positionVector, origin);
+    /* Convert from NEU to ECEF */
+    glm::dvec3 ecefPosition = UnitConversions::neu2Ecef(positionVector, origin);
 
     /* Convert ECEF to Geodetic */
     glm::dvec3 geoPosition = UnitConversions::ecef2Geo(ecefPosition);
 
     return geoPosition;
 }
+
+/* ---------------------------------------------------------------------------------- */
 
 glm::dvec3 UnitConversions::calcFerrariSolution(glm::dvec3 ecefPosition) {
     // See https://en.wikipedia.org/wiki/Geographic_coordinate_conversion#Ferrari's_solution

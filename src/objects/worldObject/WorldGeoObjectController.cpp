@@ -4,7 +4,7 @@
 
 #include "WorldGeoObjectController.h"
 
-WorldGeoObjectController::WorldGeoObjectController(const GLchar* path, glm::dvec3 origin) : worldGeoObjectModel(origin), worldObjectView(path) {
+WorldGeoObjectController::WorldGeoObjectController(const GLchar* path, glm::dvec3 geoPosition, glm::dvec3 origin) : worldGeoObjectModel(geoPosition, origin), worldObjectView(path) {
 
 }
 

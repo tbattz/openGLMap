@@ -94,7 +94,10 @@ void Camera::setupView() {
 	// Select Aircraft
 	//mavAircraftListPt = mavAircraftList;
 	//MavAircraft* mavAircraftPt = &(*mavAircraftList)[aircraftID];
-	glm::dvec3 position = currentAircraftController->getPosition();
+    glm::dvec3 position = glm::dvec3(0.0f, 0.0f, 0.0f);
+	if (currentAircraftController != nullptr) {
+        position = currentAircraftController->getPosition();
+    }
 	// Sets up the selected view
 	switch(view) {
 		case FREE_CAM: {

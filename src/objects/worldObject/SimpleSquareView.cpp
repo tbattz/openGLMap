@@ -1,56 +1,43 @@
 //
-// Created by bcub3d-desktop on 26/1/20.
+// Created by bcub3d-desktop on 13/3/20.
 //
 
-#include "SatTileView.h"
-
+#include "SimpleSquareView.h"
 
 /* Constructor */
-SatTileView::SatTileView() {
-
-}
-
-/* Functions */
-void SatTileView::setupTile(std::vector<std::vector<double>> xyOffsets, std::string filename) {
+SimpleSquareView::SimpleSquareView(std::string filename) {
     /* Store filename */
     this->filename = filename;
     /* Calculate vertices and indices */
-    calculateVerticesIndices(xyOffsets, JPEG);
+    calculateVerticesIndices();
     /* Create and Setup Buffers */
     createAndSetupBuffers();
     /* Load Texture */
     setupTexture();
 }
 
-void SatTileView::calculateVerticesIndices(std::vector<std::vector<double>> xyOffsets, ImageType imageType) {
-    /* Calculate Vertices */
-    // Tiles geo position is top left corner
-    switch(imageType) {
-        case PNG:
-            // Image Texture coords start in bottom left, then rotated by 90 deg (for png)
-            vertices = {
-                    // Positions								// Normals			// Texture Coords
-                    -xyOffsets[1][0], 0.0f, xyOffsets[1][1],    0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
-                    -xyOffsets[2][0], 0.0f, xyOffsets[2][1],    0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-                    -xyOffsets[0][0], 0.0f, xyOffsets[0][1],    0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-                    0.0f, 0.0f, 0.0f,                           0.0f, 0.0f, 1.0f,   0.0f, 0.0f
-            };
-            break;
-        case JPEG:
-            // Image Texture coords start in bottom left
-            // x is North, y is Up, z is East
-            vertices = {
-                    // Positions								// Normals			// Texture Coords
-                    0.0f, 0.0f, 0.0f,                           0.0f, 0.0f, 1.0f,    0.0f, 1.0f,
-                    xyOffsets[1][0], 0.0f, xyOffsets[1][1],     0.0f, 0.0f, 1.0f,    0.0f, 0.0f,
-                    xyOffsets[2][0], 0.0f, xyOffsets[2][1],     0.0f, 0.0f, 1.0f,    1.0f, 0.0f,
-                    xyOffsets[0][0], 0.0f, xyOffsets[0][1],     0.0f, 0.0f, 1.0f,    1.0f, 1.0f
+/* Functions */
+void SimpleSquareView::setupTile(std::string filename) {
+    /* Store filename */
+    this->filename = filename;
+    /* Calculate vertices and indices */
+    calculateVerticesIndices();
+    /* Create and Setup Buffers */
+    createAndSetupBuffers();
+    /* Load Texture */
+    setupTexture();
+}
 
-            };
-            break;
-        default:
-            std::cout << "ERROR! Incorrect image type enum in calculateVerticiesIndices!" << "\n";
-    }
+void SimpleSquareView::calculateVerticesIndices() {
+    /* Calculate Vertices */
+    // Image Texture coords start in bottom left, then rotated by 90 deg (for png)
+    vertices = {
+            // Positions								// Normals			// Texture Coords
+            0.0f, 0.0f, 0.0f,                           0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+            1.0f, 0.0f, 0.0f,                           0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+            1.0f, 0.0f, 1.0f,                           0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+            0.0f, 0.0f, 1.0f,                           0.0f, 0.0f, 1.0f,   1.0f, 1.0f
+    };
 
     /* Store Indices */
     this->indices = { // Indices start from zero
@@ -59,7 +46,7 @@ void SatTileView::calculateVerticesIndices(std::vector<std::vector<double>> xyOf
     };
 }
 
-void SatTileView::createAndSetupBuffers() {
+void SimpleSquareView::createAndSetupBuffers() {
     /* Create Buffers */
     glGenVertexArrays(1,&VAO);
     glGenBuffers(1,&VBO);
@@ -86,7 +73,7 @@ void SatTileView::createAndSetupBuffers() {
     glBindVertexArray(0); // Unbind VAO
 }
 
-void SatTileView::setupTexture() {
+void SimpleSquareView::setupTexture() {
     // Create Texture
     glGenTextures(1,&tileTexture);
     glBindTexture(GL_TEXTURE_2D,tileTexture);
@@ -104,7 +91,7 @@ void SatTileView::setupTexture() {
     glBindTexture(GL_TEXTURE_2D,0);
 }
 
-void SatTileView::Draw(Shader shader) {
+void SimpleSquareView::Draw(Shader shader) {
     // Bind Texture Units
     glActiveTexture(GL_TEXTURE0);
     glUniform1i(glGetUniformLocation(shader.Program,"tileTexture"),0);
@@ -119,5 +106,3 @@ void SatTileView::Draw(Shader shader) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D,0);
 }
-
-

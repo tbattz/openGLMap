@@ -22,7 +22,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 // Project Includes
-#include "settings.h"
+#include "utilities/settings.h"
 #include "renderEngine/shader.h"
 #include "renderEngine/camera.h"
 

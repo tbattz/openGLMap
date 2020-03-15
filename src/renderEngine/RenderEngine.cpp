@@ -2,7 +2,7 @@
 // Created by bcub3d-desktop on 12/1/20.
 //
 
-#include "../settings.h"
+#include "utilities/settings.h"
 #include "RenderEngine.h"
 
 #include <memory>
@@ -95,6 +95,8 @@ void RenderEngine::setupShaders() {
     volumeShader = new Shader("../../Shaders/volume.vs","../../Shaders/volume.frag");
     loadingScreen->appendLoadingMessage("Loading lineShader.");
     lineShader = new Shader("../../Shaders/line.vs","../../Shaders/line.frag");
+    loadingScreen->appendLoadingMessage("Loading axesShader.");
+    axesShader = new Shader("../../Shaders/axes.vs", "../../Shaders/axes.frag");
 }
 
 void RenderEngine::loadFontShaders() {
@@ -121,6 +123,10 @@ void RenderEngine::registerWorldObjController(std::shared_ptr<WorldObjectControl
 
 void RenderEngine::registerWorldGeoObjController(std::shared_ptr<WorldGeoObjectController> worldGeoObjController) {
     this->worldGeoObjectControllerList.push_back(worldGeoObjController);
+}
+
+void RenderEngine::registerSimpleObjController(std::shared_ptr<SimpleObjectController> simpleObjectController) {
+    this->simpleObjectControllerList.push_back(simpleObjectController);
 }
 
 void RenderEngine::registerTileController(std::shared_ptr<SatTileGroupController> satTileGroupController) {
@@ -152,6 +158,12 @@ void RenderEngine::preRender() {
     glUniformMatrix4fv(glGetUniformLocation(tileShader->Program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
     glUniformMatrix4fv(glGetUniformLocation(tileShader->Program,"view"),1,GL_FALSE,glm::value_ptr(view));
 
+    if(axesOn) {
+        axesShader->Use();
+        glUniformMatrix4fv(glGetUniformLocation(axesShader->Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(glGetUniformLocation(axesShader->Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+    }
+
 }
 
 void RenderEngine::renderFrame() {
@@ -168,9 +180,22 @@ void RenderEngine::renderFrame() {
     for(unsigned int i=0; i < worldGeoObjectControllerList.size(); i++) {
         worldGeoObjectControllerList[i]->draw(*lightingShader);
     }
+    /* Simple Object Models */
+    this->lightingShader->Use();
+    for(unsigned int i=0; i < simpleObjectControllerList.size(); i++) {
+        simpleObjectControllerList[i]->draw(*lightingShader);
+    }
     /* Satellite Tiles */
-    this->tileShader->Use();
-    satTileGroupController->draw(*tileShader);
+    if (satTileGroupController != nullptr) {
+        this->tileShader->Use();
+        satTileGroupController->draw(*tileShader);
+    }
+
+    /* Draw Axes */
+    if(axesOn) {
+        this->axesShader->Use();
+        axesView->Draw(*axesShader);
+    }
 
 }
 
@@ -184,6 +209,14 @@ void RenderEngine::setFpsOn(bool fpsOn) {
     if(fpsOn) {
         fpsFontPt = new GLFont(FONTPATH);
     }
+}
+
+void RenderEngine::registerAxesView(std::shared_ptr<AxesView> axesView) {
+    this->axesView = axesView;
+}
+
+void RenderEngine::toggleAxes(bool axesOnBool) {
+    this->axesOn = axesOnBool;
 }
 
 

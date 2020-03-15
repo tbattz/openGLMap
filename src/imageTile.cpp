@@ -17,7 +17,7 @@ ImageTile::ImageTile(glm::vec3 origin, glm::vec3 geoPosition, GLfloat fovX, GLfl
 	this->fovY		= fovY;		   		// Degrees
 	this->altOffset = altOffset;		// m
 	this->filename 	= filename;			// Name of image file
-	this->brightness = 2.0;
+	this->brightness = 1.0;
 	printf("%s\n",filename.c_str());
 
 	/* Convert Geodetic to ECEF */

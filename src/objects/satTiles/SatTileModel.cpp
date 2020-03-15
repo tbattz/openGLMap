@@ -20,7 +20,7 @@ SatTileModel::SatTileModel(glm::vec3 origin, int x, int y, int zoom)  {
     glm::dvec3 ecefOrigin = geo2ECEF(origin);
 
     /* Convert from ECEF to ENU */
-    glm::dvec3 tempPos = ecef2ENU(ecefPosition, ecefOrigin, origin);
+    glm::dvec3 tempPos = ecef2NEU(ecefPosition, ecefOrigin, origin);
     position = glm::dvec3(tempPos[1],tempPos[0],tempPos[2]);
 
     /* Calculate Width */
@@ -45,8 +45,8 @@ std::vector<double> SatTileModel::calcTileWidthHeight(glm::dvec3 ecefOrigin, glm
     // Calculates the width and height offsets between two geo positions in (x m, y m)
     glm::dvec3 ecefPos1 = geo2ECEF(geoPos1);
     glm::dvec3 ecefPos2 = geo2ECEF(geoPos2);
-    glm::dvec3 pos1 = ecef2ENU(ecefPos1, ecefOrigin, origin);
-    glm::dvec3 pos2 = ecef2ENU(ecefPos2, ecefOrigin, origin);
+    glm::dvec3 pos1 = ecef2NEU(ecefPos1, ecefOrigin, origin);
+    glm::dvec3 pos2 = ecef2NEU(ecefPos2, ecefOrigin, origin);
     glm::dvec3 diff = pos1 - pos2;
 
     double h = fabs(diff[0])+0.05;

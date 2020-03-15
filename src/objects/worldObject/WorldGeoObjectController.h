@@ -26,7 +26,7 @@
 class WorldGeoObjectController {
 public:
     /* Constructor */
-    WorldGeoObjectController(const GLchar* path, glm::dvec3 origin);
+    WorldGeoObjectController(const GLchar* path, glm::dvec3 geoPosition, glm::dvec3 origin);
 
     /* Functions */
     void draw(Shader shader);

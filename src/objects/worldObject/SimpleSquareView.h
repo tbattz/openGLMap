@@ -1,9 +1,10 @@
 //
-// Created by bcub3d-desktop on 26/1/20.
+// Created by bcub3d-desktop on 13/3/20.
 //
 
-#ifndef OPENGLMAP_SATTILEVIEW_H
-#define OPENGLMAP_SATTILEVIEW_H
+#ifndef OPENGLMAP_SIMPLESQUAREVIEW_H
+#define OPENGLMAP_SIMPLESQUAREVIEW_H
+
 
 // Standard Includes
 #include <vector>
@@ -22,15 +23,14 @@
 #include <renderEngine/shader.h>
 
 
-enum ImageType {PNG, JPEG};
 
-class SatTileView {
+class SimpleSquareView {
 public:
     /* Constructor */
-    SatTileView();
+    SimpleSquareView(std::string filename);
 
     /* Functions */
-    void setupTile(std::vector<std::vector<double>> xyOffsets, std::string filename);
+    void setupTile(std::string filename);
     void Draw(Shader shader);
 
 private:
@@ -46,10 +46,10 @@ private:
     string filename;
 
     /* Functions */
-    void calculateVerticesIndices(std::vector<std::vector<double>> xyOffsets, ImageType imageType);
+    void calculateVerticesIndices();
     void createAndSetupBuffers();
     void setupTexture();
 };
 
 
-#endif //OPENGLMAP_SATTILEVIEW_H
+#endif //OPENGLMAP_SIMPLESQUAREVIEW_H

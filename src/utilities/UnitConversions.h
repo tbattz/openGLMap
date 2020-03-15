@@ -20,11 +20,11 @@ public:
 
     /* Functions */
     static glm::dvec3 geo2ECEF(glm::dvec3 positionVector);
-    static glm::dvec3 ecef2ENU(glm::dvec3 ecefVector, glm::dvec3 ecefOrigin, glm::dvec3 origin);
-    static glm::dvec3 geo2ENU(glm::dvec3 geoPosition, glm::dvec3 origin);
-    static glm::dvec3 enu2Ecef(glm::dvec3 position, glm::dvec3 origin);
+    static glm::dvec3 ecef2NEU(glm::dvec3 ecefVector, glm::dvec3 ecefOrigin, glm::dvec3 origin);
+    static glm::dvec3 geo2NEU(glm::dvec3 geoPosition, glm::dvec3 origin);
+    static glm::dvec3 neu2Ecef(glm::dvec3 position, glm::dvec3 origin);
     static glm::dvec3 ecef2Geo(glm::dvec3 ecefPosition);
-    static glm::dvec3 enu2Geo(glm::dvec3 positionVector, glm::dvec3 origin);
+    static glm::dvec3 neu2Geo(glm::dvec3 positionVector, glm::dvec3 origin);
 
 private:
     /* Functions */

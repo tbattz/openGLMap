@@ -5,7 +5,6 @@
 
 
 /* Geodetic to ECEF to Geodetic */
-
 class Geo2ECEFParameterizedTestFixture : public ::testing::TestWithParam<glm::dvec3> {
     // geoPositionVector
 };
@@ -37,14 +36,14 @@ INSTANTIATE_TEST_SUITE_P(geo2EcefTests, Geo2ECEFParameterizedTestFixture, ::test
         glm::dvec3(-45.0f, -90.0f, 1000.0f)
 ));
 
-/* Ecef to Enu to Ecef */
+/* Ecef to Neu to Ecef */
 
-class Ecef2EnuParameterizedTestFixture : public ::testing::TestWithParam<std::tuple<glm::dvec3, glm::dvec3>> {
+class Ecef2NeuParameterizedTestFixture : public ::testing::TestWithParam<std::tuple<glm::dvec3, glm::dvec3>> {
     // ecefVector
     // origin
 };
 
-TEST_P(Ecef2EnuParameterizedTestFixture, ecef2Enu) {
+TEST_P(Ecef2NeuParameterizedTestFixture, ecef2Neu) {
     // Set tolerance
     float tol = 1.0f;
 
@@ -53,11 +52,11 @@ TEST_P(Ecef2EnuParameterizedTestFixture, ecef2Enu) {
     glm::dvec3 origin = std::get<1>(GetParam());
     glm::dvec3 ecefOrigin = UnitConversions::geo2ECEF(origin);
 
-    // Convert ECEF to ENU
-    glm::dvec3 enuVector = UnitConversions::ecef2ENU(ecefVector, ecefOrigin, origin);
+    // Convert ECEF to NEU
+    glm::dvec3 neuVector = UnitConversions::ecef2NEU(ecefVector, ecefOrigin, origin);
 
-    // Convert ENU to ECEF
-    glm::dvec3 newEcefVector = UnitConversions::enu2Ecef(enuVector, origin);
+    // Convert NEU to ECEF
+    glm::dvec3 newEcefVector = UnitConversions::neu2Ecef(neuVector, origin);
 
     // Assert Values
     ASSERT_NEAR(ecefVector[0], newEcefVector[0], tol);
@@ -65,21 +64,21 @@ TEST_P(Ecef2EnuParameterizedTestFixture, ecef2Enu) {
     ASSERT_NEAR(ecefVector[2], newEcefVector[2], tol);
 }
 
-INSTANTIATE_TEST_SUITE_P(ecef2EnuTests, Ecef2EnuParameterizedTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(ecef2NeuTests, Ecef2NeuParameterizedTestFixture, ::testing::Values(
         std::make_tuple(glm::dvec3(1000.0f, 1000.0f, 0.0f), glm::dvec3(0.0f, 0.0f, 0.0f)),
         std::make_tuple(glm::dvec3(4500.0f, -9000.0f, 0.0f), glm::dvec3(0.0f, 0.0f, 0.0f)),
         std::make_tuple(glm::dvec3(1000.0f, 1000.0f, 0.0f), glm::dvec3(-37.846863f, 144.970602f, 50.0f)),
         std::make_tuple(glm::dvec3(4500.0f, -9000.0f, 0.0f), glm::dvec3(-37.846863f, 144.970602f, 50.0f))
 ));
 
-/* Geodetic to Enu to Geodetic */
+/* Geodetic to Neu to Geodetic */
 
-class Geo2EnuParameterizedTestFixture : public ::testing::TestWithParam<std::tuple<glm::dvec3, glm::dvec3>> {
+class Geo2NeuParameterizedTestFixture : public ::testing::TestWithParam<std::tuple<glm::dvec3, glm::dvec3>> {
     // geoPosition
     // origin
 };
 
-TEST_P(Geo2EnuParameterizedTestFixture, geo2Enu) {
+TEST_P(Geo2NeuParameterizedTestFixture, geo2Neu) {
     // Set tolerance
     float tol = 1.0f;
 
@@ -87,19 +86,21 @@ TEST_P(Geo2EnuParameterizedTestFixture, geo2Enu) {
     glm::dvec3 geoPosition = std::get<0>(GetParam());
     glm::dvec3 origin = std::get<1>(GetParam());
 
-    // Convert Geodetic to ENU
-    glm::dvec3 positionVector = UnitConversions::geo2ENU(geoPosition, origin);
+    // Convert Geodetic to NEU
+    glm::dvec3 positionVector = UnitConversions::geo2NEU(geoPosition, origin);
 
     // Convert ECEF to Geodetic
-    glm::dvec3 newGeoPositionVector = UnitConversions::enu2Geo(positionVector, origin);
+    glm::dvec3 newGeoPositionVector = UnitConversions::neu2Geo(positionVector, origin);
 
-    // Assert Values
+    // Assert Valuess
     ASSERT_NEAR(geoPosition[0], newGeoPositionVector[0], tol);
     ASSERT_NEAR(geoPosition[1], newGeoPositionVector[1], tol);
     ASSERT_NEAR(geoPosition[2], newGeoPositionVector[2], tol);
 }
 
-INSTANTIATE_TEST_SUITE_P(geo2EnuTests, Geo2EnuParameterizedTestFixture, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(geo2NeuTests, Geo2NeuParameterizedTestFixture, ::testing::Values(
+        std::make_tuple(glm::dvec3(-37.846863f, 145.0f, 50.0f), glm::dvec3(-37.846863f, 144.970602f, 50.0f)),
+        std::make_tuple(glm::dvec3(-37.5f, 144.970602f, 50.0f), glm::dvec3(-37.846863f, 144.970602f, 50.0f)),
         std::make_tuple(glm::dvec3(1.0f, 1.0f, 0.0f), glm::dvec3(0.0f, 0.0f, 0.0f)),
         std::make_tuple(glm::dvec3(45.0f, -90.0f, 0.0f), glm::dvec3(0.0f, 0.0f, 0.0f)),
         std::make_tuple(glm::dvec3(0.0f, 0.0f, 1000.0f), glm::dvec3(-37.846863f, 144.970602f, 50.0f)),
