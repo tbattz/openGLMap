@@ -26,7 +26,6 @@
 #include "renderEngine/objectLoading/model.h"
 #include "renderEngine/fonts.h"
 #include "renderEngine/light.h"
-#include "imageTile.h"
 #include "mavlinkReceive.h"
 #include "mavAircraft.h"
 #include "renderEngine/skybox/skybox.h"
@@ -190,7 +189,7 @@ int main(int argc, char* argv[]) {
 	// Create Satellite Tiles
 	//SatTileList satTileList(origin,&mavAircraftList[0]);
 	//glm::vec3 origin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]);
-	std::shared_ptr<SatTileGroupController> satTileGroupController = std::make_shared<SatTileGroupController>(origin, worldGeoObjectController);
+	std::shared_ptr<SatTileGroupController> satTileGroupController = std::make_shared<SatTileGroupController>(origin, worldGeoObjectController, HYBRID);
 	renderEngine.registerTileController(satTileGroupController);
 
 	/* ======================================================

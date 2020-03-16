@@ -13,6 +13,7 @@
 #include <curl/curl.h>
 #include <mutex>
 #include <cstdio>
+#include <sys/stat.h>
 
 // Boost
 #include <boost/filesystem.hpp>
@@ -40,11 +41,14 @@ struct weightVector {
     float 		weight;
 };
 
+/* Enums */
+enum MapType {HYBRID, SATELLITE, MAP, TERRAIN};
+
 
 class SatTileGroupController {
 public:
     /* Constructor */
-    SatTileGroupController(glm::vec3 origin, std::shared_ptr<WorldGeoObjectController> worldGeoObjectController);
+    SatTileGroupController(glm::vec3 origin, std::shared_ptr<WorldGeoObjectController> worldGeoObjectController, MapType mapType=HYBRID);
     /* Destructor */
     ~SatTileGroupController();
 
@@ -61,8 +65,10 @@ private:
     glm::dvec3      origin;
     int             zoom = 18;
     float           aircraftRadius = 1000; // m
+    MapType         mapType;
     // TODO - Fix relative paths
-    const char*     folderPath = "../../SatTiles/";
+    const char*     satTilePath = "../../SatTiles/";
+    std::string     folderPath;
     bool            initFin = false;
     GLfloat         fileChecklast = 0.0f;
 
@@ -85,8 +91,10 @@ private:
     bool		threadRunning = true;
 
     /* Functions */
+    void checkTileDirectoryExists();
     void satTileDownloader();
     void stopThreads();
+    std::string generateTileUrl(std::string msDigit, std::string quadCode);
     void downloadTile(std::vector<int> tileVec);
     void loadTile(std::vector<int> tileVec);
     std::vector<string> splitStringDelim(string inString, string delim);

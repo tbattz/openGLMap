@@ -6,8 +6,12 @@
 
 
 /* Constructor */
-SatTileGroupController::SatTileGroupController(glm::vec3 origin, std::shared_ptr<WorldGeoObjectController> worldGeoObjectController) {
+SatTileGroupController::SatTileGroupController(glm::vec3 origin, std::shared_ptr<WorldGeoObjectController> worldGeoObjectController, MapType mapType) {
     this->origin = origin;
+    this->mapType = mapType;
+
+    // Check tile directory exists
+    checkTileDirectoryExists();
 
     // Set current model used to update position to search for new tiles
     setWorldObjectController(worldGeoObjectController);
@@ -72,6 +76,30 @@ std::vector<float> SatTileGroupController::latLonOffsetHeading(float lat1, float
     return {lat2,lon2};
 }
 
+void SatTileGroupController::checkTileDirectoryExists() {
+    switch(mapType) {
+        case HYBRID:
+            folderPath = satTilePath + std::string("hybrid/");
+            break;
+        case SATELLITE:
+            folderPath = satTilePath + std::string("satellite/");
+            break;
+        case MAP:
+            folderPath = satTilePath + std::string("map/");
+            break;
+        case TERRAIN:
+            folderPath = satTilePath + std::string("terrain/");
+            break;
+        default:
+            folderPath = satTilePath + std::string("hybrid/");
+    }
+    // Check directory exists, otherwise make it
+    struct stat buffer;
+    if (stat(folderPath.c_str(), &buffer) != 0) {
+        mkdir(folderPath.c_str(), 0777);
+    }
+}
+
 void SatTileGroupController::satTileDownloader() {
     // The thread to load tiles from disk into the world
     while (!initFin) {
@@ -95,6 +123,28 @@ void SatTileGroupController::stopThreads() {
     threadRunning = false;
     satTileDownloadThread.join();
     std::cout << "Satellite Tile Download Thread joined." << std::endl;
+}
+
+std::string SatTileGroupController::generateTileUrl(std::string msDigit, std::string quadCode) {
+    std::string url;
+    switch(mapType) {
+        case HYBRID:
+            url = "http://ecn.t" + msDigit + ".tiles.virtualearth.net/tiles/h" + quadCode + ".png?g=441&mkt=en-us&n=z";
+            break;
+        case SATELLITE:
+            url = "http://ecn.t" + msDigit + ".tiles.virtualearth.net/tiles/a" + quadCode + ".png?g=441&mkt=en-us&n=z";
+            break;
+        case MAP:
+            url = "http://ecn.t" + msDigit + ".tiles.virtualearth.net/tiles/r" + quadCode + ".png?g=441&mkt=en-us&n=z";
+            break;
+        case TERRAIN:
+            url = "http://ecn.t" + msDigit + ".tiles.virtualearth.net/tiles/r" + quadCode + ".png?g=441&mkt=en-us&shading=hill&n=z";
+            break;
+        default:
+            url = "http://ecn.t" + msDigit + ".tiles.virtualearth.net/tiles/h" + quadCode + ".png?g=441&mkt=en-us&n=z";
+    }
+
+    return url;
 }
 
 static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
@@ -134,9 +184,7 @@ void SatTileGroupController::downloadTile(std::vector<int> tileVec) {
     std::string msDigit = std::to_string(getMSDigit(x, y));
     std::string quadCode = getQuadCode(x, y, tileZoom);
     string outName = folderPath + std::to_string(tileZoom) + "-" + std::to_string(x) + "-" + std::to_string(y) + ".jpeg";
-    ///string url = "http://maptile.maps.svc.ovi.com/maptiler/v2/maptile/newest/hybrid.day/" + std::to_string(tileZoom) +"/" + std::to_string(x) + "/" + std::to_string(y) +"/256/png8";
-    // TODO - Allow selector of different microsoft maps. Store each in a different folder.
-    string url = "http://ecn.t" + msDigit + ".tiles.virtualearth.net/tiles/h" + quadCode + ".png?g=441&mkt=en-us&n=z";
+    std::string url = generateTileUrl(msDigit, quadCode);
     std::cout << url << std::endl;
     if(curlPt) {
         CURLcode result;
