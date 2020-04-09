@@ -7,8 +7,7 @@
 
 
 
-// GLEW (OpenGL Extension Wrangler Library)
-#include <GL/glew.h>
+// GLFW (Multi-platform library for OpenGL)
 #include <GLFW/glfw3.h>
 
 // Project Includes

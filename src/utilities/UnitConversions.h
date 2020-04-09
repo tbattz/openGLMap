@@ -6,12 +6,11 @@
 #define OPENGLMAP_UNITCONVERSIONS_H
 
 
-// GL Includes
-#include <GL/glew.h>
-
 // GLM Mathematics
 #include <glm/glm.hpp>
 
+// GLAD - Multi Language GL Loader-Generator
+#include <glad/glad.h>
 
 class UnitConversions {
 public:

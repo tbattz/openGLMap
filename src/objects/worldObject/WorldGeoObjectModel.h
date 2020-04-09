@@ -18,7 +18,8 @@ public:
     /* Functions */
     glm::dvec3 getGeoPosition();
     void setPosition(glm::dvec3 newPosition);
-    void setGeoPosition(glm::dvec3 newGeoPosition);
+
+    virtual void setGeoPosition(glm::dvec3 newGeoPosition);
 
 private:
     /* Data */

@@ -5,9 +5,6 @@
 #ifndef OPENGLMAP_SIMPLEOBJECTCONTROLLER_H
 #define OPENGLMAP_SIMPLEOBJECTCONTROLLER_H
 
-// GL Includes
-#include <GL/glew.h>
-
 // GLM Mathematics
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -20,9 +17,10 @@
 // Project Includes
 #include <objects/worldObject/WorldGeoObjectModel.h>
 #include <objects/worldObject/SimpleSquareView.h>
+#include "IWorldObjectController.h"
 
 
-class SimpleObjectController {
+class SimpleObjectController : public IWorldObjectController {
 public:
     /* Constructor */
     SimpleObjectController(glm::dvec3 position, const char* filename);

@@ -14,8 +14,6 @@
 using std::string;
 using std::vector;
 
-// GL Includes
-#include <GL/glew.h>
 
 // Assimp Includes
 #include <assimp/postprocess.h>

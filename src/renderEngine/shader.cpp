@@ -11,8 +11,8 @@
 /* Constructor */
 Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath) {
 	// Get vertex/fragment source from file path
-	string vertexCode;
-	string fragmentCode;
+	std::string vertexCode;
+	std::string fragmentCode;
 	std::ifstream vShaderFile;
 	std::ifstream fShaderFile;
 	// Handle file exceptions

@@ -4,9 +4,11 @@
 
 #include "SatTileGroupController.h"
 
+#include <utility>
+
 
 /* Constructor */
-SatTileGroupController::SatTileGroupController(glm::vec3 origin, std::shared_ptr<WorldGeoObjectController> worldGeoObjectController, MapType mapType) {
+SatTileGroupController::SatTileGroupController(glm::vec3 origin, MapType mapType) {
     this->origin = origin;
     this->mapType = mapType;
 
@@ -14,7 +16,7 @@ SatTileGroupController::SatTileGroupController(glm::vec3 origin, std::shared_ptr
     checkTileDirectoryExists();
 
     // Set current model used to update position to search for new tiles
-    setWorldObjectController(worldGeoObjectController);
+    //setWorldObjectController(worldGeoObjectController);
 
     // Setup Curl
     curlPt = curl_easy_init();
@@ -297,9 +299,12 @@ void SatTileGroupController::getDiskTiles() {
 void SatTileGroupController::updateRequiredTiles() {
     // Calculates the tiles required at the current point in time
     // Get current tile below aircraft
+    glm::dvec3 aircraftPos;
     glm::dvec3 aircraftGeoPos;
-    if (currWorldGeoObjectController != nullptr) {
-        aircraftGeoPos = currWorldGeoObjectController->getGeoPosition();
+    if (currWorldObjectController != nullptr) {
+        aircraftPos = currWorldObjectController->getPosition();
+        // Convert to GeoPosition
+        aircraftGeoPos = UnitConversions::neu2Geo(aircraftPos, this->origin);
     } else {
         aircraftGeoPos = origin;
     }
@@ -360,7 +365,7 @@ void SatTileGroupController::loadRequiredTiles() {
                 // Load tile
                 loadTile(toLoadTiles[i]);
                 loadedCount += 1;
-                std::cout << "Loaded tile." << std::endl;
+                std::cout << "Loaded tile: " << toLoadTiles[i][0] << ", " << toLoadTiles[i][1] << ", " << toLoadTiles[i][2] << std::endl;
             }
         }
     }
@@ -426,6 +431,7 @@ void SatTileGroupController::draw(Shader shader) {
 
 }
 
-void SatTileGroupController::setWorldObjectController(std::shared_ptr<WorldGeoObjectController> worldGeoObjectController) {
-    currWorldGeoObjectController = worldGeoObjectController;
+void SatTileGroupController::setWorldObjectController(std::shared_ptr<IWorldObjectController> worldObjectController) {
+    currWorldObjectController = std::move(worldObjectController);
 }
+

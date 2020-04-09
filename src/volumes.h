@@ -13,9 +13,6 @@
 #include <vector>
 #include <algorithm>
 
-// GL Includes
-#include <GL/glew.h>
-
 // GLM Mathematics
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

@@ -47,12 +47,6 @@ sudo chmod +x installDependicies.sh
 	sudo make install
 	```
 
-* GLEW (The OpenGL Extension Wrangler Library)
-	* Install the development library
-	```
-	sudo apt-get install libglew-dev
-	```
-
 * GLM (The OpenGL Mathematics Library)
 	* Download a release from Github and extract, https://github.com/g-truc/glm/tags
 	* Copy the glm folder inside the glm release into the include directory
@@ -158,6 +152,11 @@ If taking an input mavlink feed from ardupilot/SITL, sim_vehicle.py must be run 
 ```
 sim_vehicle.sh --out=192.168.1.1:14550 -C --streamrate 5
 ```
+For a quadplane,
+```
+cd ArduPlane
+sim_vehicle.py --map -f quadplane --console -L PolPad --out=192.168.1.1:14550 -C --streamrate 5
+```
 
 To run, navigate to the build directory and enter
 ```
@@ -197,7 +196,6 @@ If you just want to compile the source code without making changes, then running
 	* X11
 	* pthread
 	* Xrandr
-	* GLEW
 	* Xi
 	* SOIL
 	* freetype

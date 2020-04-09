@@ -8,14 +8,13 @@
 #ifndef SHADER_H_
 #define SHADER_H_
 
+// GLAD - Multi Language GL Loader-Generator
+#include <glad/glad.h>
+
 // Standard Includes
 #include <fstream>
 #include <sstream>
 #include <iostream>
-using std::string;
-
-// GLEW (OpenGL Extension Wrangler Library)
-#include <GL/glew.h>
 
 
 class Shader {

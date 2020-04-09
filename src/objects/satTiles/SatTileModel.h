@@ -8,9 +8,6 @@
 // Standard Includes
 #include <vector>
 
-// GL Includes
-#include <GL/glew.h>
-
 // GLM Mathematics
 #include <glm/glm.hpp>
 

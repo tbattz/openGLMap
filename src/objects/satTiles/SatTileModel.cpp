@@ -21,7 +21,7 @@ SatTileModel::SatTileModel(glm::vec3 origin, int x, int y, int zoom)  {
 
     /* Convert from ECEF to ENU */
     glm::dvec3 tempPos = ecef2NEU(ecefPosition, ecefOrigin, origin);
-    position = glm::dvec3(tempPos[1],tempPos[0],tempPos[2]);
+    position = glm::dvec3(tempPos[1],tempPos[0],0.0f);
 
     /* Calculate Width */
     calcTileWidthHeightAll(ecefOrigin);

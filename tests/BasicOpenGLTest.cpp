@@ -36,9 +36,9 @@ TEST(BasicTextures, loadSquareJPEGTexture) {
 
     // Create SimpleObject
     // Tile 1
-    std::shared_ptr<SimpleObjectController> simpleObjectController;
-    simpleObjectController = std::shared_ptr<SimpleObjectController>(new SimpleObjectController(glm::dvec3(0.0f, 0.0f, 0.0f), "../../SatTiles/18-236834-160981.jpeg"));
-    renderEngine.registerSimpleObjController(simpleObjectController);
+    std::shared_ptr<IWorldObjectController> simpleObjectController;
+    simpleObjectController = std::shared_ptr<IWorldObjectController>(new SimpleObjectController(glm::dvec3(0.0f, 0.0f, 0.0f), "../../SatTiles/hybrid/18-236834-160981.jpeg"));
+    renderEngine.registerWorldObjectController(simpleObjectController);
 
     // World Axes
     std::shared_ptr<AxesView> axesView = std::shared_ptr<AxesView>(new AxesView());

@@ -6,9 +6,6 @@
 #define OPENGLMAP_WORLDGEOOBJECTCONTROLLER_H
 
 
-// GL Includes
-#include <GL/glew.h>
-
 // GLM Mathematics
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -21,9 +18,10 @@
 // Project Includes
 #include "WorldGeoObjectModel.h"
 #include "WorldObjectView.h"
+#include "IWorldObjectController.h"
 
 
-class WorldGeoObjectController {
+class WorldGeoObjectController : public IWorldObjectController {
 public:
     /* Constructor */
     WorldGeoObjectController(const GLchar* path, glm::dvec3 geoPosition, glm::dvec3 origin);
@@ -31,6 +29,7 @@ public:
     /* Functions */
     void draw(Shader shader);
     void updateGeoPosition(glm::dvec3 position, glm::dvec3 attitude);
+    glm::dvec3 getPosition();
     glm::dvec3 getGeoPosition();
     std::shared_ptr<WorldGeoObjectModel> getWorldGeoObjectModel();
 

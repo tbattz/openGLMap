@@ -22,15 +22,13 @@ using namespace boost::filesystem;
 // GLM Mathematics
 #include <glm/glm.hpp>
 
-// GL Includes
-#include <GL/glew.h>
-
 // GLFW (Multi-platform library for OpenGL)
 #include <GLFW/glfw3.h>
 
 // Project Includes
 #include <renderEngine/shader.h>
 #include <objects/worldObject/WorldGeoObjectController.h>
+#include <objects/externalInput/MavlinkGeoObjectController.h>
 #include "SatTileController.h"
 
 
@@ -48,13 +46,13 @@ enum MapType {HYBRID, SATELLITE, MAP, TERRAIN};
 class SatTileGroupController {
 public:
     /* Constructor */
-    SatTileGroupController(glm::vec3 origin, std::shared_ptr<WorldGeoObjectController> worldGeoObjectController, MapType mapType=HYBRID);
+    SatTileGroupController(glm::vec3 origin, MapType mapType=HYBRID);
     /* Destructor */
     ~SatTileGroupController();
 
 
     /* Functions */
-    void setWorldObjectController(std::shared_ptr<WorldGeoObjectController> worldGeoObjectController);
+    void setWorldObjectController(std::shared_ptr<IWorldObjectController> worldObjectController);
     std::vector<float> latLonOffsetHeading(float lat1, float lon1, float distance, float bearing, float sphereRadius = 6378.137);
     std::vector<float> latLon2TileNum(float lat, float lon, int zoom);
     void updateTiles();
@@ -73,7 +71,7 @@ private:
     GLfloat         fileChecklast = 0.0f;
 
     /* Aircraft */
-    std::shared_ptr<WorldGeoObjectController> currWorldGeoObjectController;
+    std::shared_ptr<IWorldObjectController> currWorldObjectController = nullptr;
 
     /* Tiles */
     std::vector<SatTileController>  tileControllers;

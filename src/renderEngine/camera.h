@@ -12,9 +12,6 @@
 #include <vector>
 #include <iostream>
 
-// GL Includes
-#include <GL/glew.h>
-
 // Project Includes
 #include "mavAircraft.h"
 #include <objects/worldObject/WorldObjectController.h>
@@ -64,7 +61,7 @@ public:
 	////std::vector<MavAircraft>* mavAircraftListPt;
 	////int aircraftID = 0;
 	////int otherAircraftID = 0; // ID to track another aircraft
-	std::shared_ptr<WorldObjectController> currentAircraftController;
+	std::shared_ptr<IWorldObjectController> currentAircraftController;
 
 	/* Constructors */
 	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), GLfloat yaw = YAW, GLfloat pitch = PITCH);
@@ -72,7 +69,7 @@ public:
 
 	/* Functions */
 	glm::mat4 GetViewMatrix();
-	void setCurrentAircraft(std::shared_ptr<WorldObjectController> currentAircraftController);
+	void setCurrentAircraft(std::shared_ptr<IWorldObjectController> currentAircraftController);
 	void ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime);
 	void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
 	void ProcessMouseScroll(GLfloat yoffset);

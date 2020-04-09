@@ -8,9 +8,6 @@
 #ifndef LIGHT_H_
 #define LIGHT_H_
 
-// GLEW (OpenGL Extension Wrangler Library)
-#include <GL/glew.h>
-
 // Project Includes
 #include "renderEngine/shader.h"
 

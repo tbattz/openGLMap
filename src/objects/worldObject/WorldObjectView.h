@@ -5,9 +5,6 @@
 #ifndef OPENGLMAP_WORLDOBJECTVIEW_H
 #define OPENGLMAP_WORLDOBJECTVIEW_H
 
-// GL Includes
-#include <GL/glew.h>
-
 // Object Loading Includes
 #include <SOIL.h>
 #include <assimp/Importer.hpp>

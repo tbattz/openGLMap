@@ -8,7 +8,7 @@ yRes int 1080
 fullscreen bool 1
 
 # Origin Settings
-origin -37.958926 145.238343 44 0
+origin -37.958926 145.238343 57 0
 
 # Aircraft
 aircraft Aircraft_0 /home/bcub3d-desktop/git/openGLMap/Models/X8/x8Fixed.obj 192.168.8.0 14550

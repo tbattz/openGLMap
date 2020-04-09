@@ -4,7 +4,7 @@
 
 #include "WorldObjectController.h"
 
-WorldObjectController::WorldObjectController(const GLchar* path) : worldObjectView(path) {
+WorldObjectController::WorldObjectController(const GLchar* path) : IWorldObjectController(), worldObjectView(path) {
 
     // Create object
     this->worldObjectModel = WorldObjectModel();

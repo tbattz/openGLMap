@@ -6,9 +6,6 @@
 #define OPENGLMAP_WORLDOBJECTCONTROLLER_H
 
 
-// GL Includes
-#include <GL/glew.h>
-
 // GLM Mathematics
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -21,9 +18,10 @@
 // Project Includes
 #include <objects/worldObject/WorldGeoObjectModel.h>
 #include <objects/worldObject/WorldObjectView.h>
+#include "IWorldObjectController.h"
 
 
-class WorldObjectController {
+class WorldObjectController : public IWorldObjectController {
 public:
     /* Constructor */
     WorldObjectController(const GLchar* path);

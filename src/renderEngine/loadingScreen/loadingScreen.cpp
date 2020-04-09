@@ -41,7 +41,7 @@ void LoadingScreen::drawMessages() {
 	textFont.RenderText(textShader,headMessage,0.0f,*screenHeightPt,1.0f,glm::vec3(0.0f, 1.0f, 0.0f),0);
 
 	// Print Messages in reverse order
-	string tempString = "";
+	std::string tempString = "";
 	for(int i = messages.size()-1; i > -1; i--) {
 		tempString += messages[i] + "\n";
 	}
@@ -51,7 +51,7 @@ void LoadingScreen::drawMessages() {
 	glfwSwapBuffers(window);
 }
 
-void LoadingScreen::appendLoadingMessage(string newMessage) {
+void LoadingScreen::appendLoadingMessage(std::string newMessage) {
 	// Appends load screen message and redraws loading screen
 	messages.push_back(newMessage);
 	drawMessages();

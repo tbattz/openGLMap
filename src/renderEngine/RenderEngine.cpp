@@ -9,11 +9,11 @@
 
 
 /* Constructor */
-RenderEngine::RenderEngine(Settings* settings) {
+RenderEngine::RenderEngine(Settings* settings) : windowObj(settings) {
     this->settings = settings;
 
-    /* Setup Window */
-    setupWindow();
+    /* Create Window */
+    window = windowObj.getWindow();
 
     /* Create Loading Screen */
     createLoadingScreen();
@@ -27,54 +27,6 @@ RenderEngine::RenderEngine(Settings* settings) {
 
 }
 
-void RenderEngine::setupWindow() {
-    // Init GLFW
-    initGLFW();
-
-    // Initialise GLEW - renderEngine OpenGL pointers
-    initGLEW();
-}
-
-void RenderEngine::initGLFW() {
-    // Init GLFW
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE); // Set core profile
-    glfwWindowHint(GLFW_RESIZABLE,GL_FALSE);
-
-    // Screen Properties
-    int count;
-    GLFWmonitor** monitors = glfwGetMonitors(&count);
-    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    if(settings->fullscreen) {
-        settings->xRes = mode->width;
-        settings->yRes = mode->height;
-    }
-    glfwWindowHint(GLFW_AUTO_ICONIFY, GL_FALSE);
-    if(settings->fullscreen) {
-        this->window = glfwCreateWindow(settings->xRes,settings->yRes,"openGLMap",monitors[settings->screenID-1],nullptr);
-    } else {
-        this->window = glfwCreateWindow(settings->xRes,settings->yRes,"openGLMap",nullptr,nullptr);
-    }
-    glfwMakeContextCurrent(this->window);
-
-    // Set viewport size
-    glViewport(0,0,settings->xRes,settings->yRes); // Origin is bottom left
-
-    // Disable Cursor
-    //glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_DISABLED);
-
-    // Test for objects in front of each other
-    glEnable(GL_DEPTH_TEST);
-
-}
-
-void RenderEngine::initGLEW() {
-    // Initialise GLEW - setup OpenGL pointers
-    glewExperimental = GL_TRUE;
-    glewInit();
-}
 
 void RenderEngine::createLoadingScreen() {
     loadingScreen = new LoadingScreen(window, settings);
@@ -117,16 +69,8 @@ std::shared_ptr<Camera> RenderEngine::getCamera() {
     return this->camera;
 }
 
-void RenderEngine::registerWorldObjController(std::shared_ptr<WorldObjectController> worldObjController) {
-    this->worldObjectControllerList.push_back(worldObjController);
-}
-
-void RenderEngine::registerWorldGeoObjController(std::shared_ptr<WorldGeoObjectController> worldGeoObjController) {
-    this->worldGeoObjectControllerList.push_back(worldGeoObjController);
-}
-
-void RenderEngine::registerSimpleObjController(std::shared_ptr<SimpleObjectController> simpleObjectController) {
-    this->simpleObjectControllerList.push_back(simpleObjectController);
+void RenderEngine::registerWorldObjectController(std::shared_ptr<IWorldObjectController> worldObjectController) {
+    this->worldObjectControllerList2.push_back(worldObjectController);
 }
 
 void RenderEngine::registerTileController(std::shared_ptr<SatTileGroupController> satTileGroupController) {
@@ -172,6 +116,12 @@ void RenderEngine::renderFrame() {
 
     /* World Object Models */
     this->lightingShader->Use();
+    for(unsigned int i=0; i < worldObjectControllerList2.size(); i++) {
+        worldObjectControllerList2[i]->draw(*lightingShader);
+    }
+
+    /* World Object Models */
+    this->lightingShader->Use();
     for(unsigned int i=0; i < worldObjectControllerList.size(); i++) {
         worldObjectControllerList[i]->draw(*lightingShader);
     }
@@ -184,6 +134,11 @@ void RenderEngine::renderFrame() {
     this->lightingShader->Use();
     for(unsigned int i=0; i < simpleObjectControllerList.size(); i++) {
         simpleObjectControllerList[i]->draw(*lightingShader);
+    }
+    /* Mavlink Geo Object Models */
+    this->lightingShader->Use();
+    for(unsigned int i=0; i < mavlinkGeoObjectControllerList.size(); i++) {
+        mavlinkGeoObjectControllerList[i]->draw(*lightingShader);
     }
     /* Satellite Tiles */
     if (satTileGroupController != nullptr) {
@@ -218,5 +173,7 @@ void RenderEngine::registerAxesView(std::shared_ptr<AxesView> axesView) {
 void RenderEngine::toggleAxes(bool axesOnBool) {
     this->axesOn = axesOnBool;
 }
+
+
 
 

@@ -17,8 +17,10 @@ public:
     /* Functions */
     glm::dvec3 getPosition();
     glm::dvec3 getAttitude();
-    void setPosition(glm::dvec3 newPosition);
-    void setAttitude(glm::dvec3 newAttitude);
+
+    virtual void setPosition(glm::dvec3 newPosition);
+
+    virtual void setAttitude(glm::dvec3 newAttitude);
 
 private:
     /* Data */

@@ -8,9 +8,6 @@
 #ifndef MAVAIRCRAFT_H_
 #define MAVAIRCRAFT_H_
 
-// GL Includes
-#include <GL/glew.h>
-
 // GLFW (Multi-platform library for OpenGL)
 #include <GLFW/glfw3.h>
 

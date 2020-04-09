@@ -4,7 +4,7 @@
 
 #include "SimpleObjectController.h"
 
-SimpleObjectController::SimpleObjectController(glm::dvec3 position, const char* filename) : simpleSquareView(filename) {
+SimpleObjectController::SimpleObjectController(glm::dvec3 position, const char* filename) : IWorldObjectController(), simpleSquareView(filename) {
 
     // Create model
     this->worldObjectModel = WorldObjectModel(position, glm::dvec3(0.0f, 0.0f, 0.0f));

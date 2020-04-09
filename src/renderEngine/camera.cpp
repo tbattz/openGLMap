@@ -32,7 +32,7 @@ glm::mat4 Camera::GetViewMatrix() {
 }
 
 // Set aircraft to track
-void Camera::setCurrentAircraft(std::shared_ptr<WorldObjectController> currentAircraftController) {
+void Camera::setCurrentAircraft(std::shared_ptr<IWorldObjectController> currentAircraftController) {
     this->currentAircraftController = currentAircraftController;
 };
 

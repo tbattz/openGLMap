@@ -16,9 +16,7 @@
 
 // openGLPlotLive Includes
 #include "../openGLPlotLive/src/fonts.h"
-#include "../openGLPlotLive/src/line2d.h"
-#include "../openGLPlotLive/src/plot.h"
-#include "../openGLPlotLive/src/window.h"
+#include "../openGLPlotLive/src/plot/plot.h"
 
 // openGL Includes
 #include "utilities/settings.h"
@@ -27,7 +25,6 @@
 #include "renderEngine/fonts.h"
 #include "renderEngine/light.h"
 #include "mavlinkReceive.h"
-#include "mavAircraft.h"
 #include "renderEngine/skybox/skybox.h"
 #include "telemOverlay.h"
 #include "volumes.h"
@@ -52,11 +49,10 @@
 // Object Controllers
 #include <objects/worldObject/WorldObjectController.h>
 #include <objects/worldObject/WorldGeoObjectController.h>
+#include <objects/externalInput/MavlinkGeoObjectController.h>
 // Satelite Tiles
 #include <objects/satTiles/SatTileGroupController.h>
 
-
-using std::vector;
 
 // Define Fonts based on OS
 #ifdef _WIN32
@@ -116,50 +112,25 @@ int main(int argc, char* argv[]) {
 
 	/* Create controllers */
     const GLchar* path = settings.aircraftConList[0].filepath.c_str(); // TODO - Fix this hardcoding
+    std::string host = settings.aircraftConList[0].ipString;
+    std::string port = settings.aircraftConList[0].port;
     // XYZ Aircraft
-    std::shared_ptr<WorldObjectController> worldObjectController;
-    worldObjectController = std::shared_ptr<WorldObjectController>(new WorldObjectController(path));
-    renderEngine.registerWorldObjController(worldObjectController);
+    std::shared_ptr<IWorldObjectController> worldObjectBaseController = std::shared_ptr<IWorldObjectController>(new WorldObjectController(path));
+    std::shared_ptr<WorldObjectController> worldObjectController = std::static_pointer_cast<WorldObjectController>(worldObjectBaseController);
+    renderEngine.registerWorldObjectController(worldObjectBaseController);
     // LatLonAlt Aircraft
-    glm::vec3 origin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]);
-    std::shared_ptr<WorldGeoObjectController> worldGeoObjectController;
-    worldGeoObjectController = std::shared_ptr<WorldGeoObjectController>(new WorldGeoObjectController(path, origin, origin));
-    renderEngine.registerWorldGeoObjController(worldGeoObjectController);
+    glm::dvec3 origin = glm::dvec3(settings.origin[0], settings.origin[1], settings.origin[2]);
+    /*std::shared_ptr<WorldGeoObjectController> worldGeoObjectController;
+    worldGeoObjectController = std::make_shared<WorldGeoObjectController>(path, origin, origin);
+    renderEngine.registerWorldGeoObjController(worldGeoObjectController);*/
+    // MavAircraft
+    std::string name = "MavAircraft_1";
+    std::shared_ptr<IWorldObjectController> mavlinkGeoObjectController;
+    mavlinkGeoObjectController = std::shared_ptr<IWorldObjectController>(new MavlinkGeoObjectController(name, host, port, path, origin, origin));
+    renderEngine.registerWorldObjectController(mavlinkGeoObjectController);
 
     // Set aircraft for camera
-    renderEngine.getCamera()->setCurrentAircraft(worldObjectController);
-
-
-
-	/* ======================================================
-	 *                        Models
-	   ====================================================== */
-	/*glm::vec3 worldOrigin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]/1000.0);
-	int num = settings.aircraftConList.size();
-	std::vector<MavAircraft> mavAircraftList;
-	mavAircraftList.reserve(num);
-	std::vector<MavSocket> mavSocketList;
-	mavSocketList.reserve(num);
-	std::vector<std::thread*> threadList;
-	threadList.reserve(num);
-	std::thread* threadPt = NULL;
-	std::vector<TelemOverlay> telemOverlayList;
-	telemOverlayList.reserve(num);
-	// Load Mavlink Aircraft
-	for(unsigned int i=0; i<settings.aircraftConList.size(); i++) {
-        renderEngine.loadingScreen->appendLoadingMessage("Loading mavAircraft: " + settings.aircraftConList[i].name);
-		// Load Models
-		mavAircraftList.push_back(MavAircraft(settings.aircraftConList[i].filepath.c_str(),worldOrigin,settings.aircraftConList[i].name));
-		// Create thread to receive Mavlink messages
-        renderEngine.loadingScreen->appendLoadingMessage("Creating mavSocket: " + settings.aircraftConList[i].name);
-		mavSocketList.push_back(MavSocket(settings.aircraftConList[i].ipString, settings.aircraftConList[i].port, &mavAircraftList[i]));
-		threadPt = new std::thread(&MavSocket::startSocket,&mavSocketList[i]);
-		threadList.push_back(threadPt);
-		// Create Telem Overlay
-        renderEngine.loadingScreen->appendLoadingMessage("Loading telemetry overlay: " + settings.aircraftConList[i].name);
-		telemOverlayList.push_back(TelemOverlay(&mavAircraftList[i],renderEngine.textShader,renderEngine.telemFont,renderEngine.colorVec[i],&settings));
-	}*/
-
+    renderEngine.getCamera()->setCurrentAircraft(mavlinkGeoObjectController);
 
 	// Create Skybox
     renderEngine.loadingScreen->appendLoadingMessage("Loading skybox.");
@@ -189,7 +160,9 @@ int main(int argc, char* argv[]) {
 	// Create Satellite Tiles
 	//SatTileList satTileList(origin,&mavAircraftList[0]);
 	//glm::vec3 origin = glm::vec3(settings.origin[0], settings.origin[1], settings.origin[2]);
-	std::shared_ptr<SatTileGroupController> satTileGroupController = std::make_shared<SatTileGroupController>(origin, worldGeoObjectController, HYBRID);
+	std::shared_ptr<SatTileGroupController> satTileGroupController = std::make_shared<SatTileGroupController>(origin, HYBRID);
+	//satTileGroupController->setWorldObjectController(mavlinkGeoObjectController);
+	satTileGroupController->setWorldObjectController(mavlinkGeoObjectController);
 	renderEngine.registerTileController(satTileGroupController);
 
 	/* ======================================================
@@ -219,41 +192,42 @@ int main(int argc, char* argv[]) {
 	/* ======================================================
 	 *                     Plotting Data
 	   ====================================================== */
-	/*// Create Window Dimensions Class
-	GLPL::WinDimensions winDim(renderEngine.window);
+	// Create Window Dimensions Class
+	//GLPL::WinDimensions winDim(renderEngine.window);
 	// Setup Shader
-	GLPL::Shader plot2dShader("../openGLPlotLive/../../Shaders/plot2d.vs","../openGLPlotLive/../../Shaders/plot2d.frag");
+	GLPL::Shader plot2dShader("../../openGLPlotLive/Shaders/plot2d.vs","../../openGLPlotLive/Shaders/plot2d.frag");
+	GLPL::Shader textShader("../../openGLPlotLive/Shaders/font.vs", "../../openGLPLotLive/Shaders/font.frag");
 	// Create Plot
-	GLPL::Plot myplot(0.75, 0.0, 0.25, 0.25, &winDim);*/
+	//GLPL::Plot myplot(0.75, 0.0, 0.25, 0.25, &settings, &textShader);
 	// Create Line
 	// Position
 	/*MavAircraft* plotAircraftPt = &mavAircraftList[0];
-	GLPL::Line2DVecfVecGLMV3 pos1(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempPos),0);
+	GLPL::Line2DVecfVecGLMV3 pos1(&(plotAircraftPt->posTimeLog),&(plotAircraftPt->posLog),0);
 	pos1.colour = LC_BLUE;
-	GLPL::Line2DVecfVecGLMV3 pos2(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempPos),1);
+	GLPL::Line2DVecfVecGLMV3 pos2(&(plotAircraftPt->posTimeLog),&(plotAircraftPt->posLog),1);
 	pos2.colour = LC_BLUE;
-	GLPL::Line2DVecfVecGLMV3 pos3(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempPos),2);
+	GLPL::Line2DVecfVecGLMV3 pos3(&(plotAircraftPt->posTimeLog),&(plotAircraftPt->posLog),2);
 	pos3.colour = LC_BLUE;
 	// Real Position
 	GLPL::Line2DVecfVecGLMV3 rpos1(&(plotAircraftPt->timePositionHistory),&(plotAircraftPt->positionHistory),0,GL_POINTS);
 	GLPL::Line2DVecfVecGLMV3 rpos2(&(plotAircraftPt->timePositionHistory),&(plotAircraftPt->positionHistory),1,GL_POINTS);
 	GLPL::Line2DVecfVecGLMV3 rpos3(&(plotAircraftPt->timePositionHistory),&(plotAircraftPt->positionHistory),2,GL_POINTS);
 	// Attitude
-	GLPL::Line2DVecfVecGLMV3 att1(&(plotAircraftPt->tempTime2),&(plotAircraftPt->tempAtt),0);
+	GLPL::Line2DVecfVecGLMV3 att1(&(plotAircraftPt->tempTime2),&(plotAircraftPt->attLog),0);
 	att1.colour = LC_RED;
-	GLPL::Line2DVecfVecGLMV3 att2(&(plotAircraftPt->tempTime2),&(plotAircraftPt->tempAtt),1);
+	GLPL::Line2DVecfVecGLMV3 att2(&(plotAircraftPt->tempTime2),&(plotAircraftPt->attLog),1);
 	att2.colour = LC_RED;
-	GLPL::Line2DVecfVecGLMV3 att3(&(plotAircraftPt->tempTime2),&(plotAircraftPt->tempAtt),2);
+	GLPL::Line2DVecfVecGLMV3 att3(&(plotAircraftPt->tempTime2),&(plotAircraftPt->attLog),2);
 	att3.colour = LC_RED;
 	GLPL::Line2DVecfVecGLMV3 ratt1(&(plotAircraftPt->timeAttitudeHistory),&(plotAircraftPt->attitudeHistory),0,GL_POINTS);
 	GLPL::Line2DVecfVecGLMV3 ratt2(&(plotAircraftPt->timeAttitudeHistory),&(plotAircraftPt->attitudeHistory),1,GL_POINTS);
 	GLPL::Line2DVecfVecGLMV3 ratt3(&(plotAircraftPt->timeAttitudeHistory),&(plotAircraftPt->attitudeHistory),2,GL_POINTS);
 	// Velocity
-	GLPL::Line2DVecfVecGLMV3 vel1(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempVel),0);
+	GLPL::Line2DVecfVecGLMV3 vel1(&(plotAircraftPt->posTimeLog),&(plotAircraftPt->velLog),0);
 	vel1.colour = LC_GREEN;
-	GLPL::Line2DVecfVecGLMV3 vel2(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempVel),1);
+	GLPL::Line2DVecfVecGLMV3 vel2(&(plotAircraftPt->posTimeLog),&(plotAircraftPt->velLog),1);
 	vel2.colour = LC_GREEN;
-	GLPL::Line2DVecfVecGLMV3 vel3(&(plotAircraftPt->tempTime),&(plotAircraftPt->tempVel),2);
+	GLPL::Line2DVecfVecGLMV3 vel3(&(plotAircraftPt->posTimeLog),&(plotAircraftPt->velLog),2);
 	vel3.colour = LC_GREEN;*/
 
 	// Path Plotting
@@ -281,11 +255,11 @@ int main(int argc, char* argv[]) {
 //	myplot.axes.addLine(&att3);
 //	myplot.axes.addLine(&vel1);
 //	myplot.axes.addLine(&vel2);
-//	myplot.axes.addLine(&vel3);
+//	myplot.axes.addLine(&vel3);*/
 
-	myplot.axes.autoScaleRound = false;
-	myplot.axes.equalAxes = true;
-	//myplot.axes.maxXRange = 10.0;*/
+	/*myplot.axes.autoScaleRound = false;
+	myplot.axes.equalAxes = true;*/
+	//myplot.axes.maxXRange = 10.0;
 
 	/* ======================================================
 	 *                     Drawing Loop
@@ -306,7 +280,7 @@ int main(int argc, char* argv[]) {
 		/*for(unsigned int i=0; i<mavAircraftList.size(); i++) {
 			mavAircraftList[i].updatePositionAttitude();
 		}*/
-		worldObjectController->incrementPosition();
+        worldObjectController->incrementPosition();
 
 		// Do keyboard movement
 		inputController.do_movement();
@@ -416,7 +390,7 @@ int main(int argc, char* argv[]) {
 		ratt1.updateInternalData();
 		ratt2.updateInternalData();
 		ratt3.updateInternalData();
-		att1.updateInternalData();
+		att1.updateInternalData();s
 		att2.updateInternalData();
 		att3.updateInternalData();
 		vel1.updateInternalData();
@@ -424,8 +398,8 @@ int main(int argc, char* argv[]) {
 		vel3.updateInternalData();*/
 		/*for(unsigned int i=0; i<settings.aircraftConList.size(); i++) {
 			mapList[i].updateInternalData();
-		}
-		myplot.Draw(plot2dShader);*/
+		}*/
+		//myplot.Draw(plot2dShader);
 
 
 		// Draw Airspeed

@@ -8,10 +8,6 @@
 #ifndef LOADINGSCREEN_H_
 #define LOADINGSCREEN_H_
 
-// GLEW (OpenGL Extension Wrangler Library)
-#define GLEW_STATIC
-#include <GL/glew.h>
-
 // GLFW (Multi-platform library for OpenGL)
 #include <GLFW/glfw3.h>
 
@@ -36,14 +32,14 @@
 class LoadingScreen {
 public:
 	// Define version number
-	string OPENGLMAP_VERSION = "0.1";
+	std::string OPENGLMAP_VERSION = "0.1";
 
 	/* Data */
 	GLFWwindow* window;
 	int* screenWidthPt;
 	int* screenHeightPt;
-	std::vector<string> messages;
-	string headMessage = "Loading openGLMap Version " + OPENGLMAP_VERSION + "\n";
+	std::vector<std::string> messages;
+	std::string headMessage = "Loading openGLMap Version " + OPENGLMAP_VERSION + "\n";
 	GLFont textFont;
 	Shader* textShader;
 
@@ -54,7 +50,7 @@ public:
 	/* Functions */
 	void drawColourScreen();
 	void drawMessages();
-	void appendLoadingMessage(string newMessage);
+	void appendLoadingMessage(std::string newMessage);
 
 };
 

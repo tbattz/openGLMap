@@ -5,9 +5,9 @@
 #ifndef OPENGLMAP_RENDERENGINE_H
 #define OPENGLMAP_RENDERENGINE_H
 
-// GLEW (OpenGL Extension Wrangler Library)
-#define GLEW_STATIC
-#include <GL/glew.h>
+
+// GLAD - Multi Language GL Loader-Generator
+#include <glad/glad.h>
 
 // GLFW (Multi-platform library for OpenGL)
 #include <GLFW/glfw3.h>
@@ -15,19 +15,22 @@
 // Project Includes
 #include "utilities/settings.h"
 #include "renderEngine/loadingScreen/loadingScreen.h"
-#include "../../openGLPlotLive/src/lineColours.h"
+#include "../../openGLPlotLive/src/lines/lineColours.h"
 #include <objects/worldObject/WorldObjectController.h>
 #include <objects/worldObject/WorldGeoObjectController.h>
 #include <objects/worldObject/SimpleObjectController.h>
 #include <renderEngine/camera.h>
 #include <objects/satTiles/SatTileGroupController.h>
 #include <renderEngine/axes/AxesView.h>
+#include <objects/externalInput/MavlinkGeoObjectController.h>
+#include <renderEngine/window/Window.h>
 
 
 /* Classes */
 class RenderEngine {
 public:
     /* Data */
+    Window windowObj;
     GLFWwindow* window;
     Settings* settings;
     LoadingScreen* loadingScreen;
@@ -55,18 +58,13 @@ public:
     RenderEngine(Settings *settings);
 
     /* Functions */
-    void setupWindow();
-    void initGLFW();
-    void initGLEW();
     void createLoadingScreen();
     void setupShaders();
     void loadFontShaders();
 
     std::shared_ptr<Camera> getCamera();
 
-    void registerWorldObjController(std::shared_ptr<WorldObjectController> worldObjController);
-    void registerWorldGeoObjController(std::shared_ptr<WorldGeoObjectController> worldGeoObjController);
-    void registerSimpleObjController(std::shared_ptr<SimpleObjectController> simpleObjectController);
+    void registerWorldObjectController(std::shared_ptr<IWorldObjectController> worldObjectController);
     void registerTileController(std::shared_ptr<SatTileGroupController> satTileGroupController);
 
     void preRender();
@@ -81,9 +79,12 @@ public:
 private:
     std::shared_ptr<Camera> camera;
 
+    std::vector<std::shared_ptr<IWorldObjectController>> worldObjectControllerList2;
+
     std::vector<std::shared_ptr<WorldObjectController>> worldObjectControllerList;
     std::vector<std::shared_ptr<WorldGeoObjectController>> worldGeoObjectControllerList;
     std::vector<std::shared_ptr<SimpleObjectController>> simpleObjectControllerList;
+    std::vector<std::shared_ptr<MavlinkGeoObjectController>> mavlinkGeoObjectControllerList;
     std::shared_ptr<SatTileGroupController> satTileGroupController;
 
     bool axesOn = false;

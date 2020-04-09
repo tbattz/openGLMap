@@ -43,7 +43,7 @@ private:
     // Textures
     GLuint tileTexture;
     int width, height;
-    string filename;
+    std::string filename;
 
     /* Functions */
     void calculateVerticesIndices();

@@ -65,7 +65,7 @@ glm::dvec3 UnitConversions::neu2Ecef(glm::dvec3 position, glm::dvec3 origin) {
     /* Calculate origin in ECEF */
     glm::dvec3 ecefOrigin = UnitConversions::geo2ECEF(origin);
 
-    glm::dvec3 tempPos = glm::dvec3(position[1], position[0], position[2]);
+    glm::dvec3 tempPos = glm::dvec3(position[0], position[1], position[2]);
 
     /* Create Matrices */
     glm::mat3 A = glm::mat3(-sin(lon), -sin(lat)*cos(lon), cos(lat)*cos(lon),
